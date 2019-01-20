@@ -12,7 +12,7 @@ namespace net.gensousakuya.dice
 
         public static void Execute(string command, EventSourceType sourceType,long? qqNo = null, long? groupNo = null)
         {
-            if (!command.StartsWith("."))
+            if (!command.StartsWith(".") && !command.StartsWith("/"))
                 return;
 
             UserInfo qq = null;
@@ -42,6 +42,9 @@ namespace net.gensousakuya.dice
             {
                 case "tjrrp":
                     manager = new JrrpManager();
+                    break;
+                case "nn":
+                    manager = new NickNameManager();
                     break;
             }
 

@@ -16,9 +16,18 @@
 
         public string GroupName
         {
-            get { return Card; }
+            get
+            {
+                if (!string.IsNullOrWhiteSpace(NickName))
+                {
+                    return NickName;
+                }
+                return Card;
+            }
             set { Card = value; }
         }
+
+        public string NickName { get; set; }
 
         public GroupMember(Native.Csharp.Sdk.Cqp.Model.GroupMember member)
         {

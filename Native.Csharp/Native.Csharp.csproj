@@ -93,6 +93,7 @@
     <Compile Include="DiceCore\DataManager.cs" />
     <Compile Include="DiceCore\DiceManagers\BaseManager.cs" />
     <Compile Include="DiceCore\DiceManagers\DiceManager.cs" />
+    <Compile Include="DiceCore\DiceManagers\NickNameManager.cs" />
     <Compile Include="DiceCore\GroupManager.cs" />
     <Compile Include="DiceCore\DiceManagers\JrrpManager.cs" />
     <Compile Include="DiceCore\DiceManagers\CommandCenter.cs" />
