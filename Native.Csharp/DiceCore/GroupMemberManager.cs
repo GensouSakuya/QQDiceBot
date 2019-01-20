@@ -20,6 +20,7 @@ namespace net.gensousakuya.dice
             {
                 Common.CqApi.GetMemberInfo(groupNo, qq, out Native.Csharp.Sdk.Cqp.Model.GroupMember groupMember);
                 gm = new GroupMember(groupMember);
+                _groupMembers.Add(gm);
             }
 
             return gm;

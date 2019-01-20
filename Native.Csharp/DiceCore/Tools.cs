@@ -9,7 +9,7 @@ namespace net.gensousakuya.dice
     {
         private static readonly List<string> separators = new List<string>
         {
-            @"\s"
+            " "
         };
 
         private static Regex splitRegex = new Regex($@"[{string.Join("", separators)}]");
