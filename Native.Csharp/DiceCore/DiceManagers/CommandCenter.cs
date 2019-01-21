@@ -46,6 +46,9 @@ namespace net.gensousakuya.dice
                 case "nn":
                     manager = new NickNameManager();
                     break;
+                case "me":
+                    manager = new MeManager();
+                    break;
             }
 
             commandList.RemoveAt(0);
