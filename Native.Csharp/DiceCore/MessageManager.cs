@@ -17,12 +17,22 @@ namespace net.gensousakuya.dice
                         return;
                     SendToGroup(toGroupNo.Value, message);
                     break;
+                case EventSourceType.Private:
+                    if (!qq.HasValue || qq <= 0)
+                        return;
+                    SendPrivate(qq.Value, message);
+                    break;
             }
         }
 
-        public static void SendToGroup(long groupNo,string Message)
+        public static void SendToGroup(long groupNo,string message)
         {
-            Common.CqApi.SendGroupMessage(groupNo, Message); //Common.CqApi.CqCode_At(e.FromQQ) + "你发送了这样的消息: " + e.Msg);
+            Common.CqApi.SendGroupMessage(groupNo, message); //Common.CqApi.CqCode_At(e.FromQQ) + "你发送了这样的消息: " + e.Msg);
+        }
+
+        public static void SendPrivate(long qq, string message)
+        {
+            Common.CqApi.SendPrivateMessage(qq, message);
         }
     }
 }
