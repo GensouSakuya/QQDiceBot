@@ -12,7 +12,7 @@ namespace net.gensousakuya.dice
             get { return DataManager.Instance.DisabledJrrpGroupNumbers; }
         }
 
-        public static int GetJrrp(UserInfo user)
+        public static int GetJrrp(UserInfo user, bool reroll = false)
         {
             //LastJrrpDate为空即表示第一次使用jrrp，不做特殊处理
             if (!user.LastJrrpDate.HasValue)
@@ -26,6 +26,7 @@ namespace net.gensousakuya.dice
                 //LastJrrpDate有值但不为今日则表明过去使用过jrrp而今日未使用，需要重新计算jrrp值
                 if (user.LastJrrpDate != DateTime.Today)
                 {
+                    user.ReRollStep = UserInfo.RerollStep.None;
                     var yesterday = DateTime.Today.AddDays(-1);
                     if (user.LastJrrpDate.Value == yesterday)
                     {
@@ -51,7 +52,29 @@ namespace net.gensousakuya.dice
 
                         user.Jrrp = DiceManager.RollDice();
                     }
+                    
+                    if (user.Jrrp > 0 && user.Jrrp <= 25)
+                    {
+                        //jrrp在(0,25]时可以reroll一次
+                        user.ReRollStep = UserInfo.RerollStep.CanReroll;
+                    }
                     user.LastJrrpDate = DateTime.Today;
+                }
+                else
+                {
+                    if (reroll)
+                    {
+                        var rerollJrrp = DiceManager.RollDice();
+                        if (rerollJrrp <= 70)
+                        {
+                            user.ReRollStep = UserInfo.RerollStep.RerollFaild;
+                        }
+                        else
+                        {
+                            user.ReRollStep = UserInfo.RerollStep.RerollSuccess;
+                            user.Jrrp = rerollJrrp;
+                        }
+                    }
                 }
                 return user.Jrrp;
             }
@@ -71,8 +94,15 @@ namespace net.gensousakuya.dice
 
                 name = string.IsNullOrWhiteSpace(member.GroupName) ? qq.Name : member.GroupName;
             }
+            else if (sourceType == EventSourceType.Private)
+            {
+                if (qq == null)
+                    return;
+                name = qq.Name;
+            }
 
-            var rp = GetJrrp(qq);
+            var isReroll = qq.ReRollStep == UserInfo.RerollStep.CanReroll;
+            var rp = GetJrrp(qq, isReroll);
 
             if (rp == -1)
             {
@@ -80,7 +110,21 @@ namespace net.gensousakuya.dice
             }
             else
             {
-                MessageManager.Send(sourceType, name + "今天的人品值是:" + rp, qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                switch(qq.ReRollStep)
+                {
+                    case UserInfo.RerollStep.None:
+                        MessageManager.Send(sourceType, name + "今天的人品值是:" + rp, qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        return;
+                    case UserInfo.RerollStep.CanReroll:
+                        MessageManager.Send(sourceType, name + "今天的人品太惨了，确定要看今天的结果吗", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        return;
+                    case UserInfo.RerollStep.RerollFaild:
+                        MessageManager.Send(sourceType, name + $"今天的人品太惨了，只有{rp}，而且试图改命还失败了", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        return;
+                    case UserInfo.RerollStep.RerollSuccess:
+                        MessageManager.Send(sourceType, name + $"逆天改命成功了！今天人品值是：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        return;
+                }
             }
         }
     }
