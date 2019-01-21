@@ -49,6 +49,8 @@ namespace net.gensousakuya.dice
                 case "me":
                     manager = new MeManager();
                     break;
+                default:
+                    return;
             }
 
             commandList.RemoveAt(0);
