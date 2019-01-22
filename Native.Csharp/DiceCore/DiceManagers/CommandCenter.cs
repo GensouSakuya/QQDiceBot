@@ -9,7 +9,6 @@ namespace net.gensousakuya.dice
 {
     public static class CommandCenter
     {
-
         public static void Execute(string command, EventSourceType sourceType,long? qqNo = null, long? groupNo = null)
         {
             if (!command.StartsWith(".") && !command.StartsWith("/"))
@@ -48,6 +47,12 @@ namespace net.gensousakuya.dice
                     break;
                 case "me":
                     manager = new MeManager();
+                    break;
+                case "coc7":
+                case "coc6d":
+                    break;
+                case "ti":
+                    manager = new TempInsaneManager();
                     break;
                 default:
                     return;
