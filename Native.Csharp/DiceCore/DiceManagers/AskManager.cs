@@ -26,7 +26,7 @@ namespace net.gensousakuya.dice
             var ansStr = string.Join(" ", command);
             var ans = ansStr.Split('|').ToList();
             var res = Ask(ans);
-            var message = $"关于{quest}：\n" + string.Join("\n", res.Select(p => $"{p.Quest}:{p.Percent}%")) + "\n"
+            var message = $"关于[{quest}]：\n" + string.Join("\n", res.Select(p => $"{p.Quest}:{p.Percent}%")) + "\n"
                           + $"小夜觉得{string.Join("、", GetMax(res).Select(p => p.Quest))}比较好";
             MessageManager.Send(sourceType, message, qq?.QQ, member?.GroupNumber);
         }
