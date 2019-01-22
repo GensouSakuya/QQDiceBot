@@ -19,6 +19,8 @@ namespace net.gensousakuya.dice
             set { Nick = value; }
         }
 
+        public UserInfo() { }
+
         public UserInfo(Native.Csharp.Sdk.Cqp.Model.QQ qq)
         {
             Id = qq.Id;

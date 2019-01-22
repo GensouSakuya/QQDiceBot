@@ -29,6 +29,7 @@
 
         public string NickName { get; set; }
 
+        public GroupMember() { }
         public GroupMember(Native.Csharp.Sdk.Cqp.Model.GroupMember member)
         {
             Age = member.Age;
