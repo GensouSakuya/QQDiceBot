@@ -31,14 +31,14 @@ namespace net.gensousakuya.dice
                 member = GroupMemberManager.Get(qqNo.Value, groupNo.Value);
             }
 
-            var lowerCommand = command.ToLower().Remove(0, 1);
+            var lowerCommand = command.Remove(0, 1);
             var commandList = TakeCommandParts(lowerCommand);
 
             BaseManager manager = null;
             var commandName = commandList.FirstOrDefault();
             if (commandName == null)
                 return;
-            switch (commandName)
+            switch (commandName.ToLower())
             {
                 case "tjrrp":
                     manager = new JrrpManager();
