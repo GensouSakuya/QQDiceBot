@@ -30,8 +30,8 @@ namespace net.gensousakuya.dice
                 member = GroupMemberManager.Get(qqNo.Value, groupNo.Value);
             }
 
-            var lowerCommand = command.Remove(0, 1);
-            var commandList = TakeCommandParts(lowerCommand);
+            var commandStr = command.Remove(0, 1);
+            var commandList = TakeCommandParts(commandStr);
 
             BaseManager manager = null;
             var commandName = commandList.FirstOrDefault();
@@ -39,7 +39,7 @@ namespace net.gensousakuya.dice
                 return;
             switch (commandName.ToLower())
             {
-                case "tjrrp":
+                case "jrrp":
                     manager = new JrrpManager();
                     break;
                 case "nn":
