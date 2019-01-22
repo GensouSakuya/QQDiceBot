@@ -95,6 +95,7 @@
     <Compile Include="DiceCore\DiceManagers\DiceManager.cs" />
     <Compile Include="DiceCore\DiceManagers\MeManager.cs" />
     <Compile Include="DiceCore\DiceManagers\NickNameManager.cs" />
+    <Compile Include="DiceCore\DiceManagers\LongInsaneManager.cs" />
     <Compile Include="DiceCore\DiceManagers\TempInsaneManager.cs" />
     <Compile Include="DiceCore\GroupManager.cs" />
     <Compile Include="DiceCore\DiceManagers\JrrpManager.cs" />

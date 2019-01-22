@@ -54,6 +54,9 @@ namespace net.gensousakuya.dice
                 case "ti":
                     manager = new TempInsaneManager();
                     break;
+                case "li":
+                    manager = new LongInsaneManager();
+                    break;
                 default:
                     return;
             }
