@@ -1,4 +1,5 @@
 ﻿using Native.Csharp.Sdk.Cqp.Api;
+using net.gensousakuya.dice;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,9 +44,10 @@ namespace Native.Csharp.App.Event
 
 			Common.AppDirectory = Common.CqApi.GetAppDirectory();  //获取应用数据目录 (无需存储数据时, 请将此行注释)
 
+		    DataManager.Init(Common.AppDirectory);
 
-			//返回如：D:\CoolQ\app\com.example.demo\
-			//应用的所有数据、配置【必须】存放于此目录，避免给用户带来困扰。
+		    //返回如：D:\CoolQ\app\com.example.demo\
+		    //应用的所有数据、配置【必须】存放于此目录，避免给用户带来困扰。
 		}
 
 		/// <summary>
@@ -55,11 +57,11 @@ namespace Native.Csharp.App.Event
 		/// <param name="e">附加的参数</param>
 		public void CqExit(object sender, EventArgs e)
 		{
-			//本子程序会在酷Q【主线程】中被调用。
-			//无论本应用是否被启用，本函数都会在酷Q退出前执行一次，请在这里执行插件关闭代码。
+            //本子程序会在酷Q【主线程】中被调用。
+            //无论本应用是否被启用，本函数都会在酷Q退出前执行一次，请在这里执行插件关闭代码。
 
-
-		}
+		    DataManager.Save(Common.AppDirectory);
+        }
 
 		/// <summary>
 		/// Type=1003 应用已被启用

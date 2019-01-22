@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text;
 
 namespace net.gensousakuya.dice
@@ -12,6 +12,36 @@ namespace net.gensousakuya.dice
 
         private DataManager()
         { }
+
+        private const string fileName = "DiceData";
+        public static void Init(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                var filepath = Path.Combine(path, fileName);
+                if (File.Exists(filepath))
+                {
+                    var xml = File.ReadAllText(filepath);
+                    try
+                    {
+                        var db = Tools.DeserializeObject<DataManager>(xml);
+                        _instance = db;
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        public static void Save(string path)
+        {
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+            var filepath = Path.Combine(path, fileName);
+            var xml = Tools.SerializeObject(_instance);
+            File.WriteAllText(filepath, xml);
+        }
 
         public static void Init(DataManager db)
         {
