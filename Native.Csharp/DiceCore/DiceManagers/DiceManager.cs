@@ -7,7 +7,7 @@ namespace net.gensousakuya.dice
 {
     public class DiceManager : BaseManager
     {
-        private static Random _rand => new Random((int)DateTime.Now.Ticks);
+        private static Random _rand = new Random();
 
         public override void Execute(List<string> command, EventSourceType sourceType, UserInfo qq, Group groupNo, GroupMember member)
         {
