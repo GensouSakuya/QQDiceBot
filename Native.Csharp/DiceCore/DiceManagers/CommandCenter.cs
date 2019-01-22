@@ -57,6 +57,9 @@ namespace net.gensousakuya.dice
                 case "li":
                     manager = new LongInsaneManager();
                     break;
+                case "ask":
+                    manager = new AskManager();
+                    break;
                 default:
                     return;
             }
