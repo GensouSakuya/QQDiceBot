@@ -12,6 +12,13 @@ namespace net.gensousakuya.dice
 
         private DataManager()
         { }
+        
+        public long AdminQQ { get; set; }
+        public List<UserInfo> Users { get; set; } = new List<UserInfo>();
+        public List<Group> Groups { get; set; } = new List<Group>();
+        public List<GroupMember> GroupMember { get; set; } = new List<GroupMember>();
+
+        public List<long> DisabledJrrpGroupNumbers { get; set; } = new List<long>();
 
         private const string fileName = "DiceData";
         public static void Init(string path)
@@ -67,10 +74,5 @@ namespace net.gensousakuya.dice
             }
         }
 
-        public List<UserInfo> Users { get; set; } = new List<UserInfo>();
-        public List<Group> Groups { get; set; } = new List<Group>();
-        public List<GroupMember> GroupMember { get; set; } = new List<GroupMember>();
-
-        public List<long> DisabledJrrpGroupNumbers { get; set; } = new List<long>();
     }
 }

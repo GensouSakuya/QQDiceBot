@@ -94,6 +94,7 @@
     <Compile Include="App\Model\GroupMessageEventArgs.cs" />
     <Compile Include="App\Model\PrivateMessageEventArgs.cs" />
     <Compile Include="DiceCore\DataManager.cs" />
+    <Compile Include="DiceCore\DiceManagers\AdminManager.cs" />
     <Compile Include="DiceCore\DiceManagers\AskManager.cs" />
     <Compile Include="DiceCore\DiceManagers\BaseManager.cs" />
     <Compile Include="DiceCore\DiceManagers\DiceManager.cs" />

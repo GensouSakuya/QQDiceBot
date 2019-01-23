@@ -60,6 +60,9 @@ namespace net.gensousakuya.dice
                 case "ask":
                     manager = new AskManager();
                     break;
+                case "admin":
+                    manager = new AdminManager();
+                    break;
                 default:
                     return;
             }
