@@ -57,12 +57,10 @@ namespace Native.Csharp.App.Event
 		/// <param name="e">附加的参数</param>
 		public void ReceiveOnlineStatusMessage(object sender, PrivateMessageEventArgs e)
 		{
-			//本子程序会在酷Q【线程】中被调用，请注意使用对象等需要初始化(CoInitialize,CoUninitialize)。
-			//这里处理消息
-
-
-
-			e.Handled = false;  //关于返回说明, 请参见 "Event_ReceiveMessage.ReceiveFriendMessage" 方法
+            //本子程序会在酷Q【线程】中被调用，请注意使用对象等需要初始化(CoInitialize,CoUninitialize)。
+		    //这里处理消息
+            
+            e.Handled = false;  //关于返回说明, 请参见 "Event_ReceiveMessage.ReceiveFriendMessage" 方法
 		}
 
 		/// <summary>
@@ -72,11 +70,12 @@ namespace Native.Csharp.App.Event
 		/// <param name="e">附加的参数</param>
 		public void ReceiveGroupPrivateMessage(object sender, PrivateMessageEventArgs e)
 		{
-			//本子程序会在酷Q【线程】中被调用，请注意使用对象等需要初始化(CoInitialize,CoUninitialize)。
-			//这里处理消息
+            //本子程序会在酷Q【线程】中被调用，请注意使用对象等需要初始化(CoInitialize,CoUninitialize)。
+		    //这里处理消息
 
+		    net.gensousakuya.dice.CommandCenter.Execute(e.Msg, net.gensousakuya.dice.EventSourceType.Private, e.FromQQ);
 
-			e.Handled = false;  //关于返回说明, 请参见 "Event_ReceiveMessage.ReceiveFriendMessage" 方法
+            e.Handled = false;  //关于返回说明, 请参见 "Event_ReceiveMessage.ReceiveFriendMessage" 方法
 		}
 
 		/// <summary>
