@@ -45,6 +45,10 @@ namespace net.gensousakuya.dice
                                 user.Jrrp = DiceManager.RollDice();
                             }
                         }
+                        else
+                        {
+                            user.Jrrp = DiceManager.RollDice();
+                        }
                     }
                     else
                     {
