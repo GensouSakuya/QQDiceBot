@@ -19,6 +19,7 @@ namespace net.gensousakuya.dice
             {
                 user.Jrrp = DiceManager.RollDice();
                 user.LastJrrpDate = DateTime.Today;
+                ReRollCheck(ref user);
                 return user.Jrrp;
             }
             else
@@ -56,12 +57,8 @@ namespace net.gensousakuya.dice
 
                         user.Jrrp = DiceManager.RollDice();
                     }
-                    
-                    if (user.Jrrp > 0 && user.Jrrp <= 25)
-                    {
-                        //jrrp在(0,25]时可以reroll一次
-                        user.ReRollStep = UserInfo.RerollStep.CanReroll;
-                    }
+
+                    ReRollCheck(ref user);
                     user.LastJrrpDate = DateTime.Today;
                 }
                 else
@@ -81,6 +78,15 @@ namespace net.gensousakuya.dice
                     }
                 }
                 return user.Jrrp;
+            }
+        }
+
+        public static void ReRollCheck(ref UserInfo user)
+        {
+            if (user.Jrrp > 0 && user.Jrrp <= 25)
+            {
+                //jrrp在(0,25]时可以reroll一次
+                user.ReRollStep = UserInfo.RerollStep.CanReroll;
             }
         }
 
