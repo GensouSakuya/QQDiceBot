@@ -40,6 +40,7 @@ namespace net.gensousakuya.dice
                             if (dontShowRoll <= dontShowCheckMax)
                             {
                                 user.Jrrp = -1;
+                                user.JrrpDurationDays = 0;
                             }
                             else
                             {
