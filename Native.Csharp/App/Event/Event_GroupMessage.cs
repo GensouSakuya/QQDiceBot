@@ -43,7 +43,7 @@ namespace Native.Csharp.App.Event
 			//这里处理消息
 			if (e.FromAnonymous != null)    //如果此属性不为null, 则消息来自于匿名成员
 			{
-				Common.CqApi.SendGroupMessage(e.FromGroup, e.FromAnonymous.CodeName + " 你发送了这样的消息: " + e.Msg);
+				//Common.CqApi.SendGroupMessage(e.FromGroup, e.FromAnonymous.CodeName + " 你发送了这样的消息: " + e.Msg);
 				e.Handled = true;
 				return;
 			}
