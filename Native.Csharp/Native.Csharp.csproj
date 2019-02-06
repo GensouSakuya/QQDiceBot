@@ -106,6 +106,7 @@
     <Compile Include="DiceCore\DiceManagers\JrrpManager.cs" />
     <Compile Include="DiceCore\DiceManagers\CommandCenter.cs" />
     <Compile Include="DiceCore\GroupMemberManager.cs" />
+    <Compile Include="DiceCore\LogManager.cs" />
     <Compile Include="DiceCore\MessageManager.cs" />
     <Compile Include="DiceCore\Model\Group.cs" />
     <Compile Include="DiceCore\Model\EventSourceType.cs" />

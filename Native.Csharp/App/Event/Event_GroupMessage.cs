@@ -48,7 +48,15 @@ namespace Native.Csharp.App.Event
 				return;
 			}
 
-		    net.gensousakuya.dice.CommandCenter.Execute(e.Msg, net.gensousakuya.dice.EventSourceType.Group, e.FromQQ, e.FromGroup);
+		    try
+		    {
+		        net.gensousakuya.dice.CommandCenter.Execute(e.Msg, net.gensousakuya.dice.EventSourceType.Group, e.FromQQ, e.FromGroup);
+		    }
+		    catch (Exception ex)
+		    {
+		        net.gensousakuya.dice.FileLogHelper.WriteLog(ex, Common.AppDirectory);
+		        Common.CqApi.SendGroupMessage(e.FromGroup, "小夜好像要爆炸了，大家快离远点儿！");
+            }
 
 
             e.Handled = true;   //关于返回说明, 请参见 "Event_ReceiveMessage.ReceiveFriendMessage" 方法
