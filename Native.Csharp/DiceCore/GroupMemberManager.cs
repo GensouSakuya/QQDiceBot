@@ -15,7 +15,7 @@ namespace net.gensousakuya.dice
 
         public static GroupMember Get(long qq,long groupNo)
         {
-            var qqgm = Common.CqApi.GetMemberInfo(groupNo, qq, out Native.Csharp.Sdk.Cqp.Model.GroupMember groupMember);
+            Common.CqApi.GetMemberInfo(groupNo, qq, out Native.Csharp.Sdk.Cqp.Model.GroupMember groupMember);
             var gm = _groupMembers.Find(p => p.QQ == qq && p.GroupNumber == groupNo);
             if (gm == null)
             {
