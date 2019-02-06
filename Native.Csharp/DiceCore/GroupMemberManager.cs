@@ -15,12 +15,16 @@ namespace net.gensousakuya.dice
 
         public static GroupMember Get(long qq,long groupNo)
         {
+            var qqgm = Common.CqApi.GetMemberInfo(groupNo, qq, out Native.Csharp.Sdk.Cqp.Model.GroupMember groupMember);
             var gm = _groupMembers.Find(p => p.QQ == qq && p.GroupNumber == groupNo);
             if (gm == null)
             {
-                Common.CqApi.GetMemberInfo(groupNo, qq, out Native.Csharp.Sdk.Cqp.Model.GroupMember groupMember);
                 gm = new GroupMember(groupMember);
                 _groupMembers.Add(gm);
+            }
+            else
+            {
+                gm.Copy(groupMember);
             }
 
             return gm;

@@ -32,6 +32,11 @@
         public GroupMember() { }
         public GroupMember(Native.Csharp.Sdk.Cqp.Model.GroupMember member)
         {
+            Copy(member);
+        }
+
+        public void Copy(Native.Csharp.Sdk.Cqp.Model.GroupMember member)
+        {
             Age = member.Age;
             Area = member.Area;
             BadRecord = member.BadRecord;
