@@ -67,14 +67,19 @@ namespace net.gensousakuya.dice
                     if (reroll)
                     {
                         var rerollJrrp = DiceManager.RollDice();
-                        if (rerollJrrp <= 70)
+                        if (rerollJrrp > 70)
+                        {
+                            user.ReRollStep = UserInfo.RerollStep.RerollSuccess;
+                            user.Jrrp = rerollJrrp;
+                        }
+                        else if (rerollJrrp > 25)
                         {
                             user.ReRollStep = UserInfo.RerollStep.RerollFaild;
                         }
                         else
                         {
-                            user.ReRollStep = UserInfo.RerollStep.RerollSuccess;
-                            user.Jrrp = rerollJrrp;
+                            user.ReRollStep = UserInfo.RerollStep.RerollDevastated;
+                            user.Jrrp = DiceManager.RollDice((rerollJrrp + 1) / 2);
                         }
                     }
                 }
@@ -127,13 +132,16 @@ namespace net.gensousakuya.dice
                         MessageManager.Send(sourceType, name + "今天的人品值是:" + rp, qq: qq?.QQ, toGroupNo: member?.GroupNumber);
                         return;
                     case UserInfo.RerollStep.CanReroll:
-                        MessageManager.Send(sourceType, name + "今天的人品太惨了，确定要看今天的结果吗", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        MessageManager.Send(sourceType, name + "今天的人品太惨了，想知道的话，就再来一次让我看看你的决心！", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
                         return;
                     case UserInfo.RerollStep.RerollFaild:
-                        MessageManager.Send(sourceType, name + $"今天的人品太惨了，只有{rp}，而且试图改命还失败了", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        MessageManager.Send(sourceType, name + $"好可怜，改命失败了，今天的人品值只有：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
                         return;
                     case UserInfo.RerollStep.RerollSuccess:
-                        MessageManager.Send(sourceType, name + $"逆天改命成功了！今天人品值是：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        MessageManager.Send(sourceType, name + $"太强了！逆天改命成功！今天人品值是：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        return;
+                    case UserInfo.RerollStep.RerollDevastated:
+                        MessageManager.Send(sourceType, name + $"凉了……改命超级大失败……今天人品值只剩下：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
                         return;
                 }
             }

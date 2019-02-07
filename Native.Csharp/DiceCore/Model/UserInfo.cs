@@ -45,6 +45,7 @@ namespace net.gensousakuya.dice
             CanReroll = 1,
             RerollSuccess = 2,
             RerollFaild = 3,
+            RerollDevastated = 4,
         }
         #endregion
     }
