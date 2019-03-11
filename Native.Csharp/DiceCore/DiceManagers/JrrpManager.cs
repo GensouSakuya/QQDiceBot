@@ -28,36 +28,7 @@ namespace net.gensousakuya.dice
                 if (user.LastJrrpDate != DateTime.Today)
                 {
                     user.ReRollStep = UserInfo.RerollStep.None;
-                    var yesterday = DateTime.Today.AddDays(-1);
-                    if (user.LastJrrpDate.Value == yesterday)
-                    {
-                        user.JrrpDurationDays++;
-
-                        if (user.JrrpDurationDays > 1)
-                        {
-                            var dontShowRoll = DiceManager.RollDice();
-                            var dontShowCheckMax = user.JrrpDurationDays > 11 ? 33 : user.JrrpDurationDays * 3;
-                            if (dontShowRoll <= dontShowCheckMax)
-                            {
-                                user.Jrrp = -1;
-                                user.JrrpDurationDays = 0;
-                            }
-                            else
-                            {
-                                user.Jrrp = DiceManager.RollDice();
-                            }
-                        }
-                        else
-                        {
-                            user.Jrrp = DiceManager.RollDice();
-                        }
-                    }
-                    else
-                    {
-                        user.JrrpDurationDays = 0;
-
-                        user.Jrrp = DiceManager.RollDice();
-                    }
+                    user.Jrrp = DiceManager.RollDice();
 
                     ReRollCheck(ref user);
                     user.LastJrrpDate = DateTime.Today;
@@ -120,30 +91,25 @@ namespace net.gensousakuya.dice
             var isReroll = qq.ReRollStep == UserInfo.RerollStep.CanReroll;
             var rp = GetJrrp(qq, isReroll);
 
-            if (rp == -1)
+            switch(qq.ReRollStep)
             {
-                MessageManager.Send(sourceType, name + "迷信小夜不可取！不给你看今天的结果w(ﾟДﾟ)w", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
-            }
-            else
-            {
-                switch(qq.ReRollStep)
-                {
-                    case UserInfo.RerollStep.None:
-                        MessageManager.Send(sourceType, name + "今天的人品值是:" + rp, qq: qq?.QQ, toGroupNo: member?.GroupNumber);
-                        return;
-                    case UserInfo.RerollStep.CanReroll:
-                        MessageManager.Send(sourceType, name + "今天的人品太惨了，想知道的话，就再来一次让我看看你的决心！", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
-                        return;
-                    case UserInfo.RerollStep.RerollFaild:
-                        MessageManager.Send(sourceType, name + $"好可怜，改命失败了，今天的人品值只有：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
-                        return;
-                    case UserInfo.RerollStep.RerollSuccess:
-                        MessageManager.Send(sourceType, name + $"太强了！逆天改命成功！今天人品值是：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
-                        return;
-                    case UserInfo.RerollStep.RerollDevastated:
-                        MessageManager.Send(sourceType, name + $"凉了……改命超级大失败……今天人品值只剩下：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
-                        return;
-                }
+                case UserInfo.RerollStep.None:
+                    MessageManager.Send(sourceType, name + "今天的人品值是:" + rp, qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                    return;
+                case UserInfo.RerollStep.CanReroll:
+                    MessageManager.Send(sourceType, name + "今天的人品不太好，确定要看的话就再来一次吧", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                    return;
+                case UserInfo.RerollStep.RerollFaild:
+                    MessageManager.Send(sourceType, name + $"今天的人品值只有：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                    return;
+                case UserInfo.RerollStep.RerollSuccess:
+                    MessageManager.Send(sourceType, $"啊！对不起刚才是我失误了！{name}今天人品值应该是：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                    qq.ReRollStep = UserInfo.RerollStep.None;
+                    return;
+                case UserInfo.RerollStep.RerollDevastated:
+                    MessageManager.Send(sourceType, $"都说了不想告诉你了嘛……{name}今天人品值只有：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                    qq.ReRollStep = UserInfo.RerollStep.None;
+                    return;
             }
         }
     }

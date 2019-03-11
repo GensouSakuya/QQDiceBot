@@ -33,8 +33,6 @@ namespace net.gensousakuya.dice
 
         public DateTime? LastJrrpDate { get; set; }
 
-        public int JrrpDurationDays { get; set; }
-
         public int Jrrp { get; set; } = -1;
 
         public RerollStep ReRollStep { get; set; } = RerollStep.None;
