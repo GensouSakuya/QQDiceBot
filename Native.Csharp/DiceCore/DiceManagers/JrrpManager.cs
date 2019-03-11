@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace net.gensousakuya.dice
 {
@@ -108,7 +106,7 @@ namespace net.gensousakuya.dice
                     return;
                 case UserInfo.RerollStep.RerollDevastated:
                     MessageManager.Send(sourceType, $"都说了不想告诉你了嘛……{name}今天人品值只有：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
-                    qq.ReRollStep = UserInfo.RerollStep.None;
+                    qq.ReRollStep = UserInfo.RerollStep.RerollFaild;
                     return;
             }
         }
