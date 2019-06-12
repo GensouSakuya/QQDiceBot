@@ -17,9 +17,10 @@ namespace Native.Csharp.Tool.IniConfig.Linq
 		private Encoding _encoding = Encoding.Default;
 		private static readonly Lazy<Regex[]> regices = new Lazy<Regex[]> (() => new Regex[]
 		 {
-			new Regex(@"^\[(.+)\]", RegexOptions.Compiled),					//匹配 节
-			new Regex(@"^(.+)=((?:[^\r\n]+)?)",RegexOptions.Compiled)       //匹配 键值对
-																			//new Regex(@"^;(?:[\s\S]*)", RegexOptions.Compiled)				//匹配 注释
+			new Regex(@"^\[(.+)\]", RegexOptions.Compiled),						//匹配 节
+			new Regex(@"^([^\r\n=]+)=((?:[^\r\n]+)?)",RegexOptions.Compiled)    //匹配 键值对
+																				
+			 //new Regex(@"^;(?:[\s\S]*)", RegexOptions.Compiled)				//匹配 注释
 		 });
 		#endregion
 
@@ -28,24 +29,41 @@ namespace Native.Csharp.Tool.IniConfig.Linq
 		/// 根据索引查找读取或设置与指定键关联的值
 		/// </summary>
 		/// <param name="index">键索引</param>
+		/// <exception cref="ArgumentOutOfRangeException">index 小于 0 或大于或等于的中的元素数 source。</exception>
 		/// <returns></returns>
 		public IniSection this[int index]
 		{
 			get
 			{
-				try
-				{
-					return this[this.Keys.ElementAt (index)];
-				}
-				catch { throw; }
+				return this[this.Keys.ElementAt (index)];
 			}
 			set
 			{
-				try
+				this[this.Keys.ElementAt (index)] = value;
+			}
+		}
+
+		/// <summary>
+		/// 根据指定的 "节" 名称读取或设置与指定键关联的值 (此索引器允许直接对不存在的键进行设置)
+		/// </summary>
+		/// <param name="name">要获取或设置的值的 "节" 名称</param>
+		/// <returns></returns>
+		public new IniSection this[string name]
+		{
+			get
+			{
+				return base[name];
+			}
+			set
+			{
+				if (this.ContainsKey (name))
 				{
-					this[this.Keys.ElementAt (index)] = value;
+					base[name] = value;
 				}
-				catch { throw; }
+				else
+				{
+					this.Add (value);
+				}
 			}
 		}
 
@@ -53,6 +71,11 @@ namespace Native.Csharp.Tool.IniConfig.Linq
 		/// 获取或设置用于读取或保存 Ini 配置项的 <see cref="System.Text.Encoding"/> 实例, 默认: ANSI
 		/// </summary>
 		public Encoding Encoding { get { return this._encoding; } set { this._encoding = value; } }
+
+		/// <summary>
+		/// 获取或设置用于保存 Ini 配置项的 <see cref="Uri"/> 实例
+		/// </summary>
+		public Uri Path { get; set; }
 
 		/// <summary>
 		/// 获取用于解析 Ini 配置项的 Regex 对象数组
@@ -75,9 +98,9 @@ namespace Native.Csharp.Tool.IniConfig.Linq
 			: base (capacity)
 		{ }
 		/// <summary>
-		/// 初始化 <see cref="IniSection"/> 类的新实例, 该实例从包含指定的 <see cref="IDictionary{string, IniSection}"/> 赋值的元素并为键类型使用默认的相等比较器
+		/// 初始化 <see cref="IniSection"/> 类的新实例, 该实例从包含指定的 <see cref="IDictionary{String, IniSection}"/> 赋值的元素并为键类型使用默认的相等比较器
 		/// </summary>
-		/// <param name="dictionary"><see cref="IDictionary{string, IniSection}"/>, 它的元素被复制到新 <see cref="IniObject"/> </param>
+		/// <param name="dictionary"><see cref="IDictionary{String, IniSection}"/>, 它的元素被复制到新 <see cref="IniObject"/> </param>
 		public IniObject (IDictionary<string, IniSection> dictionary)
 			: base (dictionary)
 		{ }
@@ -103,9 +126,21 @@ namespace Native.Csharp.Tool.IniConfig.Linq
 		}
 
 		/// <summary>
+		/// 将 Ini 配置项保存到指定的文件。如果存在指定文件，则此方法会覆盖它
+		/// </summary>
+		public void Save ()
+		{
+			if (this.Path == null)
+			{
+				throw new UriFormatException (string.Format ("Uri: {0}, 是无效的 Uri 对象", "IniObject.Path"));
+			}
+			this.Save (this.Path);
+		}
+
+		/// <summary>
 		/// 将 Ini 配置项保存到指定的文件。 如果存在指定文件，则此方法会覆盖它。
 		/// </summary>
-		/// <param name="fileUri">要将文档保存到其中的文件的位置。</param>
+		/// <param name="filePath">要将文档保存到其中的文件的位置。</param>
 		public void Save (string filePath)
 		{
 			Save (new Uri (filePath));
@@ -175,7 +210,9 @@ namespace Native.Csharp.Tool.IniConfig.Linq
 			//解释 Ini 文件
 			using (TextReader textReader = new StreamReader (tempPath, encoding))
 			{
-				return ParseIni (textReader);
+				IniObject iObj = ParseIni (textReader);
+				iObj.Path = fileUri;
+				return iObj;
 			}
 		}
 
@@ -213,7 +250,7 @@ namespace Native.Csharp.Tool.IniConfig.Linq
 				{
 					tempStr = fileUri.OriginalString;
 				}
-				return Path.Combine (AppDomain.CurrentDomain.BaseDirectory, tempStr);
+				return System.IO.Path.Combine (AppDomain.CurrentDomain.BaseDirectory, tempStr);
 			}
 			else
 			{
@@ -231,6 +268,7 @@ namespace Native.Csharp.Tool.IniConfig.Linq
 				catch { throw; }
 			}
 		}
+
 		/// <summary>
 		/// 逐行解析 Ini 配置文件字符串
 		/// </summary>
@@ -292,10 +330,10 @@ namespace Native.Csharp.Tool.IniConfig.Linq
 			{
 				foreach (IniSection section in this.Values)
 				{
-					textWriter.WriteLine ("[{0}]", section.Name);
+					textWriter.WriteLine ("[{0}]", section.Name.Trim ());
 					foreach (KeyValuePair<string, IniValue> pair in section)
 					{
-						textWriter.WriteLine ("{0}={1}", pair.Key, pair.Value);
+						textWriter.WriteLine ("{0}={1}", pair.Key.Trim (), pair.Value.Value.Trim ());
 					}
 					textWriter.WriteLine ();
 				}
