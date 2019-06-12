@@ -98,6 +98,7 @@
     <Compile Include="DiceCore\DiceManagers\AskManager.cs" />
     <Compile Include="DiceCore\DiceManagers\BaseManager.cs" />
     <Compile Include="DiceCore\DiceManagers\DiceManager.cs" />
+    <Compile Include="DiceCore\DiceManagers\NullManager.cs" />
     <Compile Include="DiceCore\DiceManagers\MeManager.cs" />
     <Compile Include="DiceCore\DiceManagers\NickNameManager.cs" />
     <Compile Include="DiceCore\DiceManagers\LongInsaneManager.cs" />

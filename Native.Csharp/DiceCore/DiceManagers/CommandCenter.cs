@@ -63,6 +63,9 @@ namespace net.gensousakuya.dice
                 case "admin":
                     manager = new AdminManager();
                     break;
+                case "null":
+                    manager = new NullManager();
+                    break;
                 default:
                     return;
             }
