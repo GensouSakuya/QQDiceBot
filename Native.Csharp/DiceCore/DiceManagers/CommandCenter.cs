@@ -66,6 +66,9 @@ namespace net.gensousakuya.dice
                 case "null":
                     manager = new NullManager();
                     break;
+                case "like":
+                    manager = new LikeManager();
+                    break;
                 default:
                     return;
             }
