@@ -33,11 +33,23 @@ namespace net.gensousakuya.dice
             var commandStr = command.Remove(0, 1);
             var commandList = TakeCommandParts(commandStr);
 
-            BaseManager manager = null;
             var commandName = commandList.FirstOrDefault();
             if (commandName == null)
                 return;
-            switch (commandName.ToLower())
+
+            var manager = GetManagerByCommand(commandName);
+            if (manager == null)
+                return;
+
+            commandList.RemoveAt(0);
+            var args = commandList;
+            manager.Execute(args, sourceType, qq, group, member);
+        }
+
+        public static BaseManager GetManagerByCommand(string command)
+        {
+            BaseManager manager = null;
+            switch (command.ToLower())
             {
                 case "jrrp":
                     manager = new JrrpManager();
@@ -69,13 +81,9 @@ namespace net.gensousakuya.dice
                 case "like":
                     manager = new LikeManager();
                     break;
-                default:
-                    return;
             }
 
-            commandList.RemoveAt(0);
-            var args = commandList;
-            manager.Execute(args, sourceType, qq, group, member);
+            return manager;
         }
     }
 }
