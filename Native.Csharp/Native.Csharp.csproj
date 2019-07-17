@@ -120,11 +120,13 @@
     <Compile Include="App\Model\GroupMemberAlterEventArgs.cs" />
     <Compile Include="App\Model\GroupMessageEventArgs.cs" />
     <Compile Include="App\Model\PrivateMessageEventArgs.cs" />
+    <Compile Include="DiceCore\Base\Config.cs" />
     <Compile Include="DiceCore\Base\DataManager.cs" />
     <Compile Include="DiceCore\Commands\AdminManager.cs" />
     <Compile Include="DiceCore\Commands\AskManager.cs" />
     <Compile Include="DiceCore\Commands\BaseManager.cs" />
     <Compile Include="DiceCore\Commands\DiceManager.cs" />
+    <Compile Include="DiceCore\Commands\HelpManager.cs" />
     <Compile Include="DiceCore\Commands\LikeManager.cs" />
     <Compile Include="DiceCore\Commands\NullManager.cs" />
     <Compile Include="DiceCore\Commands\MeManager.cs" />

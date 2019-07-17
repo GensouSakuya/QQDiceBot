@@ -82,6 +82,9 @@ namespace net.gensousakuya.dice
                 case "like":
                     manager = new LikeManager();
                     break;
+                case "help":
+                    manager = new HelpManager();
+                    break;
             }
 
             return manager;
