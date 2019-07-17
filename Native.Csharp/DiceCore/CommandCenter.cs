@@ -46,6 +46,7 @@ namespace net.gensousakuya.dice
             manager.Execute(args, sourceType, qq, group, member);
         }
 
+        //后面可以改成把对应命令绑定在Attribute里
         public static BaseManager GetManagerByCommand(string command)
         {
             BaseManager manager = null;
