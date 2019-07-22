@@ -22,8 +22,19 @@ namespace net.gensousakuya.dice
                 return;
             }
 
+            var padcount = 0;
+            descDic.ToList().ForEach(p =>
+            {
+                var originLength = p.Key.Length;
+                var globalLength = new System.Globalization.StringInfo(p.Key).LengthInTextElements;
+                var length = (originLength - globalLength) * 2 + globalLength;
+                if (length > padcount)
+                {
+                    padcount = length;
+                }
+            });
             StringBuilder desc =
-                new StringBuilder().AppendLine(string.Join("\n", descDic.Select(p => $"{p.Key.PadRight(20,'\t')}{p.Value}")));
+                new StringBuilder().AppendLine(string.Join("\n", descDic.Select(p => $"{p.Key.PadRight(padcount+5)}{p.Value}")));
             if (DataManager.Instance.AdminQQ > 0)
             {
                 desc.AppendLine($"bug反馈请联系QQ:{DataManager.Instance.AdminQQ}");
