@@ -17,6 +17,10 @@ namespace net.gensousakuya.dice
             {
                 descDic = Config.PrivateCommandDesc;
             }
+            else
+            {
+                return;
+            }
 
             StringBuilder desc =
                 new StringBuilder().AppendLine(string.Join("\n", descDic.Select(p => $"{p.Key.PadLeft(4).PadRight(40)}{p.Value}")));
