@@ -23,7 +23,7 @@ namespace net.gensousakuya.dice
             }
 
             StringBuilder desc =
-                new StringBuilder().AppendLine(string.Join("\n", descDic.Select(p => $"{p.Key.PadLeft(4).PadRight(20,' ')}{p.Value}")));
+                new StringBuilder().AppendLine(string.Join("\n", descDic.Select(p => $"{p.Key.PadLeft(4).PadRight(80)}{p.Value}")));
             if (DataManager.Instance.AdminQQ > 0)
             {
                 desc.AppendLine($"bug反馈请联系QQ:{DataManager.Instance.AdminQQ}");
