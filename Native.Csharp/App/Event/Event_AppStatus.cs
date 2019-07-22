@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Native.Csharp.App.Interface;
+using net.gensousakuya.dice;
 
 namespace Native.Csharp.App.Event
 {
@@ -22,11 +23,11 @@ namespace Native.Csharp.App.Event
 			// 请务必尽快返回本子程序，否则会卡住其他插件以及主程序的加载。
 
 			Common.AppDirectory = Common.CqApi.GetAppDirectory ();  // 获取应用数据目录 (无需存储数据时, 请将此行注释)
+            DataManager.Init(Common.AppDirectory);
 
-
-			// 返回如：D:\CoolQ\app\com.example.demo\
-			// 应用的所有数据、配置【必须】存放于此目录，避免给用户带来困扰。
-		}
+            // 返回如：D:\CoolQ\app\com.example.demo\
+            // 应用的所有数据、配置【必须】存放于此目录，避免给用户带来困扰。
+        }
 
 		/// <summary>
 		/// Type=1002 酷Q退出<para/>
@@ -38,9 +39,9 @@ namespace Native.Csharp.App.Event
 		{
 			// 本子程序会在酷Q【主线程】中被调用。
 			// 无论本应用是否被启用，本函数都会在酷Q退出前执行一次，请在这里执行插件关闭代码。
+            DataManager.Save(Common.AppDirectory);
 
-
-		}
+        }
 
 		/// <summary>
 		/// Type=1003 应用被启用<para/>
