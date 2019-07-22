@@ -24,7 +24,10 @@ namespace net.gensousakuya.dice
 
             StringBuilder desc =
                 new StringBuilder().AppendLine(string.Join("\n", descDic.Select(p => $"{p.Key.PadLeft(4).PadRight(40)}{p.Value}")));
-            desc.AppendLine($"bug反馈请联系QQ:{DataManager.Instance.AdminQQ}");
+            if (DataManager.Instance.AdminQQ > 0)
+            {
+                desc.AppendLine($"bug反馈请联系QQ:{DataManager.Instance.AdminQQ}");
+            }
             MessageManager.Send(sourceType, desc.ToString(), qq: qq?.QQ, toGroupNo: member?.GroupNumber);
         }
     }
