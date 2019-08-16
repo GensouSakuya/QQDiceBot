@@ -117,20 +117,30 @@ namespace net.gensousakuya.dice
                     return;
                 }
 
-                var imgRes = await client.GetAsync(jsonRes.file_url);
-                var img = System.Drawing.Image.FromStream(await imgRes.Content.ReadAsStreamAsync());
-                var fileName = jsonRes.file_url.Split('/').Last();
-
-                var dir = Path.Combine(Common.DataDirectory, "image");
-                var path = Path.Combine(dir, fileName);
-                if (!Directory.Exists(dir))
+                try
                 {
-                    Directory.CreateDirectory(dir);
-                }
+                    var imgRes = await client.GetAsync(jsonRes.file_url);
+                    var img = System.Drawing.Image.FromStream(await imgRes.Content.ReadAsStreamAsync());
+                    var fileName = jsonRes.file_url.Split('/').Last();
 
-                img.Save(path);
-                MessageManager.Send(sourceType, $"[CQ:image,file={fileName}]\n{tag}:\nhttps://danbooru.donmai.us/posts/{jsonRes.id}", fromQQ, toGroup);
-                File.Delete(path);
+                    var dir = Path.Combine(Common.DataDirectory, "image");
+                    var path = Path.Combine(dir, fileName);
+                    if (!Directory.Exists(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+
+                    img.Save(path);
+                    MessageManager.Send(sourceType, $"[CQ:image,file={fileName}]\n{tag}:\nhttps://danbooru.donmai.us/posts/{jsonRes.id}",
+                        fromQQ, toGroup);
+                    File.Delete(path);
+                }
+                catch (Exception e)
+                {
+                    FileLogHelper.WriteLog(e, Common.AppDirectory);
+                    FileLogHelper.WriteLog(Newtonsoft.Json.JsonConvert.SerializeObject(jsonRes), Common.AppDirectory);
+                    throw;
+                }
 
                 if (fromQQ != DataManager.Instance.AdminQQ)
                 {
