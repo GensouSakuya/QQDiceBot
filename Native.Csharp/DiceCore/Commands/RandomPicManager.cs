@@ -53,7 +53,8 @@ namespace net.gensousakuya.dice
                         }
                     }
                 }
-                else if (!DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
+
+                if (!DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                 {
                     MessageManager.Send(sourceType, "这个群没启用这个功能，快去找开发者来开启", fromQQ, toGroup);
                     return;
