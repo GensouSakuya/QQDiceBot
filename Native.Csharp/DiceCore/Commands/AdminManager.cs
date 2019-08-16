@@ -7,7 +7,7 @@ namespace net.gensousakuya.dice
 {
     public class AdminManager : BaseManager
     {
-        public override void Execute(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override void ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             if (sourceType != EventSourceType.Private)
                 return;

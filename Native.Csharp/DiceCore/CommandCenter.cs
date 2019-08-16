@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using static net.gensousakuya.dice.Tools;
 
 namespace net.gensousakuya.dice
@@ -43,7 +44,10 @@ namespace net.gensousakuya.dice
 
             commandList.RemoveAt(0);
             var args = commandList;
-            manager.Execute(args, sourceType, qq, group, member);
+            Task.WaitAll(Task.Run(async () =>
+            {
+                await manager.ExecuteAsync(args, sourceType, qq, group, member);
+            }));
         }
 
         //后面可以改成把对应命令绑定在Attribute里
@@ -81,6 +85,9 @@ namespace net.gensousakuya.dice
                     break;
                 case "like":
                     manager = new LikeManager();
+                    break;
+                case "setu":
+                    manager = new RandomPicManager();
                     break;
                 case "help":
                     manager = new HelpManager();

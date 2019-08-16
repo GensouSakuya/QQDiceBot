@@ -67,6 +67,7 @@
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics" />
@@ -128,6 +129,7 @@
     <Compile Include="DiceCore\Commands\DiceManager.cs" />
     <Compile Include="DiceCore\Commands\HelpManager.cs" />
     <Compile Include="DiceCore\Commands\LikeManager.cs" />
+    <Compile Include="DiceCore\Commands\RandomPicManager.cs" />
     <Compile Include="DiceCore\Commands\NullManager.cs" />
     <Compile Include="DiceCore\Commands\MeManager.cs" />
     <Compile Include="DiceCore\Commands\NickNameManager.cs" />

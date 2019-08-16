@@ -7,7 +7,7 @@ namespace net.gensousakuya.dice
 {
     public class TempInsaneManager : BaseManager
     {
-        public override void Execute(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override void ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             var name = "";
             if (sourceType == EventSourceType.Group)

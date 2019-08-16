@@ -19,6 +19,7 @@ namespace net.gensousakuya.dice
         public List<GroupMember> GroupMember { get; set; } = new List<GroupMember>();
 
         public List<long> DisabledJrrpGroupNumbers { get; set; } = new List<long>();
+        public List<long> EnabledRandomImgNumbers { get; set; } = new List<long>();
 
         private const string fileName = "DiceData";
         public static void Init(string path)

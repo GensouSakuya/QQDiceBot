@@ -9,7 +9,7 @@ namespace net.gensousakuya.dice
     {
         private static Random _rand = new Random();
 
-        public override void Execute(List<string> command, EventSourceType sourceType, UserInfo qq, Group groupNo, GroupMember member)
+        public override void ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group groupNo, GroupMember member)
         {
             throw new NotImplementedException();
         }
