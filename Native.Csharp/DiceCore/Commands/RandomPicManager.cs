@@ -99,7 +99,8 @@ namespace net.gensousakuya.dice
                 var imgRes = await client.GetAsync(jsonRes.file_url);
                 var img = System.Drawing.Image.FromStream(await imgRes.Content.ReadAsStreamAsync());
                 var fileName = jsonRes.file_url.Split('/').Last();
-                var dir = Path.Combine(Common.AppDirectory, "image");
+
+                var dir = Path.Combine(Common.DataDirectory, "image");
                 var path = Path.Combine(dir, fileName);
                 if (!Directory.Exists(dir))
                 {

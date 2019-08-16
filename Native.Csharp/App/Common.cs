@@ -17,6 +17,8 @@ namespace Native.Csharp.App
 		/// </summary>
 		public static string AppDirectory { get; set; }
 
+        public static string DataDirectory => new System.IO.DirectoryInfo(AppDirectory).Parent.Parent.FullName;
+
 		/// <summary>
 		/// 获取或设置当前 App 是否处于运行状态
 		/// </summary>
