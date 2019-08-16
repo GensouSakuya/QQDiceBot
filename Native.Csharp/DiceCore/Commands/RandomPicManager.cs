@@ -26,7 +26,7 @@ namespace net.gensousakuya.dice
                 toGroup = member.GroupNumber;
                 if (command.Any() && command.First() == "on")
                 {
-                    if (member.PermitType != Native.Csharp.Sdk.Cqp.Enum.PermitType.None)
+                    if (member.QQ == DataManager.Instance.AdminQQ)
                     {
                         if (!DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                         {
@@ -38,7 +38,7 @@ namespace net.gensousakuya.dice
                 }
                 else if (command.Any() && command.First() == "off")
                 {
-                    if (member.PermitType != Native.Csharp.Sdk.Cqp.Enum.PermitType.None)
+                    if (member.QQ == DataManager.Instance.AdminQQ)
                     {
                         if (DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                         {
@@ -50,7 +50,7 @@ namespace net.gensousakuya.dice
                 }
                 else if (!DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                 {
-                    MessageManager.Send(sourceType, "本群没启用这个功能，快去找管理员开启", fromQQ, toGroup);
+                    MessageManager.Send(sourceType, "这个群没启用这个功能，快去找开发者来开启", fromQQ, toGroup);
                     return;
                 }
             }
