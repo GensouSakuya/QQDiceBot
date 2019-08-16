@@ -64,6 +64,12 @@ namespace net.gensousakuya.dice
                 return;
             }
 
+            if (command.Count > 2)
+            {
+                MessageManager.Send(sourceType, "Tag太多啦，一次最多只能查两个", fromQQ, toGroup);
+                return;
+            }
+
             var key = new Tuple<EventSourceType, long>(sourceType, sourceType == EventSourceType.Private ? fromQQ : toGroup);
             if (fromQQ != DataManager.Instance.AdminQQ)
             {
@@ -80,19 +86,20 @@ namespace net.gensousakuya.dice
             using (var client = new HttpClient())
             {
                 var url = "https://danbooru.donmai.us/posts/random.json";
+                var tag = string.Join("+", command);
                 if ((command?.Count ?? 0) > 0)
                 {
-                    url += $"?tags={string.Join("+", command)}";
+                    url += $"?tags={tag}";
                 }
                 var res = await client.GetAsync(url);
                 if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    MessageManager.Send(sourceType, "tag写错了吗，没找到图呢", fromQQ, toGroup);
+                    MessageManager.Send(sourceType, $"{tag}:\ntag写错了吗，没找到图呢", fromQQ, toGroup);
                     return;
                 }
                 if (!res.IsSuccessStatusCode)
                 {
-                    MessageManager.Send(sourceType, "请求失败了QAQ", fromQQ, toGroup);
+                    MessageManager.Send(sourceType, $"{tag}:\n请求失败了QAQ", fromQQ, toGroup);
                     return;
                 }
 
@@ -105,7 +112,7 @@ namespace net.gensousakuya.dice
                 });
                 if (jsonRes.success.HasValue && !jsonRes.success.Value)
                 {
-                    MessageManager.Send(sourceType, "tag写错了吗，没找到图呢", fromQQ, toGroup);
+                    MessageManager.Send(sourceType, $"{tag}:\ntag写错了吗，没找到图呢", fromQQ, toGroup);
                     return;
                 }
 
@@ -121,7 +128,7 @@ namespace net.gensousakuya.dice
                 }
 
                 img.Save(path);
-                MessageManager.Send(sourceType, $"[CQ:image,file={fileName}]\nhttps://danbooru.donmai.us/posts/{jsonRes.id}", fromQQ, toGroup);
+                MessageManager.Send(sourceType, $"[CQ:image,file={fileName}]\n{tag}:\nhttps://danbooru.donmai.us/posts/{jsonRes.id}", fromQQ, toGroup);
                 File.Delete(path);
 
                 if (fromQQ != DataManager.Instance.AdminQQ)
