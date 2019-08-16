@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace net.gensousakuya.dice
 {
     public class HelpManager: BaseManager
     {
-        public override void ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             Dictionary<string, string> descDic = null;
             if (sourceType == EventSourceType.Group)

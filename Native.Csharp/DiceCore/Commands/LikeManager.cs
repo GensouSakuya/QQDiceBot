@@ -1,11 +1,12 @@
 ﻿using Native.Csharp.App;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace net.gensousakuya.dice
 {
     public class LikeManager : BaseManager
     {
-        public override void ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             if (sourceType != EventSourceType.Private)
             {

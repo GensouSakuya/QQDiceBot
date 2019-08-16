@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace net.gensousakuya.dice
 {
     public class NullManager : BaseManager
     {
-        public override void ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             MessageManager.Send(sourceType, "略略略😝", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
             return;

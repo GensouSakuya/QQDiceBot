@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace net.gensousakuya.dice
 {
@@ -65,7 +66,7 @@ namespace net.gensousakuya.dice
             }
         }
 
-        public override void ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             var name = "";
             if (sourceType == EventSourceType.Group)
