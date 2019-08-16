@@ -22,6 +22,8 @@ namespace net.gensousakuya.dice
             }
             else if (sourceType == EventSourceType.Group)
             {
+                fromQQ = member.QQ;
+                toGroup = member.GroupNumber;
                 if (command.Any() && command.First() == "on")
                 {
                     if (member.PermitType != Native.Csharp.Sdk.Cqp.Enum.PermitType.None)
@@ -51,8 +53,6 @@ namespace net.gensousakuya.dice
                     MessageManager.Send(sourceType, "本群没启用这个功能，快去找管理员开启", fromQQ, toGroup);
                     return;
                 }
-                fromQQ = member.QQ;
-                toGroup = member.GroupNumber;
             }
             else
             {
@@ -76,7 +76,7 @@ namespace net.gensousakuya.dice
                 {
                     url += $"?tags={string.Join("+", command)}";
                 }
-                var res = await client.GetAsync("https://danbooru.donmai.us/posts/random.json");
+                var res = await client.GetAsync(url);
                 if (!res.IsSuccessStatusCode)
                 {
                     MessageManager.Send(sourceType, "请求失败了QAQ", fromQQ, toGroup);
@@ -108,8 +108,17 @@ namespace net.gensousakuya.dice
                 }
 
                 img.Save(path);
-                MessageManager.Send(sourceType, $"[CQ:image,file={fileName}]https://danbooru.donmai.us/posts/{jsonRes.id}", fromQQ, toGroup);
+                MessageManager.Send(sourceType, $"[CQ:image,file={fileName}]\nhttps://danbooru.donmai.us/posts/{jsonRes.id}", fromQQ, toGroup);
                 File.Delete(path);
+
+                if (_lastFetchTimeDic.ContainsKey(key))
+                {
+                    _lastFetchTimeDic[key] = DateTime.Now;
+                }
+                else
+                {
+                    _lastFetchTimeDic.Add(key, DateTime.Now);
+                }
             }
             return;
         }
