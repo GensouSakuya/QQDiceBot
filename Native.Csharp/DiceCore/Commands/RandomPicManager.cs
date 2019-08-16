@@ -19,6 +19,11 @@ namespace net.gensousakuya.dice
             if (sourceType == EventSourceType.Private)
             {
                 fromQQ = qq.QQ;
+                if (fromQQ != DataManager.Instance.AdminQQ)
+                {
+                    MessageManager.Send(sourceType, "不给看不给看！", fromQQ, toGroup);
+                    return;
+                }
             }
             else if (sourceType == EventSourceType.Group)
             {
