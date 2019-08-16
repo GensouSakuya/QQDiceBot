@@ -110,10 +110,17 @@ namespace net.gensousakuya.dice
                     file_url = "",
                     id = 0L,
                     success = (bool?)null,
+                    is_banned = (bool?)null
                 });
                 if (jsonRes.success.HasValue && !jsonRes.success.Value)
                 {
                     MessageManager.Send(sourceType, $"{tag}:\ntag写错了吗，没找到图呢", fromQQ, toGroup);
+                    return;
+                }
+
+                if (jsonRes.is_banned.HasValue && jsonRes.is_banned.Value)
+                {
+                    MessageManager.Send(sourceType, $"{tag}:\nid:{jsonRes.id}\n这张图被作者要求下架了:(", fromQQ, toGroup);
                     return;
                 }
 
