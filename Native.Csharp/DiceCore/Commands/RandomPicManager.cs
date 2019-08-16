@@ -60,12 +60,15 @@ namespace net.gensousakuya.dice
             }
 
             var key = new Tuple<EventSourceType, long>(sourceType, sourceType == EventSourceType.Private ? fromQQ : toGroup);
-            if (_lastFetchTimeDic.ContainsKey(key))
+            if (fromQQ != DataManager.Instance.AdminQQ)
             {
-                if (DateTime.Now.Subtract(_lastFetchTimeDic[key]).TotalSeconds < _intervalSeconds)
+                if (_lastFetchTimeDic.ContainsKey(key))
                 {
-                    MessageManager.Send(sourceType, "太频繁啦，每分钟只能出一张图", fromQQ, toGroup);
-                    return;
+                    if (DateTime.Now.Subtract(_lastFetchTimeDic[key]).TotalSeconds < _intervalSeconds)
+                    {
+                        MessageManager.Send(sourceType, "太频繁啦，每分钟只能出一张图", fromQQ, toGroup);
+                        return;
+                    }
                 }
             }
 
@@ -116,13 +119,16 @@ namespace net.gensousakuya.dice
                 MessageManager.Send(sourceType, $"[CQ:image,file={fileName}]\nhttps://danbooru.donmai.us/posts/{jsonRes.id}", fromQQ, toGroup);
                 File.Delete(path);
 
-                if (_lastFetchTimeDic.ContainsKey(key))
+                if (fromQQ != DataManager.Instance.AdminQQ)
                 {
-                    _lastFetchTimeDic[key] = DateTime.Now;
-                }
-                else
-                {
-                    _lastFetchTimeDic.Add(key, DateTime.Now);
+                    if (_lastFetchTimeDic.ContainsKey(key))
+                    {
+                        _lastFetchTimeDic[key] = DateTime.Now;
+                    }
+                    else
+                    {
+                        _lastFetchTimeDic.Add(key, DateTime.Now);
+                    }
                 }
             }
             return;
