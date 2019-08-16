@@ -77,6 +77,11 @@ namespace net.gensousakuya.dice
                     url += $"?tags={string.Join("+", command)}";
                 }
                 var res = await client.GetAsync(url);
+                if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
+                {
+                    MessageManager.Send(sourceType, "tag写错了吗，没找到图呢", fromQQ, toGroup);
+                    return;
+                }
                 if (!res.IsSuccessStatusCode)
                 {
                     MessageManager.Send(sourceType, "请求失败了QAQ", fromQQ, toGroup);
