@@ -108,6 +108,7 @@ namespace net.gensousakuya.dice
 
                 img.Save(path);
                 MessageManager.Send(sourceType, $"[CQ:image,file={fileName}]https://danbooru.donmai.us/posts/{jsonRes.id}");
+                File.Delete(path);
             }
             return;
         }
