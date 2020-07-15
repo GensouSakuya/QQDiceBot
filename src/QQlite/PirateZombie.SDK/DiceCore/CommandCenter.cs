@@ -124,7 +124,6 @@ namespace net.gensousakuya.dice
             }
         }
 
-        //后面可以改成把对应命令绑定在Attribute里
         public static BaseManager GetManagerByCommand(string command)
         {
             var key = command.ToLower();
