@@ -57,15 +57,6 @@ namespace PirateZombie.SDK
         {
             QLAPI.init();//初始化API，不可删除
             QLAPI.Api_SendLog("Debug", "成功", 0, ac);
-            try
-            {
-                CommandCenter.ReloadManagers();
-                DataManager.Init(Config.ConfigFile);
-            }
-            catch (Exception e)
-            {
-                QLAPI.Api_SendLog("Error", e.Message+e.StackTrace, 0, ac);
-            }
             return 0;
         }
 
@@ -79,6 +70,15 @@ namespace PirateZombie.SDK
         {
             QLAPI.CoInitialize(0);
             QLAPI.Api_SendLog("Debug", "已启动", 0, ac);
+            try
+            {
+                CommandCenter.ReloadManagers();
+                DataManager.Init();
+            }
+            catch (Exception e)
+            {
+                QLAPI.Api_SendLog("Error", e.Message + e.StackTrace, 0, ac);
+            }
             return 0;
         }
 
@@ -149,7 +149,7 @@ namespace PirateZombie.SDK
 
                 try
                 {
-                    CommandCenter.Execute(Msg, source.Value, qq, tgroupId);
+                    CommandCenter.Execute(Msg, source.Value, qq, groupId);
                 }
                 catch (Exception e)
                 {

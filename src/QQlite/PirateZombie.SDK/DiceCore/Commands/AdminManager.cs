@@ -42,6 +42,11 @@ namespace net.gensousakuya.dice
                         return;
                     var name = command[0];
                     DataManager.Instance.BotName = name;
+                    MessageManager.Send(EventSourceType.Friend, "改名成功", qq?.QQ);
+                    return;
+                case "save":
+                    DataManager.Save();
+                    MessageManager.Send(EventSourceType.Friend,"保存成功", qq?.QQ);
                     return;
             }
         }

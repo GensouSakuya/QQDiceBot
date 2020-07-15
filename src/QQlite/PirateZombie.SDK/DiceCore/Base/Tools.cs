@@ -13,8 +13,6 @@ namespace net.gensousakuya.dice
             " "
         };
 
-        private static Regex splitRegex = new Regex($@"[{string.Join("", separators)}]");
-
         public static List<string> TakeCommandParts(string fullCommand)
         {
             return fullCommand.Split(separators.ToArray(), StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -23,11 +21,7 @@ namespace net.gensousakuya.dice
 
         public static string SerializeObject(object obj)
         {
-            return JsonConvert.SerializeObject(obj, Formatting.Indented,new JsonSerializerSettings
-            {
-                TypeNameAssemblyFormatHandling = TypeNameAssemblyFormatHandling.Full,
-                TypeNameHandling = TypeNameHandling.All,
-            });
+            return JsonConvert.SerializeObject(obj, Formatting.Indented);
         }
         
         public static T DeserializeObject<T>(string xml)

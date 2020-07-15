@@ -8,7 +8,7 @@ namespace net.gensousakuya.dice
     //暂时写在代码里，后面再改成可配置
     public static class Config
     {
-        public static readonly Dictionary<string, string> GroupCommandDesc = new Dictionary<string, string>
+        public static Dictionary<string, string> GroupCommandDesc => new Dictionary<string, string>
         {
             {
                 ".ask [需要决策的问题] [供选择的方案(用'|'分隔)]", $"向{DataManager.Instance.BotName}征求意见"
@@ -36,7 +36,7 @@ namespace net.gensousakuya.dice
             }
         };
 
-        public static readonly Dictionary<string, string> PrivateCommandDesc = new Dictionary<string, string>
+        public static Dictionary<string, string> PrivateCommandDesc => new Dictionary<string, string>
         {
             {
                 ".ask [需要决策的问题] [供选择的方案(用'|'分隔)]", $"向{DataManager.Instance.BotName}征求意见"

@@ -48,7 +48,10 @@ namespace net.gensousakuya.dice
 
             if (!command.StartsWith(".") && !command.StartsWith("/"))
             {
-                ExecuteWithoutCommand(command, sourceType, qq, member);
+                if (sourceType == EventSourceType.Group)
+                {
+                    ExecuteWithoutCommand(command, sourceType, qq, member);
+                }
                 return;
             }
 
@@ -62,7 +65,10 @@ namespace net.gensousakuya.dice
             var manager = GetManagerByCommand(commandName);
             if (manager == null)
             {
-                ExecuteWithoutCommand(command, sourceType, qq, member);
+                if (sourceType == EventSourceType.Group)
+                {
+                    ExecuteWithoutCommand(command, sourceType, qq, member);
+                }
                 return;
             }
 

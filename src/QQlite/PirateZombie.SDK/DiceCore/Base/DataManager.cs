@@ -11,7 +11,6 @@ namespace net.gensousakuya.dice
 {
     public class DataManager
     {
-        private static DataManager _instance { get; set; } = new DataManager();
         private static volatile object locker = new object();
 
         private DataManager()
@@ -74,6 +73,12 @@ namespace net.gensousakuya.dice
             }
         }
 
+        public static List<GroupMember> GroupMembers
+        {
+            get => GroupMemberManager.GroupMembers;
+            set => GroupMemberManager.GroupMembers = value;
+        }
+
         private ConcurrentDictionary<long, BakiConfig> _groupBakiConfig = new ConcurrentDictionary<long, BakiConfig>();
         public ConcurrentDictionary<long, BakiConfig> GroupBakiConfig
         {
@@ -92,8 +97,9 @@ namespace net.gensousakuya.dice
         }
 
 
-        public static void Init(string path)
+        public static void Init()
         {
+            var path = Config.ConfigFile;
             QLAPI.Api_SendLog("Debug", "InitPath:"+path, 0, QLMain.ac);
             if (File.Exists(path))
             {
@@ -101,9 +107,21 @@ namespace net.gensousakuya.dice
                 try
                 {
                     var db = Tools.DeserializeObject<DataManager>(xml);
-                    _instance = db;
+                    Instance = db;
                 }
-                catch { }
+                catch(Exception e)
+                {
+                    QLAPI.Api_SendLog("Error", "ConfigLoadError:"+e.Message, 0, QLMain.ac);
+                }
+            }
+            else
+            {
+                QLAPI.Api_SendLog("Debug", "not found" + path, 0, QLMain.ac);
+            }
+
+            if (Instance == null)
+            {
+                Instance = new DataManager();
             }
 
             _source = new CancellationTokenSource();
@@ -111,7 +129,7 @@ namespace net.gensousakuya.dice
             {
                 while (!_source.IsCancellationRequested)
                 {
-                    Save(path);
+                    Save();
                     Thread.Sleep(10 * 60 * 1000);
                 }
             });
@@ -120,8 +138,9 @@ namespace net.gensousakuya.dice
         private static CancellationTokenSource _source;
         private static Task SaveTask;
 
-        public static void Save(string path)
+        public static void Save()
         {
+            var path = Config.ConfigFile;
             try
             {
                 var dir = Path.GetDirectoryName(path);
@@ -130,7 +149,7 @@ namespace net.gensousakuya.dice
                     Directory.CreateDirectory(dir);
                 }
 
-                File.WriteAllText(path, Tools.SerializeObject(_instance));
+                File.WriteAllText(path, Tools.SerializeObject(Instance));
                 QLAPI.Api_SendLog("Debug", "Config updated", 0, QLMain.ac);
             }
             catch (Exception e)
@@ -142,32 +161,10 @@ namespace net.gensousakuya.dice
         public static void Stop()
         {
             _source.Cancel();
-            Save(Config.ConfigFile);
+            Save();
         }
 
-        public static void Init(DataManager db)
-        {
-            _instance = db;
-        }
-
-        public static DataManager Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    lock (locker)
-                    {
-                        if (_instance == null)
-                        {
-                            _instance = new DataManager();
-                        }
-                    }
-                }
-
-                return _instance;
-            }
-        }
+        public static DataManager Instance { get; set; }
 
     }
 }

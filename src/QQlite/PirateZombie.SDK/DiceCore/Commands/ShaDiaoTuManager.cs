@@ -86,7 +86,8 @@ namespace net.gensousakuya.dice
                     return;
                 }
 
-                if(_lastTime.ContainsKey(fromQQ) && _lastTime[fromQQ] == DateTime.Today)
+                if (_lastTime.ContainsKey(fromQQ) && _lastTime[fromQQ] == DateTime.Today &&
+                    fromQQ != DataManager.Instance.AdminQQ)
                 {
                     MessageManager.Send(EventSourceType.Group, "每人每天只能添加一张", fromQQ, toGroup);
                     return;

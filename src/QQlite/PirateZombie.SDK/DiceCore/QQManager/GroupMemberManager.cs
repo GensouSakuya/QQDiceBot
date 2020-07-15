@@ -13,8 +13,14 @@ namespace net.gensousakuya.dice
 {
     public class GroupMemberManager
     {
+        public static List<GroupMember> GroupMembers = new List<GroupMember>();
+
         public static GroupMember Get(long qq,long groupNo)
         {
+            var member = GroupMembers.Find(p => p.QQ == qq && p.GroupId == groupNo);
+            if (member != null)
+                return member;
+
             string result = QLAPI.Api_GetGroupMemberList(groupNo.ToString(), false, QLMain.ac);
             //QLAPI.Api_SendLog("Debug", "Api_GetGroupMemberList:" + result, 0, QLMain.ac);
             if (string.IsNullOrEmpty(result))
@@ -22,10 +28,10 @@ namespace net.gensousakuya.dice
                 return null;
             }
             var info = JsonConvert.DeserializeObject<GroupMemberJsonModel>(result);
-            var member = new PirateZombie.SDK.BaseModel.GroupMember();
+            var basemember = new PirateZombie.SDK.BaseModel.GroupMember();
 
-            member.GroupId = groupNo;
-            member.QQId = qq;
+            basemember.GroupId = groupNo;
+            basemember.QQId = qq;
             //member.Nick = binary.ReadString_Ex(_defaultEncoding);
 
             if (!info.members.ContainsKey(qq.ToString()))
@@ -34,14 +40,14 @@ namespace net.gensousakuya.dice
             var memberInfo = info.members[qq.ToString()];
 
             var card = Regex.Unescape((memberInfo.cd ?? memberInfo.nk).Replace("&nbsp;", " "));
-            member.Card = card;
+            basemember.Card = card;
             //member.Sex = (Sex)binary.ReadInt32_Ex();
             //member.Age = binary.ReadInt32_Ex();
             //member.Area = binary.ReadString_Ex(_defaultEncoding);
             //member.JoiningTime = binary.ReadInt32_Ex().ToDateTime();
             //member.LastDateTime = binary.ReadInt32_Ex().ToDateTime();
             //member.Level = binary.ReadString_Ex(_defaultEncoding);
-            member.PermitType = info.owner == qq
+            basemember.PermitType = info.owner == qq
                 ? PermitType.Holder
                 : (info.adm.Contains(qq) ? PermitType.Manage : PermitType.None);
             //member.BadRecord = binary.ReadInt32_Ex() == 1;
@@ -59,8 +65,9 @@ namespace net.gensousakuya.dice
             //{
             //    gm.Copy(member);
             //}
-
-            return new GroupMember(member);
+            member = new GroupMember(basemember);
+            GroupMembers.Add(member);
+            return member;
         }
     }
     public class GroupMemberJsonModel
