@@ -28,45 +28,53 @@ namespace net.gensousakuya.dice
                 return null;
             }
             var info = JsonConvert.DeserializeObject<GroupMemberJsonModel>(result);
-            var basemember = new PirateZombie.SDK.BaseModel.GroupMember();
-
-            basemember.GroupId = groupNo;
-            basemember.QQId = qq;
-            //member.Nick = binary.ReadString_Ex(_defaultEncoding);
-
             if (!info.members.ContainsKey(qq.ToString()))
                 return null;
 
-            var memberInfo = info.members[qq.ToString()];
+            info.members.Select(p => new
+            {
+                QQ = p.Key,
+                member = p.Value
+            }).ToList().ForEach(p =>
+            {
+                var basemember = new PirateZombie.SDK.BaseModel.GroupMember();
 
-            var card = Regex.Unescape((memberInfo.cd ?? memberInfo.nk).Replace("&nbsp;", " "));
-            basemember.Card = card;
-            //member.Sex = (Sex)binary.ReadInt32_Ex();
-            //member.Age = binary.ReadInt32_Ex();
-            //member.Area = binary.ReadString_Ex(_defaultEncoding);
-            //member.JoiningTime = binary.ReadInt32_Ex().ToDateTime();
-            //member.LastDateTime = binary.ReadInt32_Ex().ToDateTime();
-            //member.Level = binary.ReadString_Ex(_defaultEncoding);
-            basemember.PermitType = info.owner == qq
-                ? PermitType.Holder
-                : (info.adm.Contains(qq) ? PermitType.Manage : PermitType.None);
-            //member.BadRecord = binary.ReadInt32_Ex() == 1;
-            //member.SpecialTitle = binary.ReadString_Ex(_defaultEncoding);
-            //member.SpecialTitleDurationTime = binary.ReadInt32_Ex().ToDateTime();
-            //member.CanModifiedCard = binary.ReadInt32_Ex() == 1;
-            //#endregion
-            //var gm = _groupMembers.Find(p => p.QQ == qq && p.GroupNumber == groupNo);
-            //if (gm == null)
-            //{
-            //    gm = new GroupMember(member);
-            //    _groupMembers.Add(gm);
-            //}
-            //else
-            //{
-            //    gm.Copy(member);
-            //}
-            member = new GroupMember(basemember);
-            GroupMembers.Add(member);
+                basemember.GroupId = groupNo;
+                basemember.QQId = long.Parse(p.QQ);
+                //member.Nick = binary.ReadString_Ex(_defaultEncoding);
+
+                var memberInfo = info.members[p.QQ];
+
+                var card = Regex.Unescape((memberInfo.cd ?? memberInfo.nk).Replace("&nbsp;", " "));
+                basemember.Card = card;
+                //member.Sex = (Sex)binary.ReadInt32_Ex();
+                //member.Age = binary.ReadInt32_Ex();
+                //member.Area = binary.ReadString_Ex(_defaultEncoding);
+                //member.JoiningTime = binary.ReadInt32_Ex().ToDateTime();
+                //member.LastDateTime = binary.ReadInt32_Ex().ToDateTime();
+                //member.Level = binary.ReadString_Ex(_defaultEncoding);
+                basemember.PermitType = info.owner == basemember.QQId
+                    ? PermitType.Holder
+                    : (info.adm!=null && info.adm.Any() && info.adm.Contains(basemember.QQId) ? PermitType.Manage : PermitType.None);
+                //member.BadRecord = binary.ReadInt32_Ex() == 1;
+                //member.SpecialTitle = binary.ReadString_Ex(_defaultEncoding);
+                //member.SpecialTitleDurationTime = binary.ReadInt32_Ex().ToDateTime();
+                //member.CanModifiedCard = binary.ReadInt32_Ex() == 1;
+                //#endregion
+                //var gm = _groupMembers.Find(p => p.QQ == qq && p.GroupNumber == groupNo);
+                //if (gm == null)
+                //{
+                //    gm = new GroupMember(member);
+                //    _groupMembers.Add(gm);
+                //}
+                //else
+                //{
+                //    gm.Copy(member);
+                //}
+                member = new GroupMember(basemember);
+                GroupMembers.Add(member);
+            });
+            member = GroupMembers.Find(p => p.QQ == qq && p.GroupId == groupNo);
             return member;
         }
     }

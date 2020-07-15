@@ -73,10 +73,16 @@ namespace net.gensousakuya.dice
             }
         }
 
-        public static List<GroupMember> GroupMembers
+        public List<GroupMember> GroupMembers
         {
             get => GroupMemberManager.GroupMembers;
             set => GroupMemberManager.GroupMembers = value;
+        }
+
+        public List<UserInfo> Users
+        {
+            get => UserManager.Users;
+            set => UserManager.Users = value;
         }
 
         private ConcurrentDictionary<long, BakiConfig> _groupBakiConfig = new ConcurrentDictionary<long, BakiConfig>();

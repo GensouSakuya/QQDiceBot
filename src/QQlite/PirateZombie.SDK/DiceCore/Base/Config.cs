@@ -28,9 +28,9 @@ namespace net.gensousakuya.dice
             {
                 ".null", "略一下"
             },
-            {
-                ".setu [Tags]","发一张随机图"
-            },
+            //{
+            //    ".setu [Tags]","发一张随机图"
+            //},
             {
                 ".ti", "疯狂发作-临时症状"
             }
@@ -53,9 +53,9 @@ namespace net.gensousakuya.dice
             {
                 ".null", "略一下"
             },
-            {
-                ".setu [Tags]","发一张随机图"
-            },
+            //{
+            //    ".setu [Tags]","发一张随机图"
+            //},
             {
                 ".ti", "疯狂发作-临时症状"
             }

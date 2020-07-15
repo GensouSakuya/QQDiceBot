@@ -34,11 +34,11 @@ namespace net.gensousakuya.dice
         public static void Execute(string command, EventSourceType sourceType,long? qqNo = null, long? groupNo = null)
         {
             UserInfo qq = null;
-            if(qqNo.HasValue)
+            Group group = null; 
+            if (qqNo.HasValue)
             {
                 qq = UserManager.Get(qqNo.Value);
             }
-            Group group = null;
 
             GroupMember member = null;
             if(qqNo.HasValue && groupNo.HasValue)

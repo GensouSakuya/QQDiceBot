@@ -47,7 +47,7 @@ namespace net.gensousakuya.dice
                     {
                         config = new RepeatConfig
                         {
-                            Percent = percent
+                            Percent = percent > 100 ? 100 : percent
                         };
                     }
                     else

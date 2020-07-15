@@ -79,7 +79,7 @@ namespace net.gensousakuya.dice
                     return;
                 }
 
-                name = string.IsNullOrWhiteSpace(member.GroupName) ? qq.Name : member.GroupName;
+                name = member.GroupName;
             }
             else if (sourceType == EventSourceType.Private)
             {

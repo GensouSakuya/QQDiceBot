@@ -12,6 +12,7 @@ namespace net.gensousakuya.dice
 {
     public static class UserManager
     {
+        public static List<UserInfo> Users { get; set; } = new List<UserInfo>();
         public static UserInfo Get(long qqNo)
         {
             string result = QLAPI.Api_GetQQInfo(qqNo.ToString(), QLMain.ac);
@@ -29,7 +30,17 @@ namespace net.gensousakuya.dice
             qqInfo.Id = qq.uin;
             qqInfo.Nick = qq.nick;
             qqInfo.Sex = (Sex) qq.gender;
-            var user = new UserInfo(qqInfo);
+
+            var user = Users.Find(p => p.QQ == qqNo);
+            if (user != null)
+            {
+                user.Nick = qqInfo.Nick;
+                user.Sex = qqInfo.Sex;
+            }
+            else
+            {
+                Users.Add(new UserInfo(qqInfo));
+            }
 
             return user;
         }
