@@ -72,7 +72,7 @@ namespace net.gensousakuya.dice
                 DataManager.Instance.GroupBakiConfig.TryRemove(toGroup, out _);
                 MessageManager.Send(EventSourceType.Group, "随机热狗图已关闭", fromQQ, toGroup);
             }
-            else if (command[0].Equals("baki", StringComparison.CurrentCultureIgnoreCase) && command.Count > 1)
+            else if (command[0].Equals("baki", StringComparison.CurrentCultureIgnoreCase))
             {
                 var dir = Path.Combine(Config.DataPath, "Baki");
                 if (!Directory.Exists(dir))

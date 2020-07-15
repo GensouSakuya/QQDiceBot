@@ -79,47 +79,49 @@ namespace net.gensousakuya.dice
 
         private static void ExecuteWithoutCommand(string message, EventSourceType sourceType, UserInfo qq, GroupMember member)
         {
-            BaseManager manager = null;
-            var commands = new List<string>();
-            if (manager == null && member != null && DataManager.Instance.GroupRepeatConfig.ContainsKey(member.GroupNumber))
+            var managerList = new List<Tuple<BaseManager, List<string>>>();
+            var randomRes = Random.Next(1, 101);
+            if (member != null && DataManager.Instance.GroupRepeatConfig.ContainsKey(member.GroupNumber))
             {
                 var config = DataManager.Instance.GroupRepeatConfig[member.GroupNumber];
-                var rdm = Random.Next(1, 101);
-                if (rdm <= config.Percent)
+                if (randomRes <= config.Percent)
                 {
-                    manager = new RepeatManager();
-                    commands.Add("repeat");
-                    commands.Add(message);
+                    managerList.Add(new Tuple<BaseManager, List<string>>(new RepeatManager(), new List<string>
+                    {
+                        "repeat", message
+                    }));
                 }
             }
-            if (manager == null && member != null && DataManager.Instance.GroupShaDiaoTuConfig.ContainsKey(member.GroupNumber))
+            if (member != null && DataManager.Instance.GroupShaDiaoTuConfig.ContainsKey(member.GroupNumber))
             {
                 var config = DataManager.Instance.GroupShaDiaoTuConfig[member.GroupNumber];
-                var rdm = Random.Next(1, 101);
-                if (rdm <= config.Percent)
+                if (randomRes <= config.Percent)
                 {
-                    manager = new ShaDiaoTuManager();
-                    commands.Add("shadiaotu");
-                    commands.Add(message);
+                    managerList.Add(new Tuple<BaseManager, List<string>>(new ShaDiaoTuManager(), new List<string>
+                    {
+                        "shadiaotu"
+                    }));
                 }
             }
-            if (manager == null && member != null && DataManager.Instance.GroupBakiConfig.ContainsKey(member.GroupNumber))
+            if (member != null && DataManager.Instance.GroupBakiConfig.ContainsKey(member.GroupNumber))
             {
                 var config = DataManager.Instance.GroupBakiConfig[member.GroupNumber];
-                var rdm = Random.Next(1, 101);
-                if (rdm <= config.Percent)
+                if (randomRes <= config.Percent)
                 {
-                    manager = new BakiManager();
-                    commands.Add("baki");
-                    commands.Add(message);
+                    managerList.Add(new Tuple<BaseManager, List<string>>(new BakiManager(), new List<string>
+                    {
+                        "baki"
+                    }));
                 }
             }
 
-            if (manager!=null)
+            if (managerList.Any())
             {
+                var choose = Random.Next(0, managerList.Count);
+                var choosen = managerList[choose];
                 Task.Run(async () =>
                 {
-                    await manager.ExecuteAsync(commands, sourceType, qq, null, member);
+                    await choosen.Item1.ExecuteAsync(choosen.Item2, sourceType, qq, null, member);
                 });
             }
         }

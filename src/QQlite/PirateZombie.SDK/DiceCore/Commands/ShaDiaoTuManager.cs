@@ -138,7 +138,7 @@ namespace net.gensousakuya.dice
                 }
 
                 MessageManager.Send(EventSourceType.Group, "上传成功", fromQQ, toGroup);
-                if (_lastTime.ContainsKey(fromQQ))
+                if (!_lastTime.ContainsKey(fromQQ))
                 {
                     _lastTime.Add(fromQQ, DateTime.Today);
                 }
@@ -147,9 +147,9 @@ namespace net.gensousakuya.dice
                     _lastTime[fromQQ] = DateTime.Today;
                 }
             }
-            else if (command[0].Equals("shadiaotu", StringComparison.CurrentCultureIgnoreCase) && command.Count > 1)
+            else if (command[0].Equals("shadiaotu", StringComparison.CurrentCultureIgnoreCase))
             {
-                var dir = Path.Combine(Config.DataPath, "Shadiao");
+                var dir = Path.Combine(Config.DataPath, "沙雕图");
                 if (!Directory.Exists(dir))
                     return;
                 var files = Directory.GetFiles(dir);
