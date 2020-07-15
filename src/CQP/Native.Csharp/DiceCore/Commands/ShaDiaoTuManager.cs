@@ -59,6 +59,7 @@ namespace net.gensousakuya.dice
                 }
 
                 DataManager.Instance.GroupShaDiaoTuConfig.AddOrUpdate(toGroup, config, (p, q) => config);
+                MessageManager.Send(EventSourceType.Group, "随机沙雕图已开启", fromQQ, toGroup);
             }
             else if (command[0].Equals("off", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -69,6 +70,7 @@ namespace net.gensousakuya.dice
                 }
 
                 DataManager.Instance.GroupShaDiaoTuConfig.TryRemove(toGroup, out _);
+                MessageManager.Send(EventSourceType.Group, "随机沙雕图已关闭", fromQQ, toGroup);
             }
             else if (command[0].Equals("shadiaotu", StringComparison.CurrentCultureIgnoreCase) && command.Count > 1)
             {

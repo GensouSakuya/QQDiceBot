@@ -56,6 +56,8 @@ namespace net.gensousakuya.dice
                 }
 
                 DataManager.Instance.GroupRepeatConfig.AddOrUpdate(toGroup, config, (p, q) => config);
+
+                MessageManager.Send(EventSourceType.Group, "复读已开启", fromQQ, toGroup);
             }
             else if (command[0].Equals("off", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -66,6 +68,7 @@ namespace net.gensousakuya.dice
                 }
 
                 DataManager.Instance.GroupRepeatConfig.TryRemove(toGroup,out _);
+                MessageManager.Send(EventSourceType.Group, "复读已关闭", fromQQ, toGroup);
             }
             else if (command[0].Equals("repeat", StringComparison.CurrentCultureIgnoreCase) && command.Count>1)
             {

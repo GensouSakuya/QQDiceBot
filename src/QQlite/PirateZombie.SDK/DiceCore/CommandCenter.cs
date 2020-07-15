@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using PirateZombie.SDK;
 using static net.gensousakuya.dice.Tools;
 
 namespace net.gensousakuya.dice
@@ -16,14 +17,18 @@ namespace net.gensousakuya.dice
 
         public static void ReloadManagers()
         {
+            QLAPI.Api_SendLog("debug", "ReloadingManager", 0, QLMain.ac);
+            //只能拿到直接继承的派生类，有需要的时候再改
             var managerTypes = Assembly.GetExecutingAssembly().GetTypes()
-                .Where(p => p.IsAssignableFrom(typeof(BaseManager))).ToList();
+                .Where(p => p.BaseType == typeof(BaseManager)).ToList();
+            QLAPI.Api_SendLog("debug", $"found {managerTypes.Count} managers", 0, QLMain.ac);
             var managerWithCommands = managerTypes.Select(p => new
             {
                 Type = p,
                 CommandList = p.GetCustomAttributes<CommandAttribute>().ToList()
             }).Where(p => p.CommandList.Any()).ToList();
             managerWithCommands.ForEach(p => { p.CommandList.ForEach(q => { Managers.Add(q.Command, p.Type); }); });
+            QLAPI.Api_SendLog("debug", $"found {managerWithCommands.Count}", 0, QLMain.ac);
         }
 
         public static void Execute(string command, EventSourceType sourceType,long? qqNo = null, long? groupNo = null)

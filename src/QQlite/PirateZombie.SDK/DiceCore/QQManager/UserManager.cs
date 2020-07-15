@@ -6,47 +6,55 @@ using System.Text;
 using PirateZombie.SDK.BaseModel;
 using PirateZombie.SDK;
 using PirateZombie.SDK.DiceCore.QQManager;
+using Newtonsoft.Json;
 
 namespace net.gensousakuya.dice
 {
     public static class UserManager
     {
-        private static List<UserInfo> _users
-        {
-            get { return DataManager.Instance.Users; }
-        }
-
         public static UserInfo Get(long qqNo)
         {
-            var user = _users.Find(p => p.QQ == qqNo);
-            if(user == null)
+            string result = QLAPI.Api_GetQQInfo(qqNo.ToString(), QLMain.ac);
+
+            //QLAPI.Api_SendLog("Debug", "Api_GetQQInfo:"+result, 0, QLMain.ac);
+            if (string.IsNullOrEmpty(result))
             {
-                string result = QLAPI.Api_GetQQInfo(qqNo.ToString(), QLMain.ac);
-                if (string.IsNullOrEmpty(result))
-                {
-                    return null;
-                }
-                BinaryReader binary = new BinaryReader(new MemoryStream(Convert.FromBase64String(result)));
-                var qqInfo = new QQ();
-                qqInfo.Id = binary.ReadInt64_Ex();
-                qqInfo.Nick = binary.ReadString_Ex(Config.DefaultEncoding);
-                qqInfo.Sex = (Sex)binary.ReadInt32_Ex();
-                qqInfo.Age = binary.ReadInt32_Ex();
-                user = new UserInfo(qqInfo);
-                _users.Add(user);
+                return null;
             }
+
+            var info = JsonConvert.DeserializeObject<JsonModel<QQJsonModel>>(result);
+            var qq = info.Result.buddy.info_list[0];
+
+            var qqInfo = new QQ();
+            qqInfo.Id = qq.uin;
+            qqInfo.Nick = qq.nick;
+            qqInfo.Sex = (Sex) qq.gender;
+            var user = new UserInfo(qqInfo);
 
             return user;
         }
-        public static UserInfo Add(UserInfo qq)
+    }
+
+    public class JsonModel<T>
+    {
+        public int retcode { get; set; }
+        public T Result { get; set; }
+    }
+
+    public class QQJsonModel
+    {
+        public class infoModel
         {
-            if (_users.Any(p => p.QQ == qq.QQ))
-                return _users.Find(p => p.QQ == qq.QQ);
-            else
-            {
-                _users.Add(qq);
-                return qq;
-            }
+            public int gender_id { get; set; }
+            public string lnick { get; set; }
+            public long uin { get; set; }
+            public int gender { get; set; }
+            public string nick { get; set; }
         }
+        public class buddyModel
+        {
+            public List<infoModel> info_list { get; set; }
+        }
+        public buddyModel buddy { get; set; }
     }
 }

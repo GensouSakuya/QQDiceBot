@@ -3,6 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+using PirateZombie.SDK;
 
 namespace net.gensousakuya.dice
 {
@@ -14,7 +17,7 @@ namespace net.gensousakuya.dice
         private DataManager()
         { }
 
-        private string _botName;
+        private string _botName = "骰娘";
 
         public string BotName
         {
@@ -33,14 +36,11 @@ namespace net.gensousakuya.dice
         }
 
         public long AdminQQ { get; set; }
-        public List<UserInfo> Users { get; set; } = new List<UserInfo>();
-        public List<Group> Groups { get; set; } = new List<Group>();
-        public List<GroupMember> GroupMember { get; set; } = new List<GroupMember>();
 
         public List<long> DisabledJrrpGroupNumbers { get; set; } = new List<long>();
         public List<long> EnabledRandomImgNumbers { get; set; } = new List<long>();
 
-        private ConcurrentDictionary<long, RepeatConfig> _groupRepeatConfig;
+        private ConcurrentDictionary<long, RepeatConfig> _groupRepeatConfig = new ConcurrentDictionary<long, RepeatConfig>();
         public ConcurrentDictionary<long, RepeatConfig> GroupRepeatConfig
         {
             get => _groupRepeatConfig;
@@ -57,7 +57,7 @@ namespace net.gensousakuya.dice
             }
         }
 
-        private ConcurrentDictionary<long, ShaDiaoTuConfig> _groupShaDiaoTuConfig;
+        private ConcurrentDictionary<long, ShaDiaoTuConfig> _groupShaDiaoTuConfig = new ConcurrentDictionary<long, ShaDiaoTuConfig>();
         public ConcurrentDictionary<long, ShaDiaoTuConfig> GroupShaDiaoTuConfig
         {
             get => _groupShaDiaoTuConfig;
@@ -74,7 +74,7 @@ namespace net.gensousakuya.dice
             }
         }
 
-        private ConcurrentDictionary<long, BakiConfig> _groupBakiConfig;
+        private ConcurrentDictionary<long, BakiConfig> _groupBakiConfig = new ConcurrentDictionary<long, BakiConfig>();
         public ConcurrentDictionary<long, BakiConfig> GroupBakiConfig
         {
             get => _groupBakiConfig;
@@ -92,34 +92,57 @@ namespace net.gensousakuya.dice
         }
 
 
-        private const string fileName = "DiceData";
         public static void Init(string path)
         {
-            if (Directory.Exists(path))
+            QLAPI.Api_SendLog("Debug", "InitPath:"+path, 0, QLMain.ac);
+            if (File.Exists(path))
             {
-                var filepath = Path.Combine(path, fileName);
-                if (File.Exists(filepath))
+                var xml = File.ReadAllText(path);
+                try
                 {
-                    var xml = File.ReadAllText(filepath);
-                    try
-                    {
-                        var db = Tools.DeserializeObject<DataManager>(xml);
-                        _instance = db;
-                    }
-                    catch { }
+                    var db = Tools.DeserializeObject<DataManager>(xml);
+                    _instance = db;
                 }
+                catch { }
             }
+
+            _source = new CancellationTokenSource();
+            SaveTask = Task.Factory.StartNew(() =>
+            {
+                while (!_source.IsCancellationRequested)
+                {
+                    Save(path);
+                    Thread.Sleep(10 * 60 * 1000);
+                }
+            });
         }
+
+        private static CancellationTokenSource _source;
+        private static Task SaveTask;
 
         public static void Save(string path)
         {
-            if (!Directory.Exists(path))
+            try
             {
-                Directory.CreateDirectory(path);
+                var dir = Path.GetDirectoryName(path);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+
+                File.WriteAllText(path, Tools.SerializeObject(_instance));
+                QLAPI.Api_SendLog("Debug", "Config updated", 0, QLMain.ac);
             }
-            var filepath = Path.Combine(path, fileName);
-            var xml = Tools.SerializeObject(_instance);
-            File.WriteAllText(filepath, xml);
+            catch (Exception e)
+            {
+                QLAPI.Api_SendLog("Error", e.Message+e.StackTrace, 0, QLMain.ac);
+            }
+        }
+
+        public static void Stop()
+        {
+            _source.Cancel();
+            Save(Config.ConfigFile);
         }
 
         public static void Init(DataManager db)

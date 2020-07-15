@@ -27,7 +27,6 @@ namespace net.gensousakuya.dice
             Id = qq.Id;
             Nick = qq.Nick;
             Sex = qq.Sex;
-            Age = qq.Age;
         }
 
         #region Jrrp

@@ -14,10 +14,6 @@
 		/// </summary>
 		public Sex Sex { get; set; }
 		/// <summary>
-		/// 年龄
-		/// </summary>
-		public int Age { get; set; }
-		/// <summary>
 		/// 昵称
 		/// </summary>
 		public string Nick { get; set; }

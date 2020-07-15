@@ -8,7 +8,7 @@ namespace net.gensousakuya.dice
     {
         public override async Task ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
-            MessageManager.Send(sourceType, "略略略😝", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+            MessageManager.Send(sourceType, "略略略[QQ:emoji=4036991133]", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
             return;
         }
     }

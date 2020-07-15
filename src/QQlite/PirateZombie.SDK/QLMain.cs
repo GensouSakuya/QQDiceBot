@@ -1,4 +1,5 @@
 ﻿using net.gensousakuya.dice;
+using System;
 using System.Runtime.InteropServices;
 
 namespace PirateZombie.SDK
@@ -28,7 +29,7 @@ namespace PirateZombie.SDK
 
             string szPluginInfo = "{\r\n" +
 
-            "\"plugin_id\":\" net.gensousakuya.dice\",   //插件ID\r\n" +
+            "\"plugin_id\":\"net.gensousakuya.dice\",   //插件ID\r\n" +
 
             "\"plugin_name\":\"小夜\",        //插件名称\r\n" +
 
@@ -55,9 +56,16 @@ namespace PirateZombie.SDK
         public static int Event_Initialization()
         {
             QLAPI.init();//初始化API，不可删除
-            QLAPI.Api_SendLog("test", "成功", 0, ac);
-            CommandCenter.ReloadManagers();
-            DataManager.Init(Config.ConfigFile);
+            QLAPI.Api_SendLog("Debug", "成功", 0, ac);
+            try
+            {
+                CommandCenter.ReloadManagers();
+                DataManager.Init(Config.ConfigFile);
+            }
+            catch (Exception e)
+            {
+                QLAPI.Api_SendLog("Error", e.Message+e.StackTrace, 0, ac);
+            }
             return 0;
         }
 
@@ -70,6 +78,7 @@ namespace PirateZombie.SDK
         public static int Event_pluginStart()
         {
             QLAPI.CoInitialize(0);
+            QLAPI.Api_SendLog("Debug", "已启动", 0, ac);
             return 0;
         }
 
@@ -81,8 +90,9 @@ namespace PirateZombie.SDK
         [DllExport("Event_pluginStop", CallingConvention = CallingConvention.Winapi)]
         public static int Event_pluginStop()
         {
-
             QLAPI.CoUninitialize();
+            QLAPI.Api_SendLog("Debug", "已停止", 0, ac);
+            DataManager.Stop();
             return 0;
         }
 
@@ -137,7 +147,18 @@ namespace PirateZombie.SDK
                     groupId = tgroupId;
                 }
 
-                CommandCenter.Execute(Msg, source.Value, qq, tgroupId);
+                try
+                {
+                    CommandCenter.Execute(Msg, source.Value, qq, tgroupId);
+                }
+                catch (Exception e)
+                {
+                    QLAPI.Api_SendLog("Error", e.Message+e.StackTrace, 0, QLMain.ac);
+                }
+            }
+            else
+            {
+                QLAPI.Api_SendLog("Error", "不支持的消息来源类型", 0, QLMain.ac);
             }
 
             return MSG_CONTINUE;
