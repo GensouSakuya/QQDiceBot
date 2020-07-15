@@ -8,7 +8,7 @@ namespace net.gensousakuya.dice
         public readonly static Dictionary<string, string> GroupCommandDesc = new Dictionary<string, string>
         {
             {
-                ".ask [需要决策的问题] [供选择的方案(用'|'分隔)]", "向小夜征求意见"
+                ".ask [需要决策的问题] [供选择的方案(用'|'分隔)]", $"向{DataManager.Instance.BotName}征求意见"
             },
             {
                 ".jrrp", "今日人品检定"
@@ -36,7 +36,7 @@ namespace net.gensousakuya.dice
         public readonly static Dictionary<string, string> PrivateCommandDesc = new Dictionary<string, string>
         {
             {
-                ".ask [需要决策的问题] [供选择的方案(用'|'分隔)]", "向小夜征求意见"
+                ".ask [需要决策的问题] [供选择的方案(用'|'分隔)]", $"向{DataManager.Instance.BotName}征求意见"
             },
             {
                 ".jrrp", "今日人品检定"

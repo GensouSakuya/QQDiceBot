@@ -23,6 +23,7 @@ namespace Native.Csharp.App.Event
 			// 请务必尽快返回本子程序，否则会卡住其他插件以及主程序的加载。
 
 			Common.AppDirectory = Common.CqApi.GetAppDirectory ();  // 获取应用数据目录 (无需存储数据时, 请将此行注释)
+            CommandCenter.ReloadManagers();
             DataManager.Init(Common.AppDirectory);
 
             // 返回如：D:\CoolQ\app\com.example.demo\

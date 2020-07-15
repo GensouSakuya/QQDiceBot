@@ -126,9 +126,13 @@
     <Compile Include="DiceCore\Commands\AdminManager.cs" />
     <Compile Include="DiceCore\Commands\AskManager.cs" />
     <Compile Include="DiceCore\Commands\BaseManager.cs" />
+    <Compile Include="DiceCore\Commands\Base\CommandAttribute.cs" />
     <Compile Include="DiceCore\Commands\DiceManager.cs" />
     <Compile Include="DiceCore\Commands\HelpManager.cs" />
     <Compile Include="DiceCore\Commands\LikeManager.cs" />
+    <Compile Include="DiceCore\Commands\BakiManager.cs" />
+    <Compile Include="DiceCore\Commands\ShaDiaoTuManager.cs" />
+    <Compile Include="DiceCore\Commands\RepeatManager.cs" />
     <Compile Include="DiceCore\Commands\RandomPicManager.cs" />
     <Compile Include="DiceCore\Commands\NullManager.cs" />
     <Compile Include="DiceCore\Commands\MeManager.cs" />

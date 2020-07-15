@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace net.gensousakuya.dice
 {
+    [Command("jrrp")]
     public class JrrpManager: BaseManager
     {
         private static List<long> _disabledJrrpGroupNumbers

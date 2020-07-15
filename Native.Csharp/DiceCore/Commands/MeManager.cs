@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace net.gensousakuya.dice
 {
+    [Command("me")]
     public class MeManager : BaseManager
     {
         public override async Task ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)

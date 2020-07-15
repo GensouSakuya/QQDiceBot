@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 
 namespace net.gensousakuya.dice
 {
+    [Command("null")]
     public class NullManager : BaseManager
     {
         public override async Task ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)

@@ -7,6 +7,7 @@ using Native.Csharp.App;
 
 namespace net.gensousakuya.dice
 {
+    //[Command("setu")]
     public class RandomPicManager : BaseManager
     {
         private static Dictionary<Tuple<EventSourceType,long>, DateTime> _lastFetchTimeDic = new Dictionary<Tuple<EventSourceType,long>, DateTime>();

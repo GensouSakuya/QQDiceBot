@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace net.gensousakuya.dice
 {
+    [Command("r")]
     public class DiceManager : BaseManager
     {
         private static Random _rand = new Random();

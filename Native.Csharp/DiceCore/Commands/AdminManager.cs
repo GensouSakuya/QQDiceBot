@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace net.gensousakuya.dice
 {
+    [Command("admin")]
     public class AdminManager : BaseManager
     {
         public override async Task ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
@@ -35,6 +36,13 @@ namespace net.gensousakuya.dice
                         MessageManager.Send(EventSourceType.Group, message, qq?.QQ, groupNumber);
                         return;
                     }
+                case "rename":
+                    command.RemoveAt(0);
+                    if (command.Count < 1)
+                        return;
+                    var name = command[0];
+                    DataManager.Instance.BotName = name;
+                    return;
             }
         }
     }
