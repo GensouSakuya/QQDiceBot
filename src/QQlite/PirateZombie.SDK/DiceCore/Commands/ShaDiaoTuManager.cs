@@ -80,7 +80,7 @@ namespace net.gensousakuya.dice
             }
             else if (command[0].Equals("add", StringComparison.CurrentCultureIgnoreCase))
             {
-                if (!DataManager.Instance.GroupShaDiaoTuConfig.ContainsKey(fromQQ))
+                if (!DataManager.Instance.GroupShaDiaoTuConfig.ContainsKey(toGroup))
                 {
                     MessageManager.Send(EventSourceType.Group, "先找人把功能打开啦", fromQQ, toGroup);
                     return;
