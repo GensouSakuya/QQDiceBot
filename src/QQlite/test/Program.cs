@@ -12,7 +12,8 @@ namespace test
         static void Main(string[] args)
         {
             DataManager.Init();
-            DataManager.Save();
+            new AdminManager().ExecuteAsync(new List<string> {"rename", "aaa"}, EventSourceType.Friend,
+                new UserInfo {QQ = 0}, null, null).Wait();
         }
     }
 }

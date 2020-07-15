@@ -11,7 +11,7 @@ namespace net.gensousakuya.dice
     {
         public override async Task ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
-            if (sourceType != EventSourceType.Private)
+            if (sourceType != EventSourceType.Private && sourceType != EventSourceType.Friend)
                 return;
             if (qq == null || qq.QQ != DataManager.Instance.AdminQQ)
                 return;
