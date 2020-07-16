@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using PirateZombie.SDK;
 
 namespace net.gensousakuya.dice
 {
@@ -73,7 +74,10 @@ namespace net.gensousakuya.dice
             if (sourceType == EventSourceType.Group)
             {
                 if (member == null)
+                {
+                    QLAPI.Api_SendLog("debug", "Jrrp group member is null", 0, QLMain.ac);
                     return;
+                }
                 if (_disabledJrrpGroupNumbers.Contains(member.GroupNumber))
                 {
                     return;
@@ -81,10 +85,13 @@ namespace net.gensousakuya.dice
 
                 name = member.GroupName;
             }
-            else if (sourceType == EventSourceType.Private)
+            else if (sourceType == EventSourceType.Private || sourceType == EventSourceType.Friend)
             {
                 if (qq == null)
+                {
+                    QLAPI.Api_SendLog("debug", "Jrrp qq is null", 0, QLMain.ac);
                     return;
+                }
                 name = qq.Name;
             }
 

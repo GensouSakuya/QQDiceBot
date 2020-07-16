@@ -22,6 +22,11 @@ namespace net.gensousakuya.dice
                         return;
                     SendPrivate(qq.Value, message);
                     break;
+                case EventSourceType.Friend:
+                    if (!qq.HasValue || qq <= 0)
+                        return;
+                    SendPrivate(qq.Value, message);
+                    break;
             }
         }
 
@@ -33,6 +38,10 @@ namespace net.gensousakuya.dice
         public static void SendPrivate(long qq, string message)
         {
             QLAPI.Api_SendMsg(EventSourceType.Private.ToInt(), null, qq.ToString(), message, QLMain.ac);
+        }
+        public static void SendFriend(long qq, string message)
+        {
+            QLAPI.Api_SendMsg(EventSourceType.Friend.ToInt(), null, qq.ToString(), message, QLMain.ac);
         }
     }
 }
