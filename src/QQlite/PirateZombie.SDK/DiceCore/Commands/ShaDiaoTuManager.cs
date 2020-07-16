@@ -15,7 +15,7 @@ namespace net.gensousakuya.dice
     public class ShaDiaoTuManager : BaseManager
     {
         private static readonly Regex _imageGuid = new Regex(@"\[QQ:pic=(?<Guid>.*?)\]");
-        private Dictionary<long, DateTime> _lastTime = new Dictionary<long, DateTime>();
+        private static readonly Dictionary<long, DateTime> _lastTime = new Dictionary<long, DateTime>();
         private static Random _rand = new Random();
         public override async Task ExecuteAsync(List<string> command, EventSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
