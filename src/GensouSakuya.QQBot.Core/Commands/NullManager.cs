@@ -1,0 +1,19 @@
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using GensouSakuya.QQBot.Core.Base;
+using GensouSakuya.QQBot.Core.Model;
+using GensouSakuya.QQBot.Core.PlatformModel;
+using net.gensousakuya.dice;
+
+namespace GensouSakuya.QQBot.Core.Commands
+{
+    [Command("null")]
+    public class NullManager : BaseManager
+    {
+        public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        {
+            MessageManager.Send(sourceType, "略略略[QQ:emoji=4036991133]", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+            return;
+        }
+    }
+}
