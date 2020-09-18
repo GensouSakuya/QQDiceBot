@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using GensouSakuya.QQBot.Core.PlatformModel;
+using GensouSakuya.QQBot.Core.Model;
 
 namespace GensouSakuya.QQBot.Core.QQManager
 {
@@ -17,7 +17,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
             var members = PlatformManager.Info.GetGroupMembers(groupNo.ToString());
             members.ForEach(p =>
             {
-                if (GroupMembers.Any(q => q.QQ == p.QQ))
+                if (GroupMembers.Any(q => q.QQ == p.QQId && q.GroupId == p.GroupId))
                 {
                     //todo update
                 }

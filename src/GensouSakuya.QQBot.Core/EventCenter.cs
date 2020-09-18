@@ -11,8 +11,8 @@ namespace GensouSakuya.QQBot.Core
 
         public static Action<Message> SendMessage { get; set; }
 
-        public static Func<string, List<GroupMember>> GetGroupMemberList { get; set; }
+        public static Func<string, List<GroupMemberSourceInfo>> GetGroupMemberList { get; set; }
 
-        public static Func<string,QQ> GetQQInfo { get; set; }
+        public static Func<string,QQSourceInfo> GetQQInfo { get; set; }
     }
 }

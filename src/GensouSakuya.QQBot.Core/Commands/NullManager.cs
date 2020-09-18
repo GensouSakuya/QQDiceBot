@@ -12,6 +12,7 @@ namespace GensouSakuya.QQBot.Core.Commands
     {
         public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
+            await Task.Yield();
             MessageManager.Send(sourceType, "略略略[QQ:emoji=4036991133]", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
             return;
         }

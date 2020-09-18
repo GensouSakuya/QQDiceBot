@@ -3,7 +3,7 @@ using GensouSakuya.QQBot.Core.PlatformModel;
 
 namespace GensouSakuya.QQBot.Core.Model
 {
-    public class UserInfo: QQ
+    public class UserInfo: QQSourceInfo
     {
         public long QQ
         {
@@ -19,11 +19,11 @@ namespace GensouSakuya.QQBot.Core.Model
 
         public UserInfo() { }
 
-        public UserInfo(QQ qq)
+        public UserInfo(QQSourceInfo qqSourceInfo)
         {
-            Id = qq.Id;
-            Nick = qq.Nick;
-            Sex = qq.Sex;
+            Id = qqSourceInfo.Id;
+            Nick = qqSourceInfo.Nick;
+            Sex = qqSourceInfo.Sex;
         }
 
         #region Jrrp

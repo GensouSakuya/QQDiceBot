@@ -9,7 +9,6 @@ using GensouSakuya.QQBot.Core.Base;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
 using net.gensousakuya.dice;
-using PirateZombie.SDK.BaseModel;
 using Group = GensouSakuya.QQBot.Core.Model.Group;
 
 namespace GensouSakuya.QQBot.Core.Commands
@@ -24,7 +23,7 @@ namespace GensouSakuya.QQBot.Core.Commands
         {
             var fromQQ = 0L;
             var toGroup = 0L;
-            var message = "";
+            //var message = "";
             if (sourceType != MessageSourceType.Group)
             {
                 return;

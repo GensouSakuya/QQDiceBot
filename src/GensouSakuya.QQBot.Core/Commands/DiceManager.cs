@@ -15,6 +15,7 @@ namespace net.gensousakuya.dice
 
         public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group groupNo, GroupMember member)
         {
+            await Task.Yield();
             throw new NotImplementedException();
         }
 

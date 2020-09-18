@@ -14,6 +14,7 @@ namespace GensouSakuya.QQBot.Core.Commands
     {
         public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
+            await Task.Yield();
             Dictionary<string, string> descDic = null;
             if (sourceType == MessageSourceType.Group)
             {

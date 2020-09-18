@@ -1,11 +1,10 @@
-﻿using PirateZombie.SDK.BaseModel;
-
+﻿
 namespace GensouSakuya.QQBot.Core.PlatformModel
 {
 	/// <summary>
 	/// 群成员信息
 	/// </summary>
-	public class GroupMember
+	public class GroupMemberSourceInfo
 	{
 		/// <summary>
 		/// 获取或设置一个值, 指示成员所在群
@@ -69,45 +68,5 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
 		//public bool CanModifiedCard { get; set; }
 
 
-        public long GroupNumber
-        {
-            get => this.GroupId;
-            set => this.GroupId = value;
-        }
-
-        public long QQ
-        {
-            get => this.QQId;
-            set => this.QQId = value;
-        }
-
-        public string GroupName
-        {
-            get
-            {
-                if (!string.IsNullOrWhiteSpace(NickName))
-                {
-                    return NickName;
-                }
-                return Card;
-            }
-            set => Card = value;
-        }
-
-        public string NickName { get; set; }
-
-        public GroupMember() { }
-        public GroupMember(GensouSakuya.QQBot.Core.PlatformModel.GroupMember member)
-        {
-            Copy(member);
-        }
-
-        public void Copy(GensouSakuya.QQBot.Core.PlatformModel.GroupMember member)
-        {
-            Card = member.Card;
-            GroupId = member.GroupId;
-            PermitType = member.PermitType;
-            QQId = member.QQId;
-        }
 	}
 }

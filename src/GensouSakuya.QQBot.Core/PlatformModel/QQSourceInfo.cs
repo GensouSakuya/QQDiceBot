@@ -3,7 +3,7 @@
 	/// <summary>
 	/// QQ信息
 	/// </summary>
-	public class QQ
+	public class QQSourceInfo
 	{
 		/// <summary>
 		/// QQ号

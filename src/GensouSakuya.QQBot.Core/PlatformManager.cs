@@ -8,12 +8,12 @@ namespace GensouSakuya.QQBot.Core
     {
         public class Info
         {
-            public static QQ GetQQInfo(string qq)
+            public static QQSourceInfo GetQQInfo(string qq)
             {
                 return EventCenter.GetQQInfo?.Invoke(qq);
             }
 
-            public static List<GroupMember> GetGroupMembers(string groupNo)
+            public static List<GroupMemberSourceInfo> GetGroupMembers(string groupNo)
             {
                 return EventCenter.GetGroupMemberList?.Invoke(groupNo);
             }
