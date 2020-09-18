@@ -14,7 +14,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
             if (member != null)
                 return member;
 
-            var members = PlatformManager.Info.GetGroupMembers(groupNo.ToString());
+            var members = PlatformManager.Info.GetGroupMembers(groupNo);
             members.ForEach(p =>
             {
                 if (GroupMembers.Any(q => q.QQ == p.QQId && q.GroupId == p.GroupId))

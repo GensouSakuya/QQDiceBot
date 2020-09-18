@@ -1,4 +1,4 @@
-﻿namespace net.gensousakuya.dice
+﻿namespace GensouSakuya.QQBot.Core.PlatformModel
 {
     public enum MessageSourceType
     {

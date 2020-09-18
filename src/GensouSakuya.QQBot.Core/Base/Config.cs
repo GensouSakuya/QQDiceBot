@@ -65,7 +65,5 @@ namespace GensouSakuya.QQBot.Core.Base
         public static readonly string ConfigFile = Path.Combine(DataPath, "config.json");
         public static readonly string LogPath = Path.Combine(DataPath, "Log");
         public static readonly string ShaDiaoImagePath = Path.Combine(DataPath, "沙雕图");
-
-        public static readonly Encoding DefaultEncoding = Encoding.GetEncoding("GB18030");
     }
 }

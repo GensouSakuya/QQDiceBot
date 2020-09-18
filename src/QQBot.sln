@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.29728.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GensouSakuya.QQBot.Core", "GensouSakuya.QQBot.Core\GensouSakuya.QQBot.Core.csproj", "{F435F703-0E64-49D5-BEB6-65680A61721A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CurrentPlatform", "CurrentPlatform", "{367E435F-8D18-4D91-9DA7-AD209A00D1ED}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GensouSakuya.QQBot.Platform.Mirai", "Mirai\GensouSakuya.QQBot.Platform.Mirai.csproj", "{33E856F9-15C7-47D3-919D-3827F19590E7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,9 +19,16 @@ Global
 		{F435F703-0E64-49D5-BEB6-65680A61721A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F435F703-0E64-49D5-BEB6-65680A61721A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F435F703-0E64-49D5-BEB6-65680A61721A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{33E856F9-15C7-47D3-919D-3827F19590E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{33E856F9-15C7-47D3-919D-3827F19590E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{33E856F9-15C7-47D3-919D-3827F19590E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{33E856F9-15C7-47D3-919D-3827F19590E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{33E856F9-15C7-47D3-919D-3827F19590E7} = {367E435F-8D18-4D91-9DA7-AD209A00D1ED}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FFBA07D3-9754-4B96-9C1B-41C93A1D0942}

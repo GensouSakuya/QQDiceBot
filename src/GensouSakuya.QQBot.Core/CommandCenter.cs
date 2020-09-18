@@ -34,7 +34,7 @@ namespace GensouSakuya.QQBot.Core
             PlatformManager.Log.Debug($"found {managerWithCommands.Count}");
         }
 
-        public static void Execute(string command, MessageSourceType sourceType,long? qqNo = null, long? groupNo = null)
+        public static async Task Execute(string command, MessageSourceType sourceType,long? qqNo = null, long? groupNo = null)
         {
             UserInfo qq = null;
             Group group = null; 

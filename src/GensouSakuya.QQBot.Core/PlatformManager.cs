@@ -8,40 +8,43 @@ namespace GensouSakuya.QQBot.Core
     {
         public class Info
         {
-            public static QQSourceInfo GetQQInfo(string qq)
+            public static QQSourceInfo GetQQInfo(long qq)
             {
                 return EventCenter.GetQQInfo?.Invoke(qq);
             }
 
-            public static List<GroupMemberSourceInfo> GetGroupMembers(string groupNo)
+            public static List<GroupMemberSourceInfo> GetGroupMembers(long groupNo)
             {
                 return EventCenter.GetGroupMemberList?.Invoke(groupNo);
             }
         }
 
-        public static void SendGroupMessage(string toGroup, string message)
+        public static void SendGroupMessage(long toGroup, string message)
         {
             EventCenter.SendMessage?.Invoke(new Message
             {
                 ToGroup = toGroup,
                 Type = MessageSourceType.Group,
+                Content = message
             });
         }
 
-        public static void SendToNotFriend(string toQQ, string message)
+        public static void SendToNotFriend(long toQQ, string message)
         {
             EventCenter.SendMessage?.Invoke(new Message
             {
                 ToGroup = toQQ,
                 Type = MessageSourceType.Private,
+                Content = message
             });
         }
-        public static void SendToFriend(string toQQ, string message)
+        public static void SendToFriend(long toQQ, string message)
         {
             EventCenter.SendMessage?.Invoke(new Message
             {
                 ToGroup = toQQ,
                 Type = MessageSourceType.Friend,
+                Content = message
             });
         }
 

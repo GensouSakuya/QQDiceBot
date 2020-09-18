@@ -1,4 +1,5 @@
-﻿using net.gensousakuya.dice;
+﻿using GensouSakuya.QQBot.Core.PlatformModel;
+using net.gensousakuya.dice;
 
 namespace GensouSakuya.QQBot.Core.Base
 {
@@ -28,16 +29,16 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public static void SendToGroup(long groupNo,string message)
         {
-            PlatformManager.SendGroupMessage(groupNo.ToString(), message);
+            PlatformManager.SendGroupMessage(groupNo, message);
         }
 
         public static void SendPrivate(long qq, string message)
         {
-            PlatformManager.SendToNotFriend(qq.ToString(), message);
+            PlatformManager.SendToNotFriend(qq, message);
         }
         public static void SendFriend(long qq, string message)
         {
-            PlatformManager.SendToFriend(qq.ToString(), message);
+            PlatformManager.SendToFriend(qq, message);
         }
     }
 }
