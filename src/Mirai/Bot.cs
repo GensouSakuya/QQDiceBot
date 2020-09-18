@@ -27,6 +27,18 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                 }
             };
             EventCenter.Log += log => { Console.WriteLine(log.Message); };
+            //EventCenter.GetGroupMemberList += async groupNo =>
+            //{
+            //    var members = await _session.GetGroupMemberListAsync(groupNo);
+            //    members?.ToList().ForEach(member =>
+            //    {
+            //        var info = new GroupMemberSourceInfo
+            //        {
+            //            QQId = member.
+            //        }
+            //    });
+            //    return null;
+            //};
         }
 
         private string GetMessage(IMessageBase[] chain)

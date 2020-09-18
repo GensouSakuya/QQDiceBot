@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.PlatformModel;
-using net.gensousakuya.dice;
 
 namespace GensouSakuya.QQBot.Core
 {
@@ -13,9 +13,14 @@ namespace GensouSakuya.QQBot.Core
                 return EventCenter.GetQQInfo?.Invoke(qq);
             }
 
-            public static List<GroupMemberSourceInfo> GetGroupMembers(long groupNo)
+            public static async Task<GroupMemberSourceInfo> GetGroupoMember(long groupNo, long qq)
             {
-                return EventCenter.GetGroupMemberList?.Invoke(groupNo);
+                return await EventCenter.GetGroupMember?.Invoke(groupNo, qq);
+            }
+
+            public static async Task<List<GroupMemberSourceInfo>> GetGroupMembers(long groupNo)
+            {
+                return await EventCenter.GetGroupMemberList?.Invoke(groupNo);
             }
         }
 

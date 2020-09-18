@@ -46,7 +46,7 @@ namespace GensouSakuya.QQBot.Core
             GroupMember member = null;
             if(qqNo.HasValue && groupNo.HasValue)
             {
-                member = GroupMemberManager.Get(qqNo.Value, groupNo.Value);
+                member = await GroupMemberManager.Get(qqNo.Value, groupNo.Value);
             }
 
             if (!command.StartsWith(".") && !command.StartsWith("/"))

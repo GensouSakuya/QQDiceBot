@@ -14,7 +14,6 @@ namespace GensouSakuya.QQBot.Core.Commands
     {
         public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
-            await Task.Yield();
             var fromQQ = 0L;
             var toGroup = 0L;
             var message = "";
@@ -33,7 +32,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 }
 
-                var mem = GroupMemberManager.Get(fromQQ, toGroup);
+                var mem =await GroupMemberManager.Get(fromQQ, toGroup);
                 message = mem.GroupName + string.Join(" ", command.Skip(1));
 
                 MessageManager.Send(MessageSourceType.Group, message, fromQQ, toGroup);
