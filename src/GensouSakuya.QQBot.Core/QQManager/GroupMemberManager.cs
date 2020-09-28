@@ -13,16 +13,22 @@ namespace GensouSakuya.QQBot.Core.QQManager
         public static async Task<GroupMember> Get(long qq,long groupNo)
         {
             var member = GroupMembers.Find(p => p.QQ == qq && p.GroupId == groupNo);
-            if (member != null)
-                return member;
 
             var sourceMember = await PlatformManager.Info.GetGroupoMember(groupNo, qq);
-            member = new GroupMember(sourceMember);
-            lock (AddLock)
+
+            if (member != null)
             {
-                if (GroupMembers.All(p => p.QQ != qq && p.GroupId != groupNo))
+                member.Card = sourceMember.Card;
+            }
+            else
+            {
+                member = new GroupMember(sourceMember);
+                lock (AddLock)
                 {
-                    GroupMembers.Add(member);
+                    if (GroupMembers.All(p => p.QQ != qq && p.GroupId != groupNo))
+                    {
+                        GroupMembers.Add(member);
+                    }
                 }
             }
             return member;

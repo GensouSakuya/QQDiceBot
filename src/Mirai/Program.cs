@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CommandLine;
 using Mirai_CSharp;
@@ -29,9 +30,25 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             await session.ConnectAsync(options, opt.QQ); // 自己填机器人QQ号
             while (true)
             {
-                if (await Console.In.ReadLineAsync() == "exit")
+                var readline = await Console.In.ReadLineAsync();
+                if (readline == "exit")
                 {
                     return;
+                }
+                else if (readline.StartsWith("notice ", StringComparison.OrdinalIgnoreCase))
+                {
+                    var message = $"[通知]{readline.Substring(7)}";
+                    var groups = GensouSakuya.QQBot.Core.QQManager.GroupMemberManager.GroupMembers
+                        .Select(p => p.GroupId).Distinct().ToList();
+                    groups.ForEach(p => { session.SendGroupMessageAsync(p, new PlainMessage(message)); });
+                }
+                else if (readline.StartsWith("togroup ", StringComparison.OrdinalIgnoreCase))
+                {
+                    var splited = readline.Split(" ");
+                    if (!long.TryParse(splited[1], out var groupNo))
+                        continue;
+                    var message = string.Join(" ", splited.Skip(2));
+                    await session.SendGroupMessageAsync(groupNo, new PlainMessage(message));
                 }
             }
         }
