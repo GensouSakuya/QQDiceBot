@@ -13,6 +13,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai.StartTool
         private static EventWaitHandle botWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
         static async Task Main(string[] args)
         {
+            Console.WriteLine(string.Join(Environment.NewLine, args));
             if (args == null || args.Length < 4)
                 return;
             var iStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
