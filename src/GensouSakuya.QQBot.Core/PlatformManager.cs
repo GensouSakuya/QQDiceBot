@@ -24,7 +24,7 @@ namespace GensouSakuya.QQBot.Core
             }
         }
 
-        public static void SendMessage( Message message)
+        public static void SendMessage(Message message)
         {
             EventCenter.SendMessage?.Invoke(message);
         }

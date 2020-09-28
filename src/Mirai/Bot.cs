@@ -31,12 +31,19 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                     builder = builder.Add(new PlainMessage(tm.Text));
                 else if (p is Core.PlatformModel.ImageMessage im)
                 {
-                    var meg = _session
-                        .UploadPictureAsync(
-                            m.Type == MessageSourceType.Group ? UploadTarget.Group :
-                            m.Type == MessageSourceType.Friend ? UploadTarget.Friend : UploadTarget.Temp, im.ImagePath)
-                        .GetAwaiter().GetResult();
-                    builder = builder.Add(meg);
+                    if (!string.IsNullOrWhiteSpace(im.ImagePath))
+                    {
+                        var meg = _session
+                            .UploadPictureAsync(
+                                m.Type == MessageSourceType.Group ? UploadTarget.Group :
+                                m.Type == MessageSourceType.Friend ? UploadTarget.Friend : UploadTarget.Temp, im.ImagePath)
+                            .GetAwaiter().GetResult();
+                        builder = builder.Add(meg);
+                    }
+                    else if (!string.IsNullOrWhiteSpace(im.Url))
+                    {
+                        builder = builder.Add(new Mirai_CSharp.Models.ImageMessage(im.Id, im.Url, im.ImagePath));
+                    }
                 }
             });
             if (builder.Count == 0)
@@ -46,12 +53,28 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                 case MessageSourceType.Group:
                     await _session.SendGroupMessageAsync(m.ToGroup, builder);
                     break;
+                case MessageSourceType.Friend:
+                    await _session.SendFriendMessageAsync(m.ToQQ, builder);
+                    break;
             }
         }
 
-        private string GetMessage(IMessageBase[] chain)
+        private List<BaseMessage> GetMessage(IMessageBase[] chain,out string command)
         {
-            return string.Join(Environment.NewLine, ((IEnumerable<IMessageBase>) chain).Skip(1));
+            command = string.Join(Environment.NewLine, ((IEnumerable<IMessageBase>) chain).Skip(1));
+            var mes = new List<BaseMessage>();
+            chain.Skip(1).ToList().ForEach(c =>
+            {
+                if (c is Mirai_CSharp.Models.ImageMessage im)
+                {
+                    mes.Add(new Core.PlatformModel.ImageMessage(url: im.Url, id: im.ImageId));
+                }
+                else if (c is PlainMessage pm)
+                {
+                    mes.Add(new TextMessage(pm.Message));
+                }
+            });
+            return mes;
         }
 
         private async Task<List<GroupMemberSourceInfo>> GetGroupMemberList(long groupNo)
@@ -74,7 +97,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
         public async Task<bool> GroupMessage(MiraiHttpSession session, IGroupMessageEventArgs e)
         {
             _session = session;
-            var message = GetMessage(e.Chain);
+            var message = GetMessage(e.Chain,out var command);
             try
             {
                 UserManager.Add(new QQSourceInfo
@@ -82,7 +105,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                     Id = e.Sender.Id,
                     Nick = e.Sender.Name,
                 });
-                await CommandCenter.Execute(message, Core.PlatformModel.MessageSourceType.Group, qqNo: e.Sender.Id,
+                await CommandCenter.Execute(command, message, Core.PlatformModel.MessageSourceType.Group, qqNo: e.Sender.Id,
                     groupNo: e.Sender.Group.Id);
                 return true;
             }

@@ -13,7 +13,7 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("fudu")]
     public class RepeatManager : BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             await Task.Yield();
             var fromQQ = 0L;
@@ -77,7 +77,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             }
             else if (command[0].Equals("repeat", StringComparison.CurrentCultureIgnoreCase) && command.Count>1)
             {
-                MessageManager.SendTextMessage(MessageSourceType.Group, command[1], fromQQ, toGroup);
+                MessageManager.SendMessage(MessageSourceType.Group, originMessage, fromQQ, toGroup);
             }
         }
     }

@@ -12,7 +12,7 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("me")]
     public class MeManager : BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             var fromQQ = 0L;
             var toGroup = 0L;

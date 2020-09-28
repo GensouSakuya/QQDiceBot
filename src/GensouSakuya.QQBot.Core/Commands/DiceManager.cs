@@ -13,7 +13,7 @@ namespace net.gensousakuya.dice
     {
         private static Random _rand = new Random();
 
-        public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group groupNo, GroupMember member)
+        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group groupNo, GroupMember member)
         {
             await Task.Yield();
             throw new NotImplementedException();

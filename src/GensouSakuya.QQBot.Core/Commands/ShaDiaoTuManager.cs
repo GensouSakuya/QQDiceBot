@@ -19,7 +19,7 @@ namespace GensouSakuya.QQBot.Core.Commands
         private static readonly Regex _imageGuid = new Regex(@"\[QQ:pic=(?<Guid>.*?)\]");
         private static readonly Dictionary<long, DateTime> _lastTime = new Dictionary<long, DateTime>();
         private static Random _rand = new Random();
-        public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             var fromQQ = 0L;
             var toGroup = 0L;
@@ -95,30 +95,33 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 }
 
-                if (command.Count == 1)
+                var image = (ImageMessage) originMessage.Find(p => p is ImageMessage);
+
+                if (image == null)
                 {
                     MessageManager.SendTextMessage(MessageSourceType.Group, "图呢0 0", fromQQ, toGroup);
                     return;
                 }
-                var img = command[1];
-                var match = _imageGuid.Match(img);
-                if (!match.Groups["Guid"].Success)
-                {
-                    MessageManager.SendTextMessage(MessageSourceType.Group, "图呢0 0", fromQQ, toGroup);
-                    return;
-                }
+                //var img = command[1];
+                //var match = _imageGuid.Match(img);
+                //if (!match.Groups["Guid"].Success)
+                //{
+                //    MessageManager.SendTextMessage(MessageSourceType.Group, "图呢0 0", fromQQ, toGroup);
+                //    return;
+                //}
 
-                var fileName = match.Groups["Guid"].Value;
-                var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "temp", "image");
-                var iniFileName = Path.Combine(path, Path.GetFileNameWithoutExtension(fileName) + ".ini");
-                if (!File.Exists(iniFileName))
-                {
-                    MessageManager.SendTextMessage(MessageSourceType.Group, "上传失败惹", fromQQ, toGroup);
-                    return;
-                }
+                //var fileName = match.Groups["Guid"].Value;
+                //var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "temp", "image");
+                //var iniFileName = Path.Combine(path, Path.GetFileNameWithoutExtension(fileName) + ".ini");
+                //if (!File.Exists(iniFileName))
+                //{
+                //    MessageManager.SendTextMessage(MessageSourceType.Group, "上传失败惹", fromQQ, toGroup);
+                //    return;
+                //}
 
-                var fileText = File.ReadAllText(iniFileName);
-                var url = fileText.Split('\n').FirstOrDefault(p => p.StartsWith("url"))?.Substring(4);
+                //var fileText = File.ReadAllText(iniFileName);
+                //var url = fileText.Split('\n').FirstOrDefault(p => p.StartsWith("url"))?.Substring(4);
+                var url = image.Url;
                 if (string.IsNullOrWhiteSpace(url))
                 {
                     MessageManager.SendTextMessage(MessageSourceType.Group, "上传失败惹", fromQQ, toGroup);
@@ -130,7 +133,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     var imgRes = await client.GetAsync(url);
                     var imgItem = System.Drawing.Image.FromStream(await imgRes.Content.ReadAsStreamAsync());
 
-                    var savedPath = Path.Combine(Config.ShaDiaoImagePath, fileName);
+                    var savedPath = Path.Combine(Config.ShaDiaoImagePath, Guid.NewGuid().ToString() + ".png");
                     if (!Directory.Exists(Config.ShaDiaoImagePath))
                     {
                         Directory.CreateDirectory(Config.ShaDiaoImagePath);

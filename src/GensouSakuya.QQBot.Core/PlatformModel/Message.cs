@@ -39,10 +39,25 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
 
     public class ImageMessage : BaseMessage
     {
+        /// <summary>
+        /// 发送用
+        /// </summary>
         public string ImagePath { get; set; }
-        public ImageMessage(string path)
+
+        /// <summary>
+        /// 接收用
+        /// </summary>
+        public string Url{ get; set; }
+
+        /// <summary>
+        /// 接收用
+        /// </summary>
+        public string Id{ get; set; }
+        public ImageMessage(string path = null,string url = null,string id=null)
         {
             ImagePath = path;
+            Url = url;
+            Id = id;
         }
     }
 }

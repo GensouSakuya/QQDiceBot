@@ -10,7 +10,7 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("ti")]
     public class TempInsaneManager : BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             await Task.Yield();
             var name = "";

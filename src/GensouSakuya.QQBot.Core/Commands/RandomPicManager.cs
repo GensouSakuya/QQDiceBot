@@ -16,7 +16,7 @@ namespace GensouSakuya.QQBot.Core.Commands
         private static Dictionary<Tuple<MessageSourceType,long>, DateTime> _lastFetchTimeDic = new Dictionary<Tuple<MessageSourceType,long>, DateTime>();
         private const int _intervalSeconds = 60;
 
-        public override async System.Threading.Tasks.Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async System.Threading.Tasks.Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             var toGroup = 0L;
             var fromQQ = 0L;

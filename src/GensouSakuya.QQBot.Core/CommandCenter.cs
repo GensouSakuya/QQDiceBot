@@ -34,7 +34,7 @@ namespace GensouSakuya.QQBot.Core
             PlatformManager.Log.Debug($"found {managerWithCommands.Count}");
         }
 
-        public static async Task Execute(string command, MessageSourceType sourceType,long? qqNo = null, long? groupNo = null)
+        public static async Task Execute(string command, List<BaseMessage> originMessage, MessageSourceType sourceType,long? qqNo = null, long? groupNo = null)
         {
             UserInfo qq = null;
             Group group = null; 
@@ -53,7 +53,7 @@ namespace GensouSakuya.QQBot.Core
             {
                 if (sourceType == MessageSourceType.Group)
                 {
-                    ExecuteWithoutCommand(command, sourceType, qq, member);
+                    ExecuteWithoutCommand(command, originMessage, sourceType, qq, member);
                 }
                 return;
             }
@@ -70,17 +70,17 @@ namespace GensouSakuya.QQBot.Core
             {
                 if (sourceType == MessageSourceType.Group)
                 {
-                    ExecuteWithoutCommand(command, sourceType, qq, member);
+                    ExecuteWithoutCommand(command, originMessage, sourceType, qq, member);
                 }
                 return;
             }
 
             commandList.RemoveAt(0);
             var args = commandList;
-            Task.Run(async () => { await manager.ExecuteAsync(args, sourceType, qq, group, member); });
+            Task.Run(async () => { await manager.ExecuteAsync(args, originMessage, sourceType, qq, group, member); });
         }
 
-        private static void ExecuteWithoutCommand(string message, MessageSourceType sourceType, UserInfo qq, GroupMember member)
+        private static void ExecuteWithoutCommand(string message, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, GroupMember member)
         {
             var managerList = new List<Tuple<BaseManager, List<string>>>();
             var randomRes = Random.Next(1, 101);
@@ -124,7 +124,7 @@ namespace GensouSakuya.QQBot.Core
                 var choosen = managerList[choose];
                 Task.Run(async () =>
                 {
-                    await choosen.Item1.ExecuteAsync(choosen.Item2, sourceType, qq, null, member);
+                    await choosen.Item1.ExecuteAsync(choosen.Item2, originMessage, sourceType, qq, null, member);
                 });
             }
         }

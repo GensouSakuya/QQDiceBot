@@ -15,7 +15,7 @@ namespace GensouSakuya.QQBot.Core.Commands
     public class BakiManager : BaseManager
     {
         private static Random _rand = new Random();
-        public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             await Task.Yield();
             var fromQQ = 0L;

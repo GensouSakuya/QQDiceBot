@@ -11,7 +11,7 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("ask")]
     public class AskManager : BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             await Task.Yield();
             if (command.Count < 1)

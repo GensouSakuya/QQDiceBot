@@ -7,6 +7,6 @@ namespace net.gensousakuya.dice
 {
     public abstract class BaseManager
     {
-        public abstract Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member);
+        public abstract Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member);
     }
 }
