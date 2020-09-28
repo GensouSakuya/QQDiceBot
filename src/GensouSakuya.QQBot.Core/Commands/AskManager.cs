@@ -16,13 +16,13 @@ namespace GensouSakuya.QQBot.Core.Commands
             await Task.Yield();
             if (command.Count < 1)
             {
-                MessageManager.Send(sourceType, "不提问怎么帮你选0 0？", qq?.QQ, member?.GroupNumber);
+                MessageManager.SendTextMessage(sourceType, "不提问怎么帮你选0 0？", qq?.QQ, member?.GroupNumber);
                 return;
             }
 
             if (command.Count < 2)
             {
-                MessageManager.Send(sourceType, "快把你打算的选择告诉我！", qq?.QQ, member?.GroupNumber);
+                MessageManager.SendTextMessage(sourceType, "快把你打算的选择告诉我！", qq?.QQ, member?.GroupNumber);
                 return;
             }
             var quest = command.First();
@@ -33,7 +33,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             var res = Ask(ans);
             var message = $"关于[{quest}]：\n" + string.Join("\n", res.Select(p => $"{p.Quest}:{p.Percent}%")) + "\n"
                           + $"小夜觉得{string.Join("、", GetMax(res).Select(p => p.Quest))}比较好";
-            MessageManager.Send(sourceType, message, qq?.QQ, member?.GroupNumber);
+            MessageManager.SendTextMessage(sourceType, message, qq?.QQ, member?.GroupNumber);
         }
 
         public static List<AskModel> Ask(List<string> ques)

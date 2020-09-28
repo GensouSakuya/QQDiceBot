@@ -50,7 +50,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 str += string.Format($"症状=>{_longInsaneList[insaneIndex]}", "1d10=" + duration);
             }
 
-            MessageManager.Send(sourceType, str, qq?.QQ, member?.GroupNumber);
+            MessageManager.SendTextMessage(sourceType, str, qq?.QQ, member?.GroupNumber);
         }
 
         public static readonly List<string> _longInsaneList = new List<string>

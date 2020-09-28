@@ -36,7 +36,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 if (permit == PermitType.None)
                 {
-                    MessageManager.Send(MessageSourceType.Group, "只有群主或管理员才有权限开启复读功能", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限开启复读功能", fromQQ, toGroup);
                     return;
                 }
                 RepeatConfig config;
@@ -62,22 +62,22 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                 DataManager.Instance.GroupRepeatConfig.AddOrUpdate(toGroup, config, (p, q) => config);
 
-                MessageManager.Send(MessageSourceType.Group, $"复读已开启，复读概率：{config.Percent}%", fromQQ, toGroup);
+                MessageManager.SendTextMessage(MessageSourceType.Group, $"复读已开启，复读概率：{config.Percent}%", fromQQ, toGroup);
             }
             else if (command[0].Equals("off", StringComparison.CurrentCultureIgnoreCase))
             {
                 if (permit == PermitType.None)
                 {
-                    MessageManager.Send(MessageSourceType.Group, "只有群主或管理员才有权限关闭复读功能", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限关闭复读功能", fromQQ, toGroup);
                     return;
                 }
 
                 DataManager.Instance.GroupRepeatConfig.TryRemove(toGroup, out _);
-                MessageManager.Send(MessageSourceType.Group, "复读已关闭", fromQQ, toGroup);
+                MessageManager.SendTextMessage(MessageSourceType.Group, "复读已关闭", fromQQ, toGroup);
             }
             else if (command[0].Equals("repeat", StringComparison.CurrentCultureIgnoreCase) && command.Count>1)
             {
-                MessageManager.Send(MessageSourceType.Group, command[1], fromQQ, toGroup);
+                MessageManager.SendTextMessage(MessageSourceType.Group, command[1], fromQQ, toGroup);
             }
         }
     }

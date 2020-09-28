@@ -36,7 +36,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                         command.RemoveAt(0);
                         var message = string.Join(" ", command);
-                        MessageManager.Send(MessageSourceType.Group, message, qq?.QQ, groupNumber);
+                        MessageManager.SendTextMessage(MessageSourceType.Group, message, qq?.QQ, groupNumber);
                         return;
                     }
                 case "rename":
@@ -45,11 +45,11 @@ namespace GensouSakuya.QQBot.Core.Commands
                         return;
                     var name = command[0];
                     DataManager.Instance.BotName = name;
-                    MessageManager.Send(MessageSourceType.Friend, "改名成功", qq?.QQ);
+                    MessageManager.SendTextMessage(MessageSourceType.Friend, "改名成功", qq?.QQ);
                     return;
                 case "save":
                     DataManager.Save();
-                    MessageManager.Send(MessageSourceType.Friend,"保存成功", qq?.QQ);
+                    MessageManager.SendTextMessage(MessageSourceType.Friend,"保存成功", qq?.QQ);
                     return;
             }
         }

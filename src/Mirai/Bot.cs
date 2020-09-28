@@ -16,13 +16,24 @@ namespace GensouSakuya.QQBot.Platform.Mirai
     {
         public Bot()
         {
-            Core.Core.Init();
+            GensouSakuya.QQBot.Core.Main.Init();
             EventCenter.SendMessage += (m) =>
             {
+                var builder = new MessageBuilder();
+                m.Content.ForEach(async p =>
+                {
+                    if (p is TextMessage tm)
+                        builder.Add(new PlainMessage(tm.Text));
+                    else if(p is Core.PlatformModel.ImageMessage im)
+                    {
+                        //var meg = await _session.up
+                    }
+                    //builder.Add(new ImageMessage())
+                });
                 switch (m.Type)
                 {
                     case MessageSourceType.Group:
-                        _session.SendGroupMessageAsync(m.ToGroup, new MessageBuilder().Add(new PlainMessage(m.Content)));
+                        //_session.SendGroupMessageAsync(m.ToGroup, new MessageBuilder().Add(new PlainMessage(m.Content)));
                         break;
                 }
             };

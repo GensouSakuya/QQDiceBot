@@ -5,7 +5,7 @@ using GensouSakuya.QQBot.Core.Base;
 
 namespace GensouSakuya.QQBot.Core
 {
-    public class Core
+    public class Main
     {
         public static void Init()
         {

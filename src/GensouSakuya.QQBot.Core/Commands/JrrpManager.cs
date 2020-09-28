@@ -105,33 +105,33 @@ namespace GensouSakuya.QQBot.Core.Commands
             switch(qq.ReRollStep)
             {
                 case UserInfo.RerollStep.None:
-                    MessageManager.Send(sourceType, name + "今天的人品值是:" + rp, qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                    MessageManager.SendTextMessage(sourceType, name + "今天的人品值是:" + rp, qq: qq?.QQ, toGroupNo: member?.GroupNumber);
                     return;
                 case UserInfo.RerollStep.CanReroll:
-                    MessageManager.Send(sourceType, name + "今天的人品不太好，确定要看的话就再来一次吧", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                    MessageManager.SendTextMessage(sourceType, name + "今天的人品不太好，确定要看的话就再来一次吧", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
                     return;
                 case UserInfo.RerollStep.RerollFaild:
                     if (rp == 1)
                     {
-                        MessageManager.Send(sourceType, $"……", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        MessageManager.SendTextMessage(sourceType, $"……", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
                     }
                     else
                     {
-                        MessageManager.Send(sourceType, name + $"今天的人品值只有：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        MessageManager.SendTextMessage(sourceType, name + $"今天的人品值只有：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
                     }
                     return;
                 case UserInfo.RerollStep.RerollSuccess:
-                    MessageManager.Send(sourceType, $"啊！对不起刚才是我失误了！{name}今天人品值应该是：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                    MessageManager.SendTextMessage(sourceType, $"啊！对不起刚才是我失误了！{name}今天人品值应该是：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
                     qq.ReRollStep = UserInfo.RerollStep.None;
                     return;
                 case UserInfo.RerollStep.RerollDevastated:
                     if (rp == 1)
                     {
-                        MessageManager.Send(sourceType, $"……", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        MessageManager.SendTextMessage(sourceType, $"……", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
                     }
                     else
                     {
-                        MessageManager.Send(sourceType, $"都说了不想告诉你了嘛……{name}今天人品值只有：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+                        MessageManager.SendTextMessage(sourceType, $"都说了不想告诉你了嘛……{name}今天人品值只有：{rp}", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
                     }
                     qq.ReRollStep = UserInfo.RerollStep.RerollFaild;
                     return;

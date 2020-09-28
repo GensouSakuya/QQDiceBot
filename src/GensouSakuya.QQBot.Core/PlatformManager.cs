@@ -24,35 +24,10 @@ namespace GensouSakuya.QQBot.Core
             }
         }
 
-        public static void SendGroupMessage(long toGroup, string message)
+        public static void SendMessage( Message message)
         {
-            EventCenter.SendMessage?.Invoke(new Message
-            {
-                ToGroup = toGroup,
-                Type = MessageSourceType.Group,
-                Content = message
-            });
+            EventCenter.SendMessage?.Invoke(message);
         }
-
-        public static void SendToNotFriend(long toQQ, string message)
-        {
-            EventCenter.SendMessage?.Invoke(new Message
-            {
-                ToGroup = toQQ,
-                Type = MessageSourceType.Private,
-                Content = message
-            });
-        }
-        public static void SendToFriend(long toQQ, string message)
-        {
-            EventCenter.SendMessage?.Invoke(new Message
-            {
-                ToGroup = toQQ,
-                Type = MessageSourceType.Friend,
-                Content = message
-            });
-        }
-
 
         public class Log
         {

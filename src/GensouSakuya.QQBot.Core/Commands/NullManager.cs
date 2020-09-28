@@ -13,7 +13,7 @@ namespace GensouSakuya.QQBot.Core.Commands
         public override async Task ExecuteAsync(List<string> command, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
             await Task.Yield();
-            MessageManager.Send(sourceType, "略略略😝", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+            MessageManager.SendTextMessage(sourceType, "略略略😝", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
             return;
         }
     }

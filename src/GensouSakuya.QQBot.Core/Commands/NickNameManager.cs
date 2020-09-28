@@ -29,7 +29,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 SetNickName(member, newNickName, ref message);
             }
 
-            MessageManager.Send(sourceType, message, member.QQ, member.GroupNumber);
+            MessageManager.SendTextMessage(sourceType, message, member.QQ, member.GroupNumber);
 
         }
 

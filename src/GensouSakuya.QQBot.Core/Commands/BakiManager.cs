@@ -38,7 +38,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 if (permit == PermitType.None)
                 {
-                    MessageManager.Send(MessageSourceType.Group, "只有群主或管理员才有权限开启热狗图功能", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限开启热狗图功能", fromQQ, toGroup);
                     return;
                 }
                 BakiConfig config;
@@ -63,18 +63,18 @@ namespace GensouSakuya.QQBot.Core.Commands
                 }
 
                 DataManager.Instance.GroupBakiConfig.AddOrUpdate(toGroup, config, (p, q) => config);
-                MessageManager.Send(MessageSourceType.Group, $"随机热狗图已开启，提升纯度概率：{config.Percent}%", fromQQ, toGroup);
+                MessageManager.SendTextMessage(MessageSourceType.Group, $"随机热狗图已开启，提升纯度概率：{config.Percent}%", fromQQ, toGroup);
             }
             else if (command[0].Equals("off", StringComparison.CurrentCultureIgnoreCase))
             {
                 if (permit == PermitType.None)
                 {
-                    MessageManager.Send(MessageSourceType.Group, "只有群主或管理员才有权限关闭热狗图功能", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限关闭热狗图功能", fromQQ, toGroup);
                     return;
                 }
 
                 DataManager.Instance.GroupBakiConfig.TryRemove(toGroup, out _);
-                MessageManager.Send(MessageSourceType.Group, "随机热狗图已关闭", fromQQ, toGroup);
+                MessageManager.SendTextMessage(MessageSourceType.Group, "随机热狗图已关闭", fromQQ, toGroup);
             }
             else if (command[0].Equals("baki", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -85,7 +85,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 if (!files.Any())
                     return;
                 var fileName = files[_rand.Next(0, files.Length)];
-                MessageManager.Send(sourceType, $"[QQ:pic={fileName}]",
+                MessageManager.SendTextMessage(sourceType, $"[QQ:pic={fileName}]",
                     fromQQ, toGroup);
             }
         }

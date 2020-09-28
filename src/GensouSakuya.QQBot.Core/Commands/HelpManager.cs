@@ -35,7 +35,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 desc.Append($"bug反馈请联系QQ:{DataManager.Instance.AdminQQ}");
             }
-            MessageManager.Send(sourceType, desc.ToString(), qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+            MessageManager.SendTextMessage(sourceType, desc.ToString(), qq: qq?.QQ, toGroupNo: member?.GroupNumber);
         }
     }
 }

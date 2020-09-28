@@ -25,7 +25,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 fromQQ = qq.QQ;
                 if (fromQQ != DataManager.Instance.AdminQQ)
                 {
-                    MessageManager.Send(sourceType, "不给看不给看！", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(sourceType, "不给看不给看！", fromQQ, toGroup);
                     return;
                 }
             }
@@ -40,7 +40,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                         if (!DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                         {
                             DataManager.Instance.EnabledRandomImgNumbers.Add(member.GroupNumber);
-                            MessageManager.Send(sourceType, "启用成功！", fromQQ, toGroup);
+                            MessageManager.SendTextMessage(sourceType, "启用成功！", fromQQ, toGroup);
                             return;
                         }
                     }
@@ -52,7 +52,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                         if (DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                         {
                             DataManager.Instance.EnabledRandomImgNumbers.Remove(member.GroupNumber);
-                            MessageManager.Send(sourceType, "禁用成功！", fromQQ, toGroup);
+                            MessageManager.SendTextMessage(sourceType, "禁用成功！", fromQQ, toGroup);
                             return;
                         }
                     }
@@ -60,7 +60,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                 if (!DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                 {
-                    MessageManager.Send(sourceType, "这个群没启用这个功能，快去找开发者来开启", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(sourceType, "这个群没启用这个功能，快去找开发者来开启", fromQQ, toGroup);
                     return;
                 }
             }
@@ -71,7 +71,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
             if (command.Count > 2)
             {
-                MessageManager.Send(sourceType, "Tag太多啦，一次最多只能查两个", fromQQ, toGroup);
+                MessageManager.SendTextMessage(sourceType, "Tag太多啦，一次最多只能查两个", fromQQ, toGroup);
                 return;
             }
 
@@ -82,7 +82,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 {
                     if (DateTime.Now.Subtract(_lastFetchTimeDic[key]).TotalSeconds < _intervalSeconds)
                     {
-                        MessageManager.Send(sourceType, "太频繁啦，每分钟只能出一张图", fromQQ, toGroup);
+                        MessageManager.SendTextMessage(sourceType, "太频繁啦，每分钟只能出一张图", fromQQ, toGroup);
                         return;
                     }
                 }
@@ -99,12 +99,12 @@ namespace GensouSakuya.QQBot.Core.Commands
                 var res = await client.GetAsync(url);
                 if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    MessageManager.Send(sourceType, $"{tag}:\ntag写错了吗，没找到图呢", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(sourceType, $"{tag}:\ntag写错了吗，没找到图呢", fromQQ, toGroup);
                     return;
                 }
                 if (!res.IsSuccessStatusCode)
                 {
-                    MessageManager.Send(sourceType, $"{tag}:\n请求失败了QAQ", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(sourceType, $"{tag}:\n请求失败了QAQ", fromQQ, toGroup);
                     return;
                 }
 
@@ -118,13 +118,13 @@ namespace GensouSakuya.QQBot.Core.Commands
                 });
                 if (jsonRes.success.HasValue && !jsonRes.success.Value)
                 {
-                    MessageManager.Send(sourceType, $"{tag}:\ntag写错了吗，没找到图呢", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(sourceType, $"{tag}:\ntag写错了吗，没找到图呢", fromQQ, toGroup);
                     return;
                 }
 
                 if (jsonRes.is_banned.HasValue && jsonRes.is_banned.Value)
                 {
-                    MessageManager.Send(sourceType, $"{tag}:\nid:{jsonRes.id}\n这张图被作者要求下架了:(", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(sourceType, $"{tag}:\nid:{jsonRes.id}\n这张图被作者要求下架了:(", fromQQ, toGroup);
                     return;
                 }
 
@@ -142,7 +142,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     }
 
                     img.Save(path);
-                    MessageManager.Send(sourceType, $"[CQ:image,file={fileName}]\n{tag}:\nhttps://danbooru.donmai.us/posts/{jsonRes.id}",
+                    MessageManager.SendTextMessage(sourceType, $"[CQ:image,file={fileName}]\n{tag}:\nhttps://danbooru.donmai.us/posts/{jsonRes.id}",
                         fromQQ, toGroup);
                     File.Delete(path);
                 }
