@@ -10,27 +10,32 @@ namespace GensouSakuya.QQBot.Core.QQManager
         public static List<GroupMember> GroupMembers = new List<GroupMember>();
 
         private static readonly object AddLock = new object();
-        public static async Task<GroupMember> Get(long qq,long groupNo)
+
+        public static async Task<GroupMember> Get(long qq, long groupNo)
         {
             var member = GroupMembers.Find(p => p.QQ == qq && p.GroupId == groupNo);
-
-            var sourceMember = await PlatformManager.Info.GetGroupoMember(groupNo, qq);
-
             if (member != null)
+                return member;
+
+            var sourceMembers = await PlatformManager.Info.GetGroupMembers(groupNo);
+            if (sourceMembers == null)
+                return member;
+
+            sourceMembers.ForEach(p =>
             {
-                member.Card = sourceMember.Card;
-            }
-            else
-            {
-                member = new GroupMember(sourceMember);
-                lock (AddLock)
+                var tmember = GroupMembers.Find(p => p.QQ == qq && p.GroupId == groupNo);
+                if (tmember == null)
                 {
-                    if (GroupMembers.All(p => p.QQ != qq && p.GroupId != groupNo))
-                    {
-                        GroupMembers.Add(member);
-                    }
+                    GroupMembers.Add(new GroupMember(tmember));
                 }
-            }
+                else
+                {
+                    tmember.Card = p.Card;
+                    tmember.PermitType = p.PermitType;
+                }
+            });
+
+            member = GroupMembers.Find(p => p.QQ == qq && p.GroupId == groupNo);
             return member;
         }
     }

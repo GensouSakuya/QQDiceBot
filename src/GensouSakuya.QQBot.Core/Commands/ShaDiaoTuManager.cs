@@ -158,8 +158,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 if (!files.Any())
                     return;
                 var fileName = files[_rand.Next(0, files.Length)];
-                MessageManager.SendTextMessage(sourceType, $"[QQ:pic={fileName}]",
-                    fromQQ, toGroup);
+                MessageManager.SendImageMessage(sourceType, fileName, fromQQ, toGroup);
             }
         }
     }
