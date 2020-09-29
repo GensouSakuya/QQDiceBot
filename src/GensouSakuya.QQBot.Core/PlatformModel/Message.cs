@@ -60,4 +60,14 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
             Id = id;
         }
     }
+
+    public class AtMessage : BaseMessage
+    {
+        public long QQ{ get; set; }
+
+        public AtMessage(long qq)
+        {
+            QQ = qq;
+        }
+    }
 }

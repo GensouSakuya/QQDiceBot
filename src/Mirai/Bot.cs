@@ -45,6 +45,10 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                         builder = builder.Add(new Mirai_CSharp.Models.ImageMessage(im.Id, im.Url, im.ImagePath));
                     }
                 }
+                else if (p is Core.PlatformModel.AtMessage am)
+                {
+                    builder = builder.Add(new Mirai_CSharp.Models.AtMessage(am.QQ));
+                }
             });
             if (builder.Count == 0)
                 return;
@@ -72,6 +76,10 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                 else if (c is PlainMessage pm)
                 {
                     mes.Add(new TextMessage(pm.Message));
+                }
+                else if (c is Mirai_CSharp.Models.AtMessage am)
+                {
+                    mes.Add(new Core.PlatformModel.AtMessage(am.Target));
                 }
             });
             return mes;
