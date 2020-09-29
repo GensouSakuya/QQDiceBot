@@ -29,6 +29,15 @@ namespace GensouSakuya.QQBot.Core.Commands
             var permit = member.PermitType;
             if (!command.Any())
             {
+                if (!DataManager.Instance.GroupRepeatConfig.TryGetValue(toGroup, out var config))
+                {
+                    MessageManager.SendTextMessage(MessageSourceType.Group, "当前群尚未开启复读功能", fromQQ, toGroup);
+                }
+                else
+                {
+                    MessageManager.SendTextMessage(MessageSourceType.Group, $"当前复读概率：{config.Percent}%", fromQQ, toGroup);
+                }
+
                 return;
             }
 

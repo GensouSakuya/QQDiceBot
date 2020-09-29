@@ -34,6 +34,15 @@ namespace GensouSakuya.QQBot.Core.Commands
             var permit = member.PermitType; 
             if (!command.Any())
             {
+                if (!DataManager.Instance.GroupShaDiaoTuConfig.TryGetValue(toGroup, out var config))
+                {
+                    MessageManager.SendTextMessage(MessageSourceType.Group, "当前群尚未开启沙雕图功能", fromQQ, toGroup);
+                }
+                else
+                {
+                    MessageManager.SendTextMessage(MessageSourceType.Group, $"当前沙雕图概率：{config.Percent}%", fromQQ, toGroup);
+                }
+
                 return;
             }
 
