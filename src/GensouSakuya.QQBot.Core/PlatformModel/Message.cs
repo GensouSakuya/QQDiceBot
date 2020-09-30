@@ -72,6 +72,16 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
         }
     }
 
+    //public class QuoteMessage : BaseMessage
+    //{
+    //    public int MessageId{ get; set; }
+
+    //    public QuoteMessage(int id)
+    //    {
+    //        MessageId = id;
+    //    }
+    //}
+
     public class OtherMessage : BaseMessage
     {
         public object Origin{ get; set; }

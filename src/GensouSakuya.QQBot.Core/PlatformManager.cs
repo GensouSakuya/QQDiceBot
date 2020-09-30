@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.PlatformModel;
 
@@ -26,7 +27,14 @@ namespace GensouSakuya.QQBot.Core
 
         public static void SendMessage(Message message)
         {
-            EventCenter.SendMessage?.Invoke(message);
+            try
+            {
+                EventCenter.SendMessage?.Invoke(message);
+            }
+            catch(Exception e)
+            {
+                Log.Error(e.Message + e.StackTrace);
+            }
         }
 
         public class Log
