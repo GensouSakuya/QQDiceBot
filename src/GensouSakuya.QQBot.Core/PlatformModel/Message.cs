@@ -1,4 +1,5 @@
 ﻿
+using System;
 using System.Collections.Generic;
 
 namespace GensouSakuya.QQBot.Core.PlatformModel
@@ -68,6 +69,16 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
         public AtMessage(long qq)
         {
             QQ = qq;
+        }
+    }
+
+    public class OtherMessage : BaseMessage
+    {
+        public object Origin{ get; set; }
+
+        public OtherMessage(object origin)
+        {
+            Origin = origin;
         }
     }
 }
