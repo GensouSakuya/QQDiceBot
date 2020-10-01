@@ -12,7 +12,7 @@ using Mirai_CSharp.Plugin.Interfaces;
 
 namespace GensouSakuya.QQBot.Platform.Mirai
 {
-    public class Bot : IGroupMessage
+    public class Bot : IGroupMessage,IFriendMessage
     {
         public Bot()
         {
@@ -137,6 +137,30 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                 return true;
             }
             catch(Exception ex)
+            {
+                Console.BackgroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                Console.ResetColor();
+                return false;
+            }
+        }
+
+        public async Task<bool> FriendMessage(MiraiHttpSession session, IFriendMessageEventArgs e)
+        {
+            _session = session;
+            var message = GetMessage(e.Chain, out var command);
+            try
+            {
+                UserManager.Add(new QQSourceInfo
+                {
+                    Id = e.Sender.Id,
+                    Nick = e.Sender.Name,
+                });
+                await CommandCenter.Execute(command, message, Core.PlatformModel.MessageSourceType.Friend, qqNo: e.Sender.Id);
+                return true;
+            }
+            catch (Exception ex)
             {
                 Console.BackgroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex.Message);

@@ -77,7 +77,7 @@ namespace GensouSakuya.QQBot.Core
 
             commandList.RemoveAt(0);
             var args = commandList;
-            Task.Run(async () => { await manager.ExecuteAsync(args, originMessage, sourceType, qq, group, member); });
+            await manager.ExecuteAsync(args, originMessage, sourceType, qq, group, member);
         }
 
         private static void ExecuteWithoutCommand(string message, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, GroupMember member)

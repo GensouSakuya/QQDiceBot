@@ -53,7 +53,7 @@ namespace GensouSakuya.QQBot.Core.Base
                 case MessageSourceType.Friend:
                     if (!qq.HasValue || qq <= 0)
                         return;
-                    SendTextMessagePrivate(qq.Value, message);
+                    SendTextMessageFriend(qq.Value, message);
                     break;
             }
         }
