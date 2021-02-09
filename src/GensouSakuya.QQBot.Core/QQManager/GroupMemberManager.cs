@@ -26,7 +26,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
                 var tmember = GroupMembers.Find(p => p.QQ == qq && p.GroupId == groupNo);
                 if (tmember == null)
                 {
-                    GroupMembers.Add(new GroupMember(tmember));
+                    GroupMembers.Add(new GroupMember(p));
                 }
                 else
                 {
