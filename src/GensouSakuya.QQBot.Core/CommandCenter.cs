@@ -77,6 +77,20 @@ namespace GensouSakuya.QQBot.Core
 
             commandList.RemoveAt(0);
             var args = commandList;
+            if (sourceType == MessageSourceType.Group)
+            {
+                if (DataManager.Instance.QQBan.TryGetValue(member.QQ, out _))
+                {
+                    MessageManager.SendTextMessage(sourceType, "滚", member.QQ, member.GroupNumber);
+                    return;
+                }
+                else if (DataManager.Instance.GroupBan.TryGetValue((member.QQ, member.GroupNumber), out _))
+                {
+                    MessageManager.SendTextMessage(sourceType, "滚", member.QQ, member.GroupNumber); 
+                    return;
+                }
+            }
+
             await manager.ExecuteAsync(args, originMessage, sourceType, qq, group, member);
         }
 

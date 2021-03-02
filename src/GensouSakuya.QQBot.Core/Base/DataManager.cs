@@ -76,6 +76,40 @@ namespace GensouSakuya.QQBot.Core.Base
             }
         }
 
+        private ConcurrentDictionary<long,string> _qqBan = new ConcurrentDictionary<long, string>();
+        public ConcurrentDictionary<long, string> QQBan
+        {
+            get => _qqBan;
+            set
+            {
+                if (value == null)
+                {
+                    _qqBan = new ConcurrentDictionary<long, string>();
+                }
+                else
+                {
+                    _qqBan = value;
+                }
+            }
+        }
+
+        private ConcurrentDictionary<(long,long), string> _groupBan = new ConcurrentDictionary<(long, long), string>();
+        public ConcurrentDictionary<(long, long), string> GroupBan
+        {
+            get => _groupBan;
+            set
+            {
+                if (value == null)
+                {
+                    _groupBan = new ConcurrentDictionary<(long, long), string>();
+                }
+                else
+                {
+                    _groupBan = value;
+                }
+            }
+        }
+
         public List<GroupMember> GroupMembers
         {
             get => GroupMemberManager.GroupMembers;
