@@ -21,22 +21,24 @@ namespace GensouSakuya.QQBot.Platform.Mirai.StartTool
             outConsoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
             SetConsoleMode(iStdOut, outConsoleMode);
 
-            var miraiLibsPath = args[0];
+            //var miraiLibsPath = args[0];
             var botPath = args[2];
             var p = Process.Start(new ProcessStartInfo
             {
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 RedirectStandardInput = true,
-                FileName = "java",
-                WorkingDirectory = miraiLibsPath,
-                Arguments = $@"-cp ""{miraiLibsPath}\libs\*"" net.mamoe.mirai.console.pure.MiraiConsolePureLoader {args[1]}",
+                FileName = "mcl.cmd",
+                //WorkingDirectory = miraiLibsPath,
+                //Arguments = $@"-cp ""{miraiLibsPath}\libs\*"" net.mamoe.mirai.console.pure.MiraiConsolePureLoader {args[1]}",
                 UseShellExecute = false
             });
             var isLogin = false;
             p.BeginOutputReadLine();
             p.OutputDataReceived += (s,e)=>
             {
+                if (e?.Data == null)
+                    return;
                 Console.WriteLine("[Mirai]"+e.Data);
                 if (!isLogin)
                 {
