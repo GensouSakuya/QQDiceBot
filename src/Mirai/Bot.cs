@@ -83,6 +83,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                 if (c is Mirai_CSharp.Models.ImageMessage im)
                 {
                     mes.Add(new Core.PlatformModel.ImageMessage(url: im.Url, id: im.ImageId));
+                    Console.WriteLine($"received image[{im.ImageId}]:{im.Url}");
                 }
                 else if (c is PlainMessage pm)
                 {
