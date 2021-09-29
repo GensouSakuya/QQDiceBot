@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -29,7 +30,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             var permit = member.PermitType;
             if (!command.Any())
             {
-                if (!DataManager.Instance.GroupRepeatConfig.TryGetValue(toGroup, out var config))
+                if (!GroupRepeatConfig.TryGetValue(toGroup, out var config))
                 {
                     MessageManager.SendTextMessage(MessageSourceType.Group, "当前群尚未开启复读功能", fromQQ, toGroup);
                 }
@@ -69,7 +70,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     }
                 }
 
-                DataManager.Instance.GroupRepeatConfig.AddOrUpdate(toGroup, config, (p, q) => config);
+                UpdateGroupRepeatConfig(toGroup, config);
 
                 MessageManager.SendTextMessage(MessageSourceType.Group, $"复读已开启，复读概率：{config.Percent}%", fromQQ, toGroup);
             }
@@ -81,13 +82,39 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 }
 
-                DataManager.Instance.GroupRepeatConfig.TryRemove(toGroup, out _);
+                UpdateGroupRepeatConfig(toGroup, null);
                 MessageManager.SendTextMessage(MessageSourceType.Group, "复读已关闭", fromQQ, toGroup);
             }
             else if (command[0].Equals("repeat", StringComparison.CurrentCultureIgnoreCase) && command.Count>1)
             {
                 MessageManager.SendMessage(MessageSourceType.Group, originMessage, fromQQ, toGroup);
             }
+        }
+
+        private static ConcurrentDictionary<long, RepeatConfig> _groupRepeatConfig = new ConcurrentDictionary<long, RepeatConfig>();
+        public static ConcurrentDictionary<long, RepeatConfig> GroupRepeatConfig
+        {
+            get => _groupRepeatConfig;
+            set
+            {
+                if (value == null)
+                {
+                    _groupRepeatConfig = new ConcurrentDictionary<long, RepeatConfig>();
+                }
+                else
+                {
+                    _groupRepeatConfig = value;
+                }
+            }
+        }
+
+        public static void UpdateGroupRepeatConfig(long toGroup, RepeatConfig config)
+        {
+            if(config != null)
+                GroupRepeatConfig.AddOrUpdate(toGroup, config, (p, q) => config);
+            else
+                GroupRepeatConfig.TryRemove(toGroup, out _);
+            DataManager.Instance.NoticeConfigUpdated();
         }
     }
 

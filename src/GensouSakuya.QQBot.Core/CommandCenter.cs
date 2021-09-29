@@ -80,12 +80,12 @@ namespace GensouSakuya.QQBot.Core
             var args = commandList;
             if (sourceType == MessageSourceType.Group)
             {
-                if (DataManager.Instance.QQBan.TryGetValue(member.QQ, out _))
+                if (BanManager.QQBan.TryGetValue(member.QQ, out _))
                 {
                     MessageManager.SendTextMessage(sourceType, "滚", member.QQ, member.GroupNumber);
                     return;
                 }
-                else if (DataManager.Instance.GroupBan.TryGetValue((member.QQ, member.GroupNumber), out _))
+                else if (BanManager.GroupBan.TryGetValue((member.QQ, member.GroupNumber), out _))
                 {
                     MessageManager.SendTextMessage(sourceType, "滚", member.QQ, member.GroupNumber); 
                     return;
@@ -99,9 +99,9 @@ namespace GensouSakuya.QQBot.Core
         {
             var managerList = new List<Tuple<BaseManager, List<string>>>();
             var randomRes = Random.Next(1, 101);
-            if (member != null && DataManager.Instance.GroupRepeatConfig.ContainsKey(member.GroupNumber))
+            if (member != null && RepeatManager.GroupRepeatConfig.ContainsKey(member.GroupNumber))
             {
-                var config = DataManager.Instance.GroupRepeatConfig[member.GroupNumber];
+                var config = RepeatManager.GroupRepeatConfig[member.GroupNumber];
                 if (randomRes <= config.Percent)
                 {
                     managerList.Add(new Tuple<BaseManager, List<string>>(new RepeatManager(), new List<string>
@@ -110,9 +110,9 @@ namespace GensouSakuya.QQBot.Core
                     }));
                 }
             }
-            if (member != null && DataManager.Instance.GroupShaDiaoTuConfig.ContainsKey(member.GroupNumber))
+            if (member != null && ShaDiaoTuManager.GroupShaDiaoTuConfig.ContainsKey(member.GroupNumber))
             {
-                var config = DataManager.Instance.GroupShaDiaoTuConfig[member.GroupNumber];
+                var config = ShaDiaoTuManager.GroupShaDiaoTuConfig[member.GroupNumber];
                 if (randomRes <= config.Percent)
                 {
                     managerList.Add(new Tuple<BaseManager, List<string>>(new ShaDiaoTuManager(), new List<string>
@@ -121,9 +121,9 @@ namespace GensouSakuya.QQBot.Core
                     }));
                 }
             }
-            if (member != null && DataManager.Instance.GroupBakiConfig.ContainsKey(member.GroupNumber))
+            if (member != null && BakiManager.GroupBakiConfig.ContainsKey(member.GroupNumber))
             {
-                var config = DataManager.Instance.GroupBakiConfig[member.GroupNumber];
+                var config = BakiManager.GroupBakiConfig[member.GroupNumber];
                 if (randomRes <= config.Percent)
                 {
                     managerList.Add(new Tuple<BaseManager, List<string>>(new BakiManager(), new List<string>

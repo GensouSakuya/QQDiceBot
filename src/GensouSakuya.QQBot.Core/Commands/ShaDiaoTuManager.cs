@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,7 +35,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             var permit = member.PermitType; 
             if (!command.Any())
             {
-                if (!DataManager.Instance.GroupShaDiaoTuConfig.TryGetValue(toGroup, out var config))
+                if (!GroupShaDiaoTuConfig.TryGetValue(toGroup, out var config))
                 {
                     MessageManager.SendTextMessage(MessageSourceType.Group, "当前群尚未开启沙雕图功能", fromQQ, toGroup);
                 }
@@ -75,7 +76,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 }
 
 
-                DataManager.Instance.GroupShaDiaoTuConfig.AddOrUpdate(toGroup, config, (p, q) => config);
+                UpdateGroupShaDiaoTuConfig(toGroup, config);
                 MessageManager.SendTextMessage(MessageSourceType.Group, $"随机沙雕图已开启，发图概率：{config.Percent}%", fromQQ, toGroup);
             }
             else if (command[0].Equals("off", StringComparison.CurrentCultureIgnoreCase))
@@ -86,12 +87,12 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 }
 
-                DataManager.Instance.GroupShaDiaoTuConfig.TryRemove(toGroup, out _);
+                UpdateGroupShaDiaoTuConfig(toGroup, null);
                 MessageManager.SendTextMessage(MessageSourceType.Group, "随机沙雕图已关闭", fromQQ, toGroup);
             }
             else if (command[0].Equals("add", StringComparison.CurrentCultureIgnoreCase))
             {
-                if (!DataManager.Instance.GroupShaDiaoTuConfig.ContainsKey(toGroup))
+                if (!GroupShaDiaoTuConfig.ContainsKey(toGroup))
                 {
                     MessageManager.SendTextMessage(MessageSourceType.Group, "先找人把功能打开啦", fromQQ, toGroup);
                     return;
@@ -172,6 +173,32 @@ namespace GensouSakuya.QQBot.Core.Commands
                 var fileName = files[_rand.Next(0, files.Length)];
                 MessageManager.SendImageMessage(sourceType, fileName, fromQQ, toGroup);
             }
+        }
+
+        private static ConcurrentDictionary<long, ShaDiaoTuConfig> _groupShaDiaoTuConfig = new ConcurrentDictionary<long, ShaDiaoTuConfig>();
+        public static ConcurrentDictionary<long, ShaDiaoTuConfig> GroupShaDiaoTuConfig
+        {
+            get => _groupShaDiaoTuConfig;
+            set
+            {
+                if (value == null)
+                {
+                    _groupShaDiaoTuConfig = new ConcurrentDictionary<long, ShaDiaoTuConfig>();
+                }
+                else
+                {
+                    _groupShaDiaoTuConfig = value;
+                }
+            }
+        }
+
+        public void UpdateGroupShaDiaoTuConfig(long toGroup, ShaDiaoTuConfig config)
+        {
+            if(config != null)
+                GroupShaDiaoTuConfig.AddOrUpdate(toGroup, config, (p, q) => config);
+            else
+                GroupShaDiaoTuConfig.TryRemove(toGroup, out _);
+            DataManager.Instance.NoticeConfigUpdated();
         }
     }
 

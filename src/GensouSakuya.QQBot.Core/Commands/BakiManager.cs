@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,7 +32,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             var permit = member.PermitType;
             if (!command.Any())
             {
-                if (!DataManager.Instance.GroupBakiConfig.TryGetValue(toGroup, out var config))
+                if (!GroupBakiConfig.TryGetValue(toGroup, out var config))
                 {
                     MessageManager.SendTextMessage(MessageSourceType.Group, "当前群尚未开启热狗图功能", fromQQ, toGroup);
                 }
@@ -71,7 +72,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     }
                 }
 
-                DataManager.Instance.GroupBakiConfig.AddOrUpdate(toGroup, config, (p, q) => config);
+                UpdateGroupBakiConfig(toGroup, config);
                 MessageManager.SendTextMessage(MessageSourceType.Group, $"随机热狗图已开启，提升纯度概率：{config.Percent}%", fromQQ, toGroup);
             }
             else if (command[0].Equals("off", StringComparison.CurrentCultureIgnoreCase))
@@ -81,8 +82,8 @@ namespace GensouSakuya.QQBot.Core.Commands
                     MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限关闭热狗图功能", fromQQ, toGroup);
                     return;
                 }
-
-                DataManager.Instance.GroupBakiConfig.TryRemove(toGroup, out _);
+                
+                UpdateGroupBakiConfig(toGroup, null);
                 MessageManager.SendTextMessage(MessageSourceType.Group, "随机热狗图已关闭", fromQQ, toGroup);
             }
             else if (command[0].Equals("baki", StringComparison.CurrentCultureIgnoreCase))
@@ -96,6 +97,32 @@ namespace GensouSakuya.QQBot.Core.Commands
                 var fileName = files[_rand.Next(0, files.Length)];
                 MessageManager.SendImageMessage(sourceType, fileName, fromQQ, toGroup);
             }
+        }
+        
+        private static ConcurrentDictionary<long, BakiConfig> _groupBakiConfig = new ConcurrentDictionary<long, BakiConfig>();
+        public static ConcurrentDictionary<long, BakiConfig> GroupBakiConfig
+        {
+            get => _groupBakiConfig;
+            set
+            {
+                if (value == null)
+                {
+                    _groupBakiConfig = new ConcurrentDictionary<long, BakiConfig>();
+                }
+                else
+                {
+                    _groupBakiConfig = value;
+                }
+            }
+        }
+
+        public void UpdateGroupBakiConfig(long toGroup, BakiConfig config)
+        {
+            if(config != null)
+                GroupBakiConfig.AddOrUpdate(toGroup, config, (p, q) => config);
+            else
+                GroupBakiConfig.TryRemove(toGroup, out _);
+            DataManager.Instance.NoticeConfigUpdated();
         }
     }
 

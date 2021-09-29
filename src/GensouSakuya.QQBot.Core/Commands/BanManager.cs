@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -45,34 +46,87 @@ namespace GensouSakuya.QQBot.Core.Commands
 
             if (command.Count > 1 && long.TryParse(command[1], out var banGroup))
             {
-                if (DataManager.Instance.GroupBan.ContainsKey((banGroup,banQQ)))
+                if (GroupBan.ContainsKey((banGroup,banQQ)))
                 {
-                    DataManager.Instance.GroupBan.TryRemove((banGroup, banQQ), out _);
+                    UpdateGroupQQBan(banGroup, banQQ, false);
                     MessageManager.SendTextMessage(MessageSourceType.Group, $"用户{banQQ}在群{banGroup}的封禁已被解除", fromQQ, toGroup);
                     return;
                 }
                 else
                 {
-                    DataManager.Instance.GroupBan.TryAdd((banGroup, banQQ), null);
+                    UpdateGroupQQBan(banGroup, banQQ, true);
                     MessageManager.SendTextMessage(MessageSourceType.Group, $"用户{banQQ}在群{banGroup}已被封禁", fromQQ, toGroup);
                     return;
                 }
             }
             else
             {
-                if (DataManager.Instance.QQBan.ContainsKey(banQQ))
+                if (QQBan.ContainsKey(banQQ))
                 {
-                    DataManager.Instance.QQBan.TryRemove(banQQ, out _);
+                    UpdateQQBan(banQQ, false);
                     MessageManager.SendTextMessage(MessageSourceType.Group, $"用户{banQQ}的全局封禁已被解除", fromQQ, toGroup);
                     return;
                 }
                 else
                 {
-                    DataManager.Instance.QQBan.TryAdd(banQQ, null);
+                    UpdateQQBan(banQQ, true);
                     MessageManager.SendTextMessage(MessageSourceType.Group, $"用户{banQQ}已被全局封禁", fromQQ, toGroup);
                     return;
                 }
             }
+        }
+
+        
+        private static ConcurrentDictionary<long,string> _qqBan = new ConcurrentDictionary<long, string>();
+        public static ConcurrentDictionary<long, string> QQBan
+        {
+            get => _qqBan;
+            set
+            {
+                if (value == null)
+                {
+                    _qqBan = new ConcurrentDictionary<long, string>();
+                }
+                else
+                {
+                    _qqBan = value;
+                }
+            }
+        }
+
+        public void UpdateQQBan(long banQQ, bool isBan)
+        {
+            if(isBan)
+                QQBan.TryAdd(banQQ, null);
+            else
+                QQBan.TryRemove(banQQ, out _);
+            DataManager.Instance.NoticeConfigUpdated();
+        }
+
+        private static ConcurrentDictionary<(long,long), string> _groupBan = new ConcurrentDictionary<(long, long), string>();
+        public static ConcurrentDictionary<(long, long), string> GroupBan
+        {
+            get => _groupBan;
+            set
+            {
+                if (value == null)
+                {
+                    _groupBan = new ConcurrentDictionary<(long, long), string>();
+                }
+                else
+                {
+                    _groupBan = value;
+                }
+            }
+        }
+
+        public void UpdateGroupQQBan(long banGroup, long banQQ, bool isBan)
+        {
+            if(isBan)
+                GroupBan.TryAdd((banGroup,banQQ), null);
+            else
+                GroupBan.TryRemove((banGroup,banQQ), out _);
+            DataManager.Instance.NoticeConfigUpdated();
         }
     }
 }
