@@ -13,6 +13,7 @@ namespace GensouSakuya.QQBot.Core.Commands
     //[Command("setu")]
     public class RandomPicManager : BaseManager
     {
+        private static readonly  Logger _logger = Logger.GetLogger<RandomPicManager>();
         private static Dictionary<Tuple<MessageSourceType,long>, DateTime> _lastFetchTimeDic = new Dictionary<Tuple<MessageSourceType,long>, DateTime>();
         private const int _intervalSeconds = 60;
 
@@ -148,8 +149,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 }
                 catch (Exception e)
                 {
-                    FileLogHelper.WriteLog(e, Config.LogPath);
-                    FileLogHelper.WriteLog(Newtonsoft.Json.JsonConvert.SerializeObject(jsonRes), Config.LogPath);
+                    _logger.Error(e, $"download remote image failed, detail response: {Environment.NewLine}{Newtonsoft.Json.JsonConvert.SerializeObject(jsonRes)}");
                     throw;
                 }
 
