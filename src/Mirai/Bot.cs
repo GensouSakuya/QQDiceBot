@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core;
 using GensouSakuya.QQBot.Core.PlatformModel;
@@ -9,6 +8,7 @@ using GensouSakuya.QQBot.Core.QQManager;
 using Mirai_CSharp;
 using Mirai_CSharp.Models;
 using Mirai_CSharp.Plugin.Interfaces;
+using Spectre.Console;
 
 namespace GensouSakuya.QQBot.Platform.Mirai
 {
@@ -139,10 +139,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             }
             catch(Exception ex)
             {
-                Console.BackgroundColor = ConsoleColor.Red;
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
-                Console.ResetColor();
+                AnsiConsole.MarkupLine($"[red]{ex.Message}{Environment.NewLine}{ex.StackTrace}[/]");
                 return false;
             }
         }
@@ -163,10 +160,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             }
             catch (Exception ex)
             {
-                Console.BackgroundColor = ConsoleColor.Red;
-                Console.WriteLine(ex.Message);
-                Console.WriteLine(ex.StackTrace);
-                Console.ResetColor();
+                AnsiConsole.MarkupLine($"[red]{ex.Message}{Environment.NewLine}{ex.StackTrace}[/]");
                 return false;
             }
         }
