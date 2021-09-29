@@ -16,10 +16,14 @@ namespace GensouSakuya.QQBot.Platform.Mirai
     {
         public Bot()
         {
-            Main.Init();
             EventCenter.SendMessage += SendMessage;
             EventCenter.GetGroupMemberList += GetGroupMemberList;
             EventCenter.Log += log => { Console.WriteLine(log.Message); };
+        }
+
+        public async Task Start()
+        {
+            await Main.Init();
         }
 
         private async void SendMessage(Message m)

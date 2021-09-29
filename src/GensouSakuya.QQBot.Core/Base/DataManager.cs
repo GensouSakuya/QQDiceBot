@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
@@ -79,8 +80,8 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public List<GroupMember> GroupMembers
         {
-            get => GroupMemberManager.GroupMembers;
-            set => GroupMemberManager.GroupMembers = value;
+            get => GroupMemberManager.GroupMembers.Values.ToList();
+            set => GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>(value?.Select(p => new KeyValuePair<(long, long), GroupMember>((p.QQ, p.GroupNumber), p)));
         }
 
         public List<UserInfo> Users
@@ -95,7 +96,7 @@ namespace GensouSakuya.QQBot.Core.Base
             set => BakiManager.GroupBakiConfig = value;
         }
 
-        public static void Init()
+        public static async Task Init()
         {
             var path = Config.ConfigFile;
             _logger.Debug( "InitPath:" + path);
@@ -121,6 +122,8 @@ namespace GensouSakuya.QQBot.Core.Base
             {
                 Instance = new DataManager();
             }
+
+            await GroupMemberManager.StartLoadTask(System.Threading.CancellationToken.None);
         }
 
         public static Task Save()

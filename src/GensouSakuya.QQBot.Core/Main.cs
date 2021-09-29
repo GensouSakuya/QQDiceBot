@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
 
 namespace GensouSakuya.QQBot.Core
@@ -7,10 +8,10 @@ namespace GensouSakuya.QQBot.Core
     {
         private static readonly Logger _logger = Logger.GetLogger<Main>();
 
-        public static void Init()
+        public static async Task Init()
         {
             AppDomain.CurrentDomain.UnhandledException += UnhandledException;
-            DataManager.Init();
+            await DataManager.Init();
             CommandCenter.ReloadManagers();
             _logger.Info("bot is started");
         }

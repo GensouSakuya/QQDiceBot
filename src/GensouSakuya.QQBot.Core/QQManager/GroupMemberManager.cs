@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Model;
 
@@ -7,36 +9,63 @@ namespace GensouSakuya.QQBot.Core.QQManager
 {
     public class GroupMemberManager
     {
-        public static List<GroupMember> GroupMembers = new List<GroupMember>();
-
-        private static readonly object AddLock = new object();
+        public static ConcurrentDictionary<(long,long),GroupMember> GroupMembers = new ConcurrentDictionary<(long,long),GroupMember>();
 
         public static async Task<GroupMember> Get(long qq, long groupNo)
         {
-            var member = GroupMembers.Find(p => p.QQ == qq && p.GroupId == groupNo);
-            if (member != null)
+            if (GroupMembers.TryGetValue((qq,groupNo),out var member))
                 return member;
 
             var sourceMembers = await PlatformManager.Info.GetGroupMembers(groupNo);
             if (sourceMembers == null)
-                return member;
+                return null;
 
             sourceMembers.ForEach(p =>
             {
-                var tmember = GroupMembers.Find(p => p.QQ == qq && p.GroupId == groupNo);
-                if (tmember == null)
-                {
-                    GroupMembers.Add(new GroupMember(p));
-                }
-                else
+                if (GroupMembers.TryGetValue((qq,groupNo),out var tmember))
                 {
                     tmember.Card = p.Card;
                     tmember.PermitType = p.PermitType;
                 }
+                else
+                {
+                    GroupMembers.TryAdd((qq, groupNo), new GroupMember(p));
+                }
             });
 
-            member = GroupMembers.Find(p => p.QQ == qq && p.GroupId == groupNo);
-            return member;
+            return GroupMembers.TryGetValue((qq, groupNo), out member) ? member : null;
+        }
+
+        public static Task StartLoadTask(CancellationToken token)
+        {
+            Task.Run(async () =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    var groupIds = GroupMembers.Values.Select(p => p.GroupNumber).Distinct();
+                    foreach(var groupId in groupIds)
+                    {
+                        var sourceMembers = await PlatformManager.Info.GetGroupMembers(groupId);
+                        if (sourceMembers != null)
+                        {
+                            sourceMembers.ForEach(p =>
+                            {
+                                if (GroupMembers.TryGetValue((p.QQId,p.GroupId),out var tmember))
+                                {
+                                    tmember.Card = p.Card;
+                                    tmember.PermitType = p.PermitType;
+                                }
+                                else
+                                {
+                                    GroupMembers.TryAdd((p.QQId,p.GroupId), new GroupMember(p));
+                                }
+                            });
+                        }
+                    }
+                    await Task.Delay(TimeSpan.FromMinutes(5));
+                }
+            });
+            return Task.CompletedTask;
         }
     }
 }

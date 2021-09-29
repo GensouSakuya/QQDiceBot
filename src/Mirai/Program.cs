@@ -18,6 +18,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             });
 
             var bot = new Bot();
+            await bot.Start();
 
             MiraiHttpSessionOptions options = new MiraiHttpSessionOptions("127.0.0.1", 8080, opt.AuthKey);
             // session 使用 DisposeAsync 模式, 所以使用 await using 自动调用 DisposeAsync 方法。
@@ -40,7 +41,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                 else if (readline.StartsWith("notice ", StringComparison.OrdinalIgnoreCase))
                 {
                     var message = $"[通知]{readline.Substring(7)}";
-                    var groups = GensouSakuya.QQBot.Core.QQManager.GroupMemberManager.GroupMembers
+                    var groups = GensouSakuya.QQBot.Core.QQManager.GroupMemberManager.GroupMembers.Values
                         .Select(p => p.GroupId).Distinct().ToList();
                     groups.ForEach(p => { session.SendGroupMessageAsync(p, new PlainMessage(message)); });
                 }
