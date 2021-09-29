@@ -22,7 +22,12 @@ namespace GensouSakuya.QQBot.Core.QQManager
 
             sourceMembers.ForEach(p =>
             {
-                GroupMembers.AddOrUpdate((p.QQId, p.GroupId), new GroupMember(p), (ids, p) => p);
+                GroupMembers.AddOrUpdate((p.QQId, p.GroupId), new GroupMember(p), (ids, updateMember) =>
+                {
+                    updateMember.Card = p.Card;
+                    updateMember.PermitType = p.PermitType;
+                    return updateMember;
+                });
             });
 
             return GroupMembers.TryGetValue((qq, groupNo), out member) ? member : null;
@@ -42,15 +47,12 @@ namespace GensouSakuya.QQBot.Core.QQManager
                         {
                             sourceMembers.ForEach(p =>
                             {
-                                if (GroupMembers.TryGetValue((p.QQId, p.GroupId), out var tmember))
+                                GroupMembers.AddOrUpdate((p.QQId, p.GroupId), new GroupMember(p), (ids, updateMember) =>
                                 {
-                                    tmember.Card = p.Card;
-                                    tmember.PermitType = p.PermitType;
-                                }
-                                else
-                                {
-                                    GroupMembers.TryAdd((p.QQId, p.GroupId), new GroupMember(p));
-                                }
+                                    updateMember.Card = p.Card;
+                                    updateMember.PermitType = p.PermitType;
+                                    return updateMember;
+                                });
                             });
                         }
                     }
