@@ -7,6 +7,7 @@ namespace GensouSakuya.QQBot.Core
 {
     public class PlatformManager
     {
+        private static readonly Logger _logger = Logger.GetLogger<PlatformManager>();
         public class Info
         {
             public static QQSourceInfo GetQQInfo(long qq)
@@ -33,10 +34,11 @@ namespace GensouSakuya.QQBot.Core
             }
             catch(Exception e)
             {
-                Log.Error(e.Message + e.StackTrace);
+                _logger.Error(e, "send message error");
             }
         }
 
+        //输出到外部UI用的logger，有需要时再考虑接入
         public class Log
         {
             public static void Debug(string message)

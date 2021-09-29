@@ -6,14 +6,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Commands;
 using GensouSakuya.QQBot.Core.Model;
-using GensouSakuya.QQBot.Core.PlatformModel;
 using GensouSakuya.QQBot.Core.QQManager;
-using net.gensousakuya.dice;
 
 namespace GensouSakuya.QQBot.Core.Base
 {
     public class DataManager
     {
+        private static readonly Logger _logger = Logger.GetLogger<DataManager>();
+
         private static volatile object locker = new object();
 
         private DataManager()
@@ -142,7 +142,7 @@ namespace GensouSakuya.QQBot.Core.Base
         public static void Init()
         {
             var path = Config.ConfigFile;
-            PlatformManager.Log.Debug( "InitPath:" + path);
+            _logger.Debug( "InitPath:" + path);
             if (File.Exists(path))
             {
                 var xml = File.ReadAllText(path);
@@ -153,12 +153,12 @@ namespace GensouSakuya.QQBot.Core.Base
                 }
                 catch(Exception e)
                 {
-                    PlatformManager.Log.Error("ConfigLoadError:" + e.Message);
+                    _logger.Error(e,"ConfigLoadError");
                 }
             }
             else
             {
-                PlatformManager.Log.Debug("not found" + path);
+                _logger.Debug("not found" + path);
             }
 
             if (Instance == null)
@@ -192,11 +192,11 @@ namespace GensouSakuya.QQBot.Core.Base
                 }
 
                 File.WriteAllText(path, Tools.SerializeObject(Instance));
-                PlatformManager.Log.Debug("Config updated");
+                _logger.Debug("Config updated");
             }
             catch (Exception e)
             {
-                PlatformManager.Log.Error(e.Message + e.StackTrace);
+                _logger.Error(e, "save config error");
             }
         }
 

@@ -11,6 +11,7 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("jrrp")]
     public class JrrpManager: BaseManager
     {
+        private static readonly Logger _logger = Logger.GetLogger<JrrpManager>();
         private static List<long> _disabledJrrpGroupNumbers
         {
             get { return DataManager.Instance.DisabledJrrpGroupNumbers; }
@@ -79,7 +80,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 if (member == null)
                 {
-                    PlatformManager.Log.Debug("Jrrp group member is null");
+                    _logger.Debug("Jrrp group member is null");
                     return;
                 }
                 if (_disabledJrrpGroupNumbers.Contains(member.GroupNumber))
@@ -93,7 +94,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 if (qq == null)
                 {
-                    PlatformManager.Log.Debug("Jrrp qq is null");
+                    _logger.Debug("Jrrp qq is null");
                     return;
                 }
                 name = qq.Name;

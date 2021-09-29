@@ -13,25 +13,26 @@ using Group = GensouSakuya.QQBot.Core.Model.Group;
 
 namespace GensouSakuya.QQBot.Core
 {
-    public static class CommandCenter
+    public class CommandCenter
     {
+        private static readonly Logger _logger = Logger.GetLogger<CommandCenter>();
         private static readonly Random Random = new Random();
         private static readonly Dictionary<string, Type> Managers = new Dictionary<string, Type>();
 
         public static void ReloadManagers()
         {
-            PlatformManager.Log.Debug("ReloadingManager");
+            _logger.Debug("ReloadingManager");
             //只能拿到直接继承的派生类，有需要的时候再改
             var managerTypes = Assembly.GetExecutingAssembly().GetTypes()
                 .Where(p => p.BaseType == typeof(BaseManager)).ToList();
-            PlatformManager.Log.Debug($"found {managerTypes.Count} managers");
+            _logger.Debug($"found {managerTypes.Count} managers");
             var managerWithCommands = managerTypes.Select(p => new
             {
                 Type = p,
                 CommandList = p.GetCustomAttributes<CommandAttribute>().ToList()
             }).Where(p => p.CommandList.Any()).ToList();
             managerWithCommands.ForEach(p => { p.CommandList.ForEach(q => { Managers.Add(q.Command, p.Type); }); });
-            PlatformManager.Log.Debug($"found {managerWithCommands.Count}");
+            _logger.Debug($"found {managerWithCommands.Count}");
         }
 
         public static async Task Execute(string command, List<BaseMessage> originMessage, MessageSourceType sourceType,long? qqNo = null, long? groupNo = null)

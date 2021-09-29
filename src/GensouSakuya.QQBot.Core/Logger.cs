@@ -11,6 +11,7 @@ namespace GensouSakuya.QQBot.Core
         {
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
+                .MinimumLevel.Debug()
                 .WriteTo.Console(
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .WriteTo.File(Path.Combine(Config.LogPath, "log-.txt"), rollingInterval: RollingInterval.Day,
@@ -37,6 +38,11 @@ namespace GensouSakuya.QQBot.Core
         public void Error(Exception e, string message)
         {
             _logger.Error(e, message);
+        }
+
+        public void Debug(string message)
+        {
+            _logger.Debug(message);
         }
     }
 }
