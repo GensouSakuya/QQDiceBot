@@ -22,15 +22,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
 
             sourceMembers.ForEach(p =>
             {
-                if (GroupMembers.TryGetValue((qq,groupNo),out var tmember))
-                {
-                    tmember.Card = p.Card;
-                    tmember.PermitType = p.PermitType;
-                }
-                else
-                {
-                    GroupMembers.TryAdd((qq, groupNo), new GroupMember(p));
-                }
+                GroupMembers.AddOrUpdate((qq, groupNo), new GroupMember(p), (ids, p) => p);
             });
 
             return GroupMembers.TryGetValue((qq, groupNo), out member) ? member : null;
