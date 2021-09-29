@@ -124,7 +124,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                 if (jsonRes.is_banned.HasValue && jsonRes.is_banned.Value)
                 {
-                    MessageManager.SendTextMessage(sourceType, $"{tag}:\nid:{jsonRes.id}\n这张图被作者要求下架了:(", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(sourceType, $"{tag}:\nid:{jsonRes.id}\n这张图被作者要求下架了QAQ", fromQQ, toGroup);
                     return;
                 }
 
