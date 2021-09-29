@@ -80,8 +80,15 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public List<GroupMember> GroupMembers
         {
-            get => GroupMemberManager.GroupMembers.Values.ToList();
-            set => GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>(value?.Select(p => new KeyValuePair<(long, long), GroupMember>((p.QQ, p.GroupNumber), p)));
+            private get => GroupMemberManager.GroupMembers.Values.ToList();
+            set
+            {
+                GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
+                value?.ForEach(p =>
+                {
+                    GroupMemberManager.GroupMembers.TryAdd((p.QQ, p.GroupNumber), p);
+                });
+            }
         }
 
         public List<UserInfo> Users
@@ -99,7 +106,7 @@ namespace GensouSakuya.QQBot.Core.Base
         public static async Task Init()
         {
             var path = Config.ConfigFile;
-            _logger.Debug( "InitPath:" + path);
+            _logger.Debug("InitPath:" + path);
             if (File.Exists(path))
             {
                 var xml = File.ReadAllText(path);
@@ -108,9 +115,9 @@ namespace GensouSakuya.QQBot.Core.Base
                     var db = Tools.DeserializeObject<DataManager>(xml);
                     Instance = db;
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
-                    _logger.Error(e,"ConfigLoadError");
+                    _logger.Error(e, "ConfigLoadError");
                 }
             }
             else
