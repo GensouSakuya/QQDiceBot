@@ -80,13 +80,13 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public List<GroupMember> GroupMembers
         {
-            get => GroupMemberManager.GroupMembers.Values.ToList();
+            get => GroupMemberManager.GroupMembers.Values.OrderBy(p=>p.GroupNumber).ThenBy(p=>p.QQ).ToList();
             set
             {
                 GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
                 value?.ForEach(p =>
                 {
-                    GroupMemberManager.GroupMembers.TryAdd((p.QQ, p.GroupNumber), p);
+                    GroupMemberManager.GroupMembers.AddOrUpdate((p.QQ, p.GroupNumber), p, (key, q) => p);
                 });
             }
         }

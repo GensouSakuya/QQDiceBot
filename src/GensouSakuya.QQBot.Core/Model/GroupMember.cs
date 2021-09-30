@@ -29,7 +29,6 @@ namespace GensouSakuya.QQBot.Core.Model
                 }
                 return Card;
             }
-            set => Card = value;
         }
 
         public string NickName { get; set; }
