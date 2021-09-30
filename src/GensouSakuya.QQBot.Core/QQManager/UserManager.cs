@@ -25,14 +25,23 @@ namespace GensouSakuya.QQBot.Core.QQManager
 
         public static UserInfo Add(QQSourceInfo qqInfo)
         {
+            var hasUpdate = false;
+            if (!Users.ContainsKey(qqInfo.Id))
+                hasUpdate = true;
+
             Users.AddOrUpdate(qqInfo.Id, new UserInfo(qqInfo), (key, source) =>
             {
-                source.Nick = qqInfo.Nick;
-                source.Sex = qqInfo.Sex;
+                if(source.Nick!= qqInfo.Nick || source.Sex != qqInfo.Sex)
+                {
+                    hasUpdate = true;
+                    source.Nick = qqInfo.Nick;
+                    source.Sex = qqInfo.Sex;
+                }
                 return source;
             });
 
-            DataManager.Instance.NoticeConfigUpdated();
+            if(hasUpdate)
+                DataManager.Instance.NoticeConfigUpdated();
 
             return Users.TryGetValue(qqInfo.Id, out var user) ? user : null;
         }
@@ -58,9 +67,12 @@ namespace GensouSakuya.QQBot.Core.QQManager
                                     hasUpdate = true;
                                 Users.AddOrUpdate(qq, new UserInfo(qqInfo), (key, source) =>
                                 {
-                                    hasUpdate = true;
-                                    source.Nick = qqInfo.Nick;
-                                    source.Sex = qqInfo.Sex;
+                                    if (source.Nick != qqInfo.Nick || source.Sex != qqInfo.Sex)
+                                    {
+                                        hasUpdate = true;
+                                        source.Nick = qqInfo.Nick;
+                                        source.Sex = qqInfo.Sex;
+                                    }
                                     return source;
                                 });
                             }

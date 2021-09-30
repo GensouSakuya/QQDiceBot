@@ -23,17 +23,23 @@ namespace GensouSakuya.QQBot.Core.QQManager
             if (sourceMembers == null)
                 return null;
 
+            var hasUpdate = false;
             sourceMembers.ForEach(p =>
             {
                 GroupMembers.AddOrUpdate((p.QQId, p.GroupId), new GroupMember(p), (ids, updateMember) =>
                 {
-                    updateMember.Card = p.Card;
-                    updateMember.PermitType = p.PermitType;
+                    if (updateMember.Card != p.Card || updateMember.PermitType != p.PermitType)
+                    {
+                        hasUpdate = true;
+                        updateMember.Card = p.Card;
+                        updateMember.PermitType = p.PermitType;
+                    }
                     return updateMember;
                 });
             });
 
-            DataManager.Instance.NoticeConfigUpdated();
+            if(hasUpdate)
+                DataManager.Instance.NoticeConfigUpdated();
 
             return GroupMembers.TryGetValue((qq, groupNo), out member) ? member : null;
         }
@@ -65,9 +71,12 @@ namespace GensouSakuya.QQBot.Core.QQManager
                                     GroupMembers.AddOrUpdate((p.QQId, p.GroupId), new GroupMember(p),
                                         (ids, updateMember) =>
                                         {
-                                            hasUpdate = true;
-                                            updateMember.Card = p.Card;
-                                            updateMember.PermitType = p.PermitType;
+                                            if (updateMember.Card != p.Card || updateMember.PermitType != p.PermitType)
+                                            {
+                                                hasUpdate = true;
+                                                updateMember.Card = p.Card;
+                                                updateMember.PermitType = p.PermitType;
+                                            }
                                             return updateMember;
                                         });
                                 });
