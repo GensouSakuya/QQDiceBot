@@ -38,7 +38,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
             return GroupMembers.TryGetValue((qq, groupNo), out member) ? member : null;
         }
 
-        public static Task StartLoadTask(CancellationToken token)
+        public static Task StartLoadTask(CancellationToken token = default)
         {
             Task.Run(async () =>
             {
@@ -53,10 +53,13 @@ namespace GensouSakuya.QQBot.Core.QQManager
                             try
                             {
                                 var sourceMembers = await PlatformManager.Info.GetGroupMembers(groupId);
+                                if (sourceMembers == null)
+                                    continue;
+
                                 sourceMembers?.ForEach(p =>
                                 {
                                     var key = (p.QQId, p.GroupId);
-                                    if(!GroupMembers.ContainsKey(key))
+                                    if (!GroupMembers.ContainsKey(key))
                                         hasUpdate = true;
 
                                     GroupMembers.AddOrUpdate((p.QQId, p.GroupId), new GroupMember(p),
@@ -72,15 +75,17 @@ namespace GensouSakuya.QQBot.Core.QQManager
                             catch (GroupNotExistsException)
                             {
                                 _logger.Info("group[{0}] is not exists anymore, cleaning data", groupId);
-                                foreach(var deleteKey in GroupMemberManager.GroupMembers.Keys.Where(p => p.gruopNo == groupId))
+                                foreach (var deleteKey in GroupMemberManager.GroupMembers.Keys.Where(p =>
+                                    p.gruopNo == groupId))
                                 {
                                     GroupMembers.TryRemove(deleteKey, out _);
                                 }
+
                                 hasUpdate = true;
                             }
                         }
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         _logger.Error(e, "load groupmember error");
                     }
@@ -92,7 +97,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
 
                     await Task.Delay(TimeSpan.FromMinutes(5), token);
                 }
-            });
+            }, CancellationToken.None);
             return Task.CompletedTask;
         }
     }

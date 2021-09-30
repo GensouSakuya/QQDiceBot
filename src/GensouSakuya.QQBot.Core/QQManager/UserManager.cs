@@ -1,46 +1,92 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Threading;
+using System.Threading.Tasks;
+using GensouSakuya.QQBot.Core.Base;
+using GensouSakuya.QQBot.Core.Exceptions;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
 
 namespace GensouSakuya.QQBot.Core.QQManager
 {
-    public static class UserManager
+    public class UserManager
     {
-        public static List<UserInfo> Users { get; set; } = new List<UserInfo>();
-        public static UserInfo Get(long qqNo)
+        private static readonly Logger _logger = Logger.GetLogger<UserManager>();
+        public static ConcurrentDictionary<long,UserInfo> Users { get; set; } = new ConcurrentDictionary<long,UserInfo>();
+        public static UserInfo Get(long qq)
         {
-            var user = Users.Find(p => p.QQ == qqNo);
-            if (user != null)
+            if (Users.TryGetValue(qq, out var user))
                 return user;
 
-            var qqInfo = PlatformManager.Info.GetQQInfo(qqNo);
+            var qqInfo = PlatformManager.Info.GetQQInfo(qq);
 
             return Add(qqInfo);
         }
 
-        private static readonly object AddLock = new object();
-
-        public static UserInfo Add(QQSourceInfo user)
+        public static UserInfo Add(QQSourceInfo qqInfo)
         {
-            var source = Users.Find(p => p.QQ == user.Id);
-            if (source != null)
+            Users.AddOrUpdate(qqInfo.Id, new UserInfo(qqInfo), (key, source) =>
             {
-                source.Nick = user.Nick;
-                source.Sex = user.Sex;
-            }
-            else
-            {
-                lock (AddLock)
-                {
-                    if (Users.All(p => p.QQ != user.Id))
-                    {
-                        source = new UserInfo(user);
-                        Users.Add(source);
-                    }
-                }
-            }
-            return source;
+                source.Nick = qqInfo.Nick;
+                source.Sex = qqInfo.Sex;
+                return source;
+            });
+
+            DataManager.Instance.NoticeConfigUpdated();
+
+            return Users.TryGetValue(qqInfo.Id, out var user) ? user : null;
         }
+
+        public static Task StartLoadTask(CancellationToken token = default)
+        {
+            Task.Run(async () =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    var hasUpdate = false;
+                    try
+                    {
+                        foreach (var qq in Users.Keys)
+                        {
+                            try
+                            {
+                                var qqInfo = PlatformManager.Info.GetQQInfo(qq);
+                                if (qqInfo == null)
+                                    continue;
+
+                                if (!Users.ContainsKey(qq))
+                                    hasUpdate = true;
+                                Users.AddOrUpdate(qq, new UserInfo(qqInfo), (key, source) =>
+                                {
+                                    hasUpdate = true;
+                                    source.Nick = qqInfo.Nick;
+                                    source.Sex = qqInfo.Sex;
+                                    return source;
+                                });
+                            }
+                            catch (QQNotExistsException)
+                            {
+                                _logger.Info("user[{0}] is not exists anymore, cleaning data", qq);
+                                Users.TryRemove(qq, out _);
+                                hasUpdate = true;
+                            }
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error(e, "load usres error");
+                    }
+
+                    if (hasUpdate)
+                    {
+                        DataManager.Instance.NoticeConfigUpdated();
+                    }
+
+                    await Task.Delay(TimeSpan.FromMinutes(5), token);
+                }
+            });
+            return Task.CompletedTask;
+        }
+
     }
 }

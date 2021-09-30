@@ -64,14 +64,15 @@ namespace GensouSakuya.QQBot.Core.Base
 
             Instance ??= new DataManager();
 
-            await GroupMemberManager.StartLoadTask(System.Threading.CancellationToken.None);
+            await GroupMemberManager.StartLoadTask();
+            await UserManager.StartLoadTask();
         }
 
         private void RefreshData()
         {
             GroupMembers = GroupMemberManager.GroupMembers.Values.OrderBy(p => p.GroupNumber).ThenBy(p => p.QQ).ToList();
             GroupBakiConfig = BakiManager.GroupBakiConfig;
-            Users = UserManager.Users;
+            Users = UserManager.Users.Values.OrderBy(p=>p.QQ).ToList();
             GroupBan = BanManager.GroupBan;
             QQBan = BanManager.QQBan;
             GroupShaDiaoTuConfig = ShaDiaoTuManager.GroupShaDiaoTuConfig;
@@ -86,7 +87,11 @@ namespace GensouSakuya.QQBot.Core.Base
                 GroupMemberManager.GroupMembers.AddOrUpdate((p.QQ, p.GroupNumber), p, (key, q) => p);
             });
             BakiManager.GroupBakiConfig = GroupBakiConfig;
-            UserManager.Users = Users;
+            UserManager.Users = new ConcurrentDictionary<long, UserInfo>();
+            Users?.ForEach(p =>
+            {
+                UserManager.Users.AddOrUpdate(p.QQ, p, (key, q) => p);
+            });
             BanManager.GroupBan = GroupBan;
             BanManager.QQBan = QQBan;
             ShaDiaoTuManager.GroupShaDiaoTuConfig = GroupShaDiaoTuConfig;

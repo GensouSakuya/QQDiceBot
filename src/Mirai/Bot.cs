@@ -153,6 +153,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             var message = GetMessage(e.Chain,out var command);
             try
             {
+                //mirai不支持获取单个用户信息，所以在消息收到时进行添加
                 UserManager.Add(new QQSourceInfo
                 {
                     Id = e.Sender.Id,
@@ -175,6 +176,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             var message = GetMessage(e.Chain, out var command);
             try
             {
+                //mirai不支持获取单个用户信息，所以在消息收到时进行添加
                 UserManager.Add(new QQSourceInfo
                 {
                     Id = e.Sender.Id,
