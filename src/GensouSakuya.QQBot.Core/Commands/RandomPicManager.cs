@@ -10,7 +10,7 @@ using net.gensousakuya.dice;
 
 namespace GensouSakuya.QQBot.Core.Commands
 {
-    //[Command("setu")]
+    [Command("setu")]
     public class RandomPicManager : BaseManager
     {
         private static readonly  Logger _logger = Logger.GetLogger<RandomPicManager>();
