@@ -31,17 +31,7 @@ namespace GensouSakuya.QQBot.Core.Base
         public string BotName
         {
             get => _botName;
-            set
-            {
-                if (value == null)
-                {
-                    _botName = "骰娘";
-                }
-                else
-                {
-                    _botName = value;
-                }
-            }
+            set => _botName = value ?? "骰娘";
         }
 
         public long AdminQQ { get; set; }
@@ -54,54 +44,19 @@ namespace GensouSakuya.QQBot.Core.Base
             _observedLogList.OnNext("");
         }
 
-        public ConcurrentDictionary<long, RepeatConfig> GroupRepeatConfig
-        {
-            get => RepeatManager.GroupRepeatConfig;
-            set => RepeatManager.GroupRepeatConfig = value;
-        }
+        public ConcurrentDictionary<long, RepeatConfig> GroupRepeatConfig { get; set; }
 
-        public ConcurrentDictionary<long, ShaDiaoTuConfig> GroupShaDiaoTuConfig
-        {
-            get => ShaDiaoTuManager.GroupShaDiaoTuConfig;
-            set => ShaDiaoTuManager.GroupShaDiaoTuConfig = value;
-        }
+        public ConcurrentDictionary<long, ShaDiaoTuConfig> GroupShaDiaoTuConfig { get; set; }
 
-        public ConcurrentDictionary<long, string> QQBan
-        {
-            get => BanManager.QQBan;
-            set => BanManager.QQBan = value;
-        }
+        public ConcurrentDictionary<long, string> QQBan { get; set; }
 
-        public ConcurrentDictionary<(long, long), string> GroupBan
-        {
-            get => BanManager.GroupBan;
-            set => BanManager.GroupBan = value;
-        }
+        public ConcurrentDictionary<(long, long), string> GroupBan { get; set; }
 
-        public List<GroupMember> GroupMembers
-        {
-            get => GroupMemberManager.GroupMembers.Values.OrderBy(p=>p.GroupNumber).ThenBy(p=>p.QQ).ToList();
-            set
-            {
-                GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
-                value?.ForEach(p =>
-                {
-                    GroupMemberManager.GroupMembers.AddOrUpdate((p.QQ, p.GroupNumber), p, (key, q) => p);
-                });
-            }
-        }
+        public List<GroupMember> GroupMembers { get; set; }
 
-        public List<UserInfo> Users
-        {
-            get => UserManager.Users;
-            set => UserManager.Users = value;
-        }
+        public List<UserInfo> Users { get; set; }
 
-        public ConcurrentDictionary<long, BakiConfig> GroupBakiConfig
-        {
-            get => BakiManager.GroupBakiConfig;
-            set => BakiManager.GroupBakiConfig = value;
-        }
+        public ConcurrentDictionary<long, BakiConfig> GroupBakiConfig { get; set; }
 
         public static async Task Init()
         {
@@ -112,9 +67,36 @@ namespace GensouSakuya.QQBot.Core.Base
             await GroupMemberManager.StartLoadTask(System.Threading.CancellationToken.None);
         }
 
+        private void RefreshData()
+        {
+            GroupMembers = GroupMemberManager.GroupMembers.Values.OrderBy(p => p.GroupNumber).ThenBy(p => p.QQ).ToList();
+            GroupBakiConfig = BakiManager.GroupBakiConfig;
+            Users = UserManager.Users;
+            GroupBan = BanManager.GroupBan;
+            QQBan = BanManager.QQBan;
+            GroupShaDiaoTuConfig = ShaDiaoTuManager.GroupShaDiaoTuConfig;
+            GroupRepeatConfig = RepeatManager.GroupRepeatConfig;
+        }
+
+        private void UpdateData()
+        {
+            GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
+            GroupMembers?.ForEach(p =>
+            {
+                GroupMemberManager.GroupMembers.AddOrUpdate((p.QQ, p.GroupNumber), p, (key, q) => p);
+            });
+            BakiManager.GroupBakiConfig = GroupBakiConfig;
+            UserManager.Users = Users;
+            BanManager.GroupBan = GroupBan;
+            BanManager.QQBan = QQBan;
+            ShaDiaoTuManager.GroupShaDiaoTuConfig = GroupShaDiaoTuConfig;
+            RepeatManager.GroupRepeatConfig = GroupRepeatConfig;
+        }
+
         public static Task Save()
         {
             _logger.Info("saving data");
+            Instance.RefreshData();
             var path = Config.ConfigFile;
             try
             {
@@ -147,6 +129,7 @@ namespace GensouSakuya.QQBot.Core.Base
                 {
                     var db = Tools.DeserializeObject<DataManager>(text);
                     Instance = db;
+                    Instance.UpdateData();
                 }
                 catch (Exception e)
                 {
