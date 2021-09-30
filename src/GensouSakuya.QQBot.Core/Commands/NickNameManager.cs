@@ -38,6 +38,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             var oldName = member.GroupName;
             member.NickName = nickName;
             message = $"已将{oldName}的昵称更改为{nickName}";
+            DataManager.Instance.NoticeConfigUpdated();
         }
 
         public static void DelNickName(GroupMember member,ref string message)
@@ -51,6 +52,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 var oldNickName = member.NickName;
                 member.NickName = null;
                 message = $"已将{oldNickName}的昵称删除";
+                DataManager.Instance.NoticeConfigUpdated();
             }
         }
     }
