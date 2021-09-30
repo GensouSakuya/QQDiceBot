@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CommandLine;
+using GensouSakuya.QQBot.Core.Base;
 using Mirai_CSharp;
 using Mirai_CSharp.Models;
 
@@ -18,7 +19,6 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             });
 
             var bot = new Bot();
-            await bot.Start();
 
             MiraiHttpSessionOptions options = new MiraiHttpSessionOptions("127.0.0.1", 8080, opt.AuthKey);
             // session 使用 DisposeAsync 模式, 所以使用 await using 自动调用 DisposeAsync 方法。
@@ -31,6 +31,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             session.AddPlugin(bot);
             // 使用上边提供的信息异步连接到 mirai-api-http
             await session.ConnectAsync(options, opt.QQ); // 自己填机器人QQ号
+            await bot.Start();
             while (true)
             {
                 var readline = await Console.In.ReadLineAsync();
@@ -52,6 +53,10 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                         continue;
                     var message = string.Join(" ", splited.Skip(2));
                     await session.SendGroupMessageAsync(groupNo, new PlainMessage(message));
+                }
+                else if (readline.StartsWith("save", StringComparison.OrdinalIgnoreCase))
+                {
+                    await DataManager.Save();
                 }
             }
         }

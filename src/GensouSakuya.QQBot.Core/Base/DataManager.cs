@@ -80,7 +80,7 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public List<GroupMember> GroupMembers
         {
-            private get => GroupMemberManager.GroupMembers.Values.ToList();
+            get => GroupMemberManager.GroupMembers.Values.ToList();
             set
             {
                 GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
@@ -144,7 +144,9 @@ namespace GensouSakuya.QQBot.Core.Base
                     Directory.CreateDirectory(dir);
                 }
 
-                File.WriteAllText(path, Tools.SerializeObject(Instance));
+                var data = Tools.SerializeObject(Instance);
+
+                File.WriteAllText(path, data);
                 _logger.Debug("Config updated");
             }
             catch (Exception e)

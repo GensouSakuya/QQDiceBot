@@ -3,13 +3,15 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GensouSakuya.QQBot.Core.Exceptions;
 using GensouSakuya.QQBot.Core.Model;
 
 namespace GensouSakuya.QQBot.Core.QQManager
 {
     public class GroupMemberManager
     {
-        public static ConcurrentDictionary<(long, long), GroupMember> GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
+        private static readonly Logger _logger = Logger.GetLogger<GroupMemberManager>();
+        public static ConcurrentDictionary<(long qq, long gruopNo), GroupMember> GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
 
         public static async Task<GroupMember> Get(long qq, long groupNo)
         {
@@ -39,24 +41,41 @@ namespace GensouSakuya.QQBot.Core.QQManager
             {
                 while (!token.IsCancellationRequested)
                 {
-                    var groupIds = GroupMembers.Values.Select(p => p.GroupNumber).Distinct();
-                    foreach (var groupId in groupIds)
+                    try
                     {
-                        var sourceMembers = await PlatformManager.Info.GetGroupMembers(groupId);
-                        if (sourceMembers != null)
+                        var groupIds = GroupMembers.Values.Select(p => p.GroupNumber).Distinct();
+                        foreach (var groupId in groupIds)
                         {
-                            sourceMembers.ForEach(p =>
+                            try
                             {
-                                GroupMembers.AddOrUpdate((p.QQId, p.GroupId), new GroupMember(p), (ids, updateMember) =>
+                                var sourceMembers = await PlatformManager.Info.GetGroupMembers(groupId);
+                                sourceMembers?.ForEach(p =>
                                 {
-                                    updateMember.Card = p.Card;
-                                    updateMember.PermitType = p.PermitType;
-                                    return updateMember;
+                                    GroupMembers.AddOrUpdate((p.QQId, p.GroupId), new GroupMember(p),
+                                        (ids, updateMember) =>
+                                        {
+                                            updateMember.Card = p.Card;
+                                            updateMember.PermitType = p.PermitType;
+                                            return updateMember;
+                                        });
                                 });
-                            });
+                            }
+                            catch (GroupNotExistsException)
+                            {
+                                _logger.Info("group[{0}] is not exists anymore, cleaning data", groupId);
+                                foreach(var deleteKey in GroupMemberManager.GroupMembers.Keys.Where(p => p.gruopNo == groupId))
+                                {
+                                    GroupMembers.TryRemove(deleteKey, out _);
+                                }
+                            }
                         }
                     }
-                    await Task.Delay(TimeSpan.FromMinutes(5));
+                    catch(Exception e)
+                    {
+                        _logger.Error(e, "load groupmember error");
+                    }
+
+                    await Task.Delay(TimeSpan.FromMinutes(5), token);
                 }
             });
             return Task.CompletedTask;

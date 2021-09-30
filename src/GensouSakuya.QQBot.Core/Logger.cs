@@ -5,7 +5,7 @@ using System.IO;
 
 namespace GensouSakuya.QQBot.Core
 {
-    internal class Logger
+    public class Logger
     {
         static Logger()
         {
@@ -35,6 +35,11 @@ namespace GensouSakuya.QQBot.Core
             _logger.Information(message);
         }
 
+        public void Info(string messageTemplate, params object[] args)
+        {
+            _logger.Information(messageTemplate, args);
+        }
+
         public void Error(Exception e, string message)
         {
             _logger.Error(e, message);
@@ -43,6 +48,11 @@ namespace GensouSakuya.QQBot.Core
         public void Debug(string message)
         {
             _logger.Debug(message);
+        }
+
+        public void Fatal(string message)
+        {
+            _logger.Fatal(message);
         }
     }
 }

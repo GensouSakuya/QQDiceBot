@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core;
+using GensouSakuya.QQBot.Core.Exceptions;
 using GensouSakuya.QQBot.Core.PlatformModel;
 using GensouSakuya.QQBot.Core.QQManager;
 using Mirai_CSharp;
+using Mirai_CSharp.Exceptions;
 using Mirai_CSharp.Models;
 using Mirai_CSharp.Plugin.Interfaces;
 using Spectre.Console;
@@ -14,6 +16,9 @@ namespace GensouSakuya.QQBot.Platform.Mirai
 {
     public class Bot : IGroupMessage,IFriendMessage
     {
+
+        private static readonly Logger _logger = Logger.GetLogger<Bot>();
+
         public Bot()
         {
             EventCenter.SendMessage += SendMessage;
@@ -67,6 +72,11 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             });
             if (builder.Count == 0)
                 return;
+            if (_session == null)
+            {
+                _logger.Fatal("_session is null");
+                return;
+            }
             switch (m.Type)
             {
                 case MessageSourceType.Group:
@@ -111,17 +121,28 @@ namespace GensouSakuya.QQBot.Platform.Mirai
 
         private async Task<List<GroupMemberSourceInfo>> GetGroupMemberList(long groupNo)
         {
-            var res = await _session.GetGroupMemberListAsync(groupNo);
-            if (res == null)
-                return null;
-            return res.Select(p => new GroupMemberSourceInfo
+            if (_session == null)
             {
-                Card = p.Name,
-                GroupId = groupNo,
-                QQId = p.Id,
-                PermitType = p.Permission == GroupPermission.Administrator ? PermitType.Manage :
-                    p.Permission == GroupPermission.Owner ? PermitType.Holder : PermitType.None
-            }).ToList();
+                _logger.Fatal("_session is null");
+                return null;
+            }
+
+            try
+            {
+                var res = await _session.GetGroupMemberListAsync(groupNo);
+                return res.Select(p => new GroupMemberSourceInfo
+                {
+                    Card = p.Name,
+                    GroupId = groupNo,
+                    QQId = p.Id,
+                    PermitType = p.Permission == GroupPermission.Administrator ? PermitType.Manage :
+                        p.Permission == GroupPermission.Owner ? PermitType.Holder : PermitType.None
+                }).ToList();
+            }
+            catch (TargetNotFoundException)
+            {
+                throw new GroupNotExistsException(groupNo);
+            }
         }
 
         private MiraiHttpSession _session;
