@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GensouSakuya.QQBot.Core.Base;
 using GensouSakuya.QQBot.Core.Exceptions;
 using GensouSakuya.QQBot.Core.Model;
 
@@ -32,6 +33,8 @@ namespace GensouSakuya.QQBot.Core.QQManager
                 });
             });
 
+            DataManager.Instance.NoticeConfigUpdated();
+
             return GroupMembers.TryGetValue((qq, groupNo), out member) ? member : null;
         }
 
@@ -41,6 +44,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
             {
                 while (!token.IsCancellationRequested)
                 {
+                    var hasUpdate = false;
                     try
                     {
                         var groupIds = GroupMembers.Values.Select(p => p.GroupNumber).Distinct();
@@ -51,9 +55,14 @@ namespace GensouSakuya.QQBot.Core.QQManager
                                 var sourceMembers = await PlatformManager.Info.GetGroupMembers(groupId);
                                 sourceMembers?.ForEach(p =>
                                 {
+                                    var key = (p.QQId, p.GroupId);
+                                    if(!GroupMembers.ContainsKey(key))
+                                        hasUpdate = true;
+
                                     GroupMembers.AddOrUpdate((p.QQId, p.GroupId), new GroupMember(p),
                                         (ids, updateMember) =>
                                         {
+                                            hasUpdate = true;
                                             updateMember.Card = p.Card;
                                             updateMember.PermitType = p.PermitType;
                                             return updateMember;
@@ -67,12 +76,18 @@ namespace GensouSakuya.QQBot.Core.QQManager
                                 {
                                     GroupMembers.TryRemove(deleteKey, out _);
                                 }
+                                hasUpdate = true;
                             }
                         }
                     }
                     catch(Exception e)
                     {
                         _logger.Error(e, "load groupmember error");
+                    }
+
+                    if (hasUpdate)
+                    {
+                        DataManager.Instance.NoticeConfigUpdated();
                     }
 
                     await Task.Delay(TimeSpan.FromMinutes(5), token);

@@ -105,36 +105,16 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public static async Task Init()
         {
-            var path = Config.ConfigFile;
-            _logger.Debug("InitPath:" + path);
-            if (File.Exists(path))
-            {
-                var xml = File.ReadAllText(path);
-                try
-                {
-                    var db = Tools.DeserializeObject<DataManager>(xml);
-                    Instance = db;
-                }
-                catch (Exception e)
-                {
-                    _logger.Error(e, "ConfigLoadError");
-                }
-            }
-            else
-            {
-                _logger.Debug("not found" + path);
-            }
+            await Load();
 
-            if (Instance == null)
-            {
-                Instance = new DataManager();
-            }
+            Instance ??= new DataManager();
 
             await GroupMemberManager.StartLoadTask(System.Threading.CancellationToken.None);
         }
 
         public static Task Save()
         {
+            _logger.Info("saving data");
             var path = Config.ConfigFile;
             try
             {
@@ -154,6 +134,29 @@ namespace GensouSakuya.QQBot.Core.Base
                 _logger.Error(e, "save config error");
             }
             return Task.CompletedTask;
+        }
+
+        public static async Task Load()
+        {
+            var path = Config.ConfigFile;
+            _logger.Debug("loading from:" + path);
+            if (File.Exists(path))
+            {
+                var text = await File.ReadAllTextAsync(path);
+                try
+                {
+                    var db = Tools.DeserializeObject<DataManager>(text);
+                    Instance = db;
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e, "ConfigLoadError");
+                }
+            }
+            else
+            {
+                _logger.Debug("not found" + path);
+            }
         }
 
         public static async Task Stop()

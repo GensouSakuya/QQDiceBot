@@ -54,9 +54,13 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                     var message = string.Join(" ", splited.Skip(2));
                     await session.SendGroupMessageAsync(groupNo, new PlainMessage(message));
                 }
-                else if (readline.StartsWith("save", StringComparison.OrdinalIgnoreCase))
+                else if (readline.Equals("save", StringComparison.OrdinalIgnoreCase))
                 {
                     await DataManager.Save();
+                }
+                else if (readline.Equals("load", StringComparison.OrdinalIgnoreCase))
+                {
+                    await DataManager.Load();
                 }
             }
         }
