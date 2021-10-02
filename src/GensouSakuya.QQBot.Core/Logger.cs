@@ -40,6 +40,11 @@ namespace GensouSakuya.QQBot.Core
             _logger.Information(messageTemplate, args);
         }
 
+        public void Error(string message)
+        {
+            _logger.Error(message);
+        }
+
         public void Error(Exception e, string message)
         {
             _logger.Error(e, message);

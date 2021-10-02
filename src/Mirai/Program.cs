@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CommandLine;
+using GensouSakuya.QQBot.Core;
 using GensouSakuya.QQBot.Core.Base;
 using Mirai_CSharp;
 using Mirai_CSharp.Models;
@@ -10,6 +11,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
 {
     class Program
     {
+        private static readonly Logger _logger = Logger.GetLogger<Program>();
         static async Task Main(string[] args)
         {
             Options opt = null;
@@ -29,6 +31,12 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             // 你也可以一个个绑定事件。比如 session.GroupMessageEvt += plugin.GroupMessage;
             // 手动绑定事件后不要再调用AddPlugin, 否则可能导致重复调用
             session.AddPlugin(bot);
+            session.DisconnectedEvt += async (s, e) =>
+            {
+                _logger.Error("disconnected, reconnecting");
+                await s.ConnectAsync(options, opt.QQ);
+                return true;
+            };
             // 使用上边提供的信息异步连接到 mirai-api-http
             await session.ConnectAsync(options, opt.QQ); // 自己填机器人QQ号
             await bot.Start();

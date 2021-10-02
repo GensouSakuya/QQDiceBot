@@ -33,6 +33,9 @@ namespace GensouSakuya.QQBot.Platform.Mirai
 
         private async void SendMessage(Message m)
         {
+            var session = GetAndValidateSession();
+            if (session == null)
+                return;
             var builder = (IMessageBuilder)new MessageBuilder();
             m.Content.ForEach(p =>
             {
@@ -42,7 +45,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                 {
                     if (!string.IsNullOrWhiteSpace(im.ImagePath))
                     {
-                        var meg = _session
+                        var meg = session
                             .UploadPictureAsync(
                                 m.Type == MessageSourceType.Group ? UploadTarget.Group :
                                 m.Type == MessageSourceType.Friend ? UploadTarget.Friend : UploadTarget.Temp, im.ImagePath)
@@ -121,15 +124,13 @@ namespace GensouSakuya.QQBot.Platform.Mirai
 
         private async Task<List<GroupMemberSourceInfo>> GetGroupMemberList(long groupNo)
         {
-            if (_session == null)
-            {
-                _logger.Fatal("_session is null");
+            var session = GetAndValidateSession();
+            if (session == null)
                 return null;
-            }
 
             try
             {
-                var res = await _session.GetGroupMemberListAsync(groupNo);
+                var res = await session.GetGroupMemberListAsync(groupNo);
                 return res.Select(p => new GroupMemberSourceInfo
                 {
                     Card = p.Name,
@@ -146,6 +147,23 @@ namespace GensouSakuya.QQBot.Platform.Mirai
         }
 
         private MiraiHttpSession _session;
+
+        private MiraiHttpSession GetAndValidateSession()
+        {
+            if(_session == null)
+            {
+                _logger.Fatal("_session is null");
+                return null;
+            }
+
+            if (!_session.Connected)
+            {
+                _logger.Fatal("_session is disconnected");
+                return null;
+            }
+
+            return _session;
+        }
 
         public async Task<bool> GroupMessage(MiraiHttpSession session, IGroupMessageEventArgs e)
         {
