@@ -30,6 +30,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             //ExamplePlugin plugin = new ExamplePlugin();
             // 你也可以一个个绑定事件。比如 session.GroupMessageEvt += plugin.GroupMessage;
             // 手动绑定事件后不要再调用AddPlugin, 否则可能导致重复调用
+            bot.SetSession(session);
             session.AddPlugin(bot);
             session.DisconnectedEvt += async (s, e) =>
             {

@@ -148,6 +148,11 @@ namespace GensouSakuya.QQBot.Platform.Mirai
 
         private MiraiHttpSession _session;
 
+        public void SetSession(MiraiHttpSession session)
+        {
+            _session = session;
+        }
+
         private MiraiHttpSession GetAndValidateSession()
         {
             if(_session == null)
