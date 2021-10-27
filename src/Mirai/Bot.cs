@@ -102,6 +102,11 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                     mes.Add(new Core.PlatformModel.ImageMessage(url: im.Url, id: im.ImageId));
                     Console.WriteLine($"received image[{im.ImageId}]:{im.Url}");
                 }
+                else if (c is Mirai_CSharp.Models.VoiceMessage vm)
+                {
+                    mes.Add(new Core.PlatformModel.VoiceMessage(url: vm.Url, id: vm.VoiceId));
+                    Console.Write($"received voice[{vm.VoiceId}]:{vm.Url}");
+                }
                 else if (c is PlainMessage pm)
                 {
                     mes.Add(new TextMessage(pm.Message));

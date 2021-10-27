@@ -91,4 +91,23 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
             Origin = origin;
         }
     }
+
+    public class VoiceMessage : BaseMessage
+    {
+        /// <summary>
+        /// 接收用
+        /// </summary>
+        public string Url { get; set; }
+
+        /// <summary>
+        /// 接收用
+        /// </summary>
+        public string Id { get; set; }
+
+        public VoiceMessage(string url = null, string id = null)
+        {
+            Url = url;
+            Id = id;
+        }
+    }
 }
