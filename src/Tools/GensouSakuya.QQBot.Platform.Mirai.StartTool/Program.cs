@@ -42,7 +42,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai.StartTool
                 Console.WriteLine("[Mirai]"+e.Data);
                 if (!isLogin)
                 {
-                    if (e.Data.Contains("login successful",StringComparison.OrdinalIgnoreCase))
+                    if (e.Data.Contains("BotOnlineEvent", StringComparison.OrdinalIgnoreCase))
                     {
                         isLogin = true;
                         botWaitHandle.Set();
