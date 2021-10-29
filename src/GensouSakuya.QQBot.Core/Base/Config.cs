@@ -23,6 +23,9 @@ namespace GensouSakuya.QQBot.Core.Base
                 ".me [需要转述的内容]", "转述"
             },
             {
+                ".news", "新闻播报"
+            },
+            {
                 ".nn [昵称]", "设置/删除群内昵称"
             },
             {
@@ -33,6 +36,9 @@ namespace GensouSakuya.QQBot.Core.Base
             //},
             {
                 ".ti", "疯狂发作-临时症状"
+            },
+            {
+                ".todayhis","历史上的今天"
             }
         };
 

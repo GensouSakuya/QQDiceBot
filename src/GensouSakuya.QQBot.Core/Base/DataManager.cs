@@ -58,6 +58,9 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public ConcurrentDictionary<long, BakiConfig> GroupBakiConfig { get; set; }
 
+        public ConcurrentDictionary<long, bool> GroupTodayHistoryConfig { get; set; }
+        public ConcurrentDictionary<long, bool> GroupNewsConfig { get; set; }
+
         public static async Task Init()
         {
             await Load();
@@ -77,6 +80,8 @@ namespace GensouSakuya.QQBot.Core.Base
             QQBan = BanManager.QQBan;
             GroupShaDiaoTuConfig = ShaDiaoTuManager.GroupShaDiaoTuConfig;
             GroupRepeatConfig = RepeatManager.GroupRepeatConfig;
+            GroupTodayHistoryConfig = TodayHistoryManager.GroupTodayHistoryConfig;
+            GroupNewsConfig = NewsManager.GroupNewsConfig;
         }
 
         private void UpdateData()
@@ -96,6 +101,8 @@ namespace GensouSakuya.QQBot.Core.Base
             BanManager.QQBan = QQBan;
             ShaDiaoTuManager.GroupShaDiaoTuConfig = GroupShaDiaoTuConfig;
             RepeatManager.GroupRepeatConfig = GroupRepeatConfig;
+            TodayHistoryManager.GroupTodayHistoryConfig = GroupTodayHistoryConfig;
+            NewsManager.GroupNewsConfig = GroupNewsConfig;
         }
 
         public static Task Save()
