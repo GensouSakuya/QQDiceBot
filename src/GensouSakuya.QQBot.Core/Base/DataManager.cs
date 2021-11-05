@@ -60,6 +60,7 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public ConcurrentDictionary<long, bool> GroupTodayHistoryConfig { get; set; }
         public ConcurrentDictionary<long, bool> GroupNewsConfig { get; set; }
+        public ConcurrentDictionary<long, bool> GroupHentaiCheckConfig { get; set; }
 
         public static async Task Init()
         {
@@ -82,6 +83,7 @@ namespace GensouSakuya.QQBot.Core.Base
             GroupRepeatConfig = RepeatManager.GroupRepeatConfig;
             GroupTodayHistoryConfig = TodayHistoryManager.GroupTodayHistoryConfig;
             GroupNewsConfig = NewsManager.GroupNewsConfig;
+            GroupHentaiCheckConfig = HentaiCheckManager.GroupHentaiCheckConfig;
         }
 
         private void UpdateData()
@@ -103,6 +105,7 @@ namespace GensouSakuya.QQBot.Core.Base
             RepeatManager.GroupRepeatConfig = GroupRepeatConfig;
             TodayHistoryManager.GroupTodayHistoryConfig = GroupTodayHistoryConfig;
             NewsManager.GroupNewsConfig = GroupNewsConfig;
+            HentaiCheckManager.GroupHentaiCheckConfig = GroupHentaiCheckConfig;
         }
 
         public static Task Save()

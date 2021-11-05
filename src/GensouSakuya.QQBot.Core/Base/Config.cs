@@ -14,6 +14,9 @@ namespace GensouSakuya.QQBot.Core.Base
                 ".ask [需要决策的问题] [供选择的方案(用'|'分隔)]", $"向{DataManager.Instance.BotName}征求意见"
             },
             {
+                ".hc [图片]", "色图鉴定"
+            },
+            {
                 ".jrrp", "今日人品检定"
             },
             {
@@ -71,5 +74,6 @@ namespace GensouSakuya.QQBot.Core.Base
         public static readonly string ConfigFile = Path.Combine(DataPath, "config.json");
         public static readonly string LogPath = Path.Combine(DataPath, "Log");
         public static readonly string ShaDiaoImagePath = Path.Combine(DataPath, "沙雕图");
+        public static readonly string TempPath = Path.Combine(DataPath, ".temp");
     }
 }
