@@ -85,11 +85,11 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
 
         public long MessageId { get; set; }
 
-        public QuoteMessage(long groupNumber,long senderId,long messageId)
+        public QuoteMessage(long? groupNumber,long? senderId,long? messageId)
         {
-            GroupNumber = groupNumber;
-            SenderId = senderId;
-            MessageId = messageId;
+            GroupNumber = groupNumber ?? default;
+            SenderId = senderId ?? default;
+            MessageId = messageId ?? default;
         }
     }
 
