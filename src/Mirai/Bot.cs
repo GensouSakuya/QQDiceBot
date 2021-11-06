@@ -17,6 +17,8 @@ using Mirai.CSharp.Models;
 using Spectre.Console;
 using AtMessage = Mirai.CSharp.HttpApi.Models.ChatMessages.AtMessage;
 using ImageMessage = Mirai.CSharp.HttpApi.Models.ChatMessages.ImageMessage;
+using QuoteMessage = Mirai.CSharp.HttpApi.Models.ChatMessages.QuoteMessage;
+using SourceMessage = Mirai.CSharp.HttpApi.Models.ChatMessages.SourceMessage;
 using VoiceMessage = Mirai.CSharp.HttpApi.Models.ChatMessages.VoiceMessage;
 
 namespace GensouSakuya.QQBot.Platform.Mirai
@@ -42,61 +44,75 @@ namespace GensouSakuya.QQBot.Platform.Mirai
 
         private async void SendMessage(Message m)
         {
-            var session = GetAndValidateSession();
-            if (session == null)
-                return;
-            var builder = new List<IChatMessage>();
-            m.Content.ForEach(p =>
+            try
             {
-                if (p is TextMessage tm)
-                    builder.Add(new PlainMessage(tm.Text));
-                else if (p is Core.PlatformModel.ImageMessage im)
+                var session = GetAndValidateSession();
+                if (session == null)
+                    return;
+                var builder = new List<IChatMessage>();
+                int? quotaMessageId = null;
+                m.Content.ForEach(p =>
                 {
-                    if (!string.IsNullOrWhiteSpace(im.ImagePath))
+                    if (p is TextMessage tm)
+                        builder.Add(new PlainMessage(tm.Text));
+                    else if (p is Core.PlatformModel.ImageMessage im)
                     {
-                        var meg = session
-                            .UploadPictureAsync(
-                                m.Type == MessageSourceType.Group ? UploadTarget.Group :
-                                m.Type == MessageSourceType.Friend ? UploadTarget.Friend : UploadTarget.Temp, im.ImagePath)
-                            .GetAwaiter().GetResult();
-                        builder.Add((IChatMessage)meg);
+                        if (!string.IsNullOrWhiteSpace(im.ImagePath))
+                        {
+                            var meg = session
+                                .UploadPictureAsync(
+                                    m.Type == MessageSourceType.Group ? UploadTarget.Group :
+                                    m.Type == MessageSourceType.Friend ? UploadTarget.Friend : UploadTarget.Temp,
+                                    im.ImagePath)
+                                .GetAwaiter().GetResult();
+                            builder.Add((IChatMessage)meg);
+                        }
+                        else if (!string.IsNullOrWhiteSpace(im.Url))
+                        {
+                            builder.Add(new ImageMessage(im.ImageId, im.Url, im.ImagePath));
+                        }
                     }
-                    else if (!string.IsNullOrWhiteSpace(im.Url))
+                    else if (p is Core.PlatformModel.AtMessage am)
                     {
-                        builder.Add(new ImageMessage(im.Id, im.Url, im.ImagePath));
+                        builder.Add(new AtMessage(am.QQ));
                     }
-                }
-                else if (p is Core.PlatformModel.AtMessage am)
+                    else if (p is Core.PlatformModel.QuoteMessage qm)
+                    {
+                        quotaMessageId = (int)qm.MessageId;
+                    }
+                    else if (p is Core.PlatformModel.OtherMessage om)
+                    {
+                        if (om.Origin is IChatMessage imb)
+                        {
+                            builder.Add(imb);
+                        }
+                    }
+                    else if (p is Core.PlatformModel.SourceMessage)
+                    {
+                        //ignore
+                    }
+                });
+                if (builder.Count == 0)
+                    return;
+                if (_session == null)
                 {
-                    builder.Add(new AtMessage(am.QQ));
+                    _logger.Fatal("_session is null");
+                    return;
                 }
-                //else if (p is Core.PlatformModel.QuoteMessage qm)
-                //{
-                //    builder = builder.Add(new Mirai_CSharp.Models.QuoteMessage(qm.QQ));
-                //}
-                else if(p is Core.PlatformModel.OtherMessage om)
+
+                switch (m.Type)
                 {
-                    if (om.Origin is IChatMessage imb)
-                    {
-                        builder.Add(imb);
-                    }
+                    case MessageSourceType.Group:
+                        await _session.SendGroupMessageAsync(m.ToGroup, builder.ToArray(), quotaMessageId);
+                        break;
+                    case MessageSourceType.Friend:
+                        await _session.SendFriendMessageAsync(m.ToQQ, builder.ToArray(), quotaMessageId);
+                        break;
                 }
-            });
-            if (builder.Count == 0)
-                return;
-            if (_session == null)
-            {
-                _logger.Fatal("_session is null");
-                return;
             }
-            switch (m.Type)
+            catch (Exception e)
             {
-                case MessageSourceType.Group:
-                    await _session.SendGroupMessageAsync(m.ToGroup, builder.ToArray());
-                    break;
-                case MessageSourceType.Friend:
-                    await _session.SendFriendMessageAsync(m.ToQQ, builder.ToArray());
-                    break;
+                _logger.Error(e, "send message error");
             }
         }
 
@@ -104,16 +120,20 @@ namespace GensouSakuya.QQBot.Platform.Mirai
         {
             command = string.Join(Environment.NewLine, ((IEnumerable<IChatMessage>) chain).Skip(1));
             var mes = new List<BaseMessage>();
-            chain.Skip(1).ToList().ForEach(c =>
+            chain.ToList().ForEach(c =>
             {
-                if (c is ImageMessage im)
+                if (c is SourceMessage sm)
                 {
-                    mes.Add(new Core.PlatformModel.ImageMessage(url: im.Url, id: im.ImageId));
+                    mes.Add(new Core.PlatformModel.SourceMessage(sm.Id, sm.Time));
+                }
+                else if (c is ImageMessage im)
+                {
+                    mes.Add(new Core.PlatformModel.ImageMessage(url: im.Url, imageId: im.ImageId));
                     Console.WriteLine($"received image[{im.ImageId}]:{im.Url}");
                 }
                 else if (c is VoiceMessage vm)
                 {
-                    mes.Add(new Core.PlatformModel.VoiceMessage(url: vm.Url, id: vm.VoiceId));
+                    mes.Add(new Core.PlatformModel.VoiceMessage(url: vm.Url, voiceId: vm.VoiceId));
                     Console.Write($"received voice[{vm.VoiceId}]:{vm.Url}");
                 }
                 else if (c is PlainMessage pm)
@@ -126,7 +146,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                 }
                 else if (c is QuoteMessage qm)
                 {
-                    //ignore
+                    mes.Add(new Core.PlatformModel.QuoteMessage(qm.GroupId, qm.SenderId, qm.Id));
                 }
                 else
                 {

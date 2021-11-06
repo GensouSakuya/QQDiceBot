@@ -27,11 +27,15 @@ namespace GensouSakuya.QQBot.Core.Commands
                 return;
             }
 
+            var sourceMessageId = (originMessage?.FirstOrDefault() as SourceMessage)?.Id ?? default;
+            var messages = new List<BaseMessage>();
+            messages.Add(new QuoteMessage(toGroup, fromQQ, sourceMessageId));
+
             fromQQ = member.QQ;
             toGroup = member.GroupNumber;
             var permit = member.PermitType;
 
-            if (originMessage.Count< 2)
+            if (originMessage.Count<= 2)
             {
                 if (command[0].Equals("on", StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -64,15 +68,17 @@ namespace GensouSakuya.QQBot.Core.Commands
                 }
                 else
                 {
-                    MessageManager.SendTextMessage(MessageSourceType.Group, "图呢？", fromQQ, toGroup);
+                    messages.Add(new TextMessage("图呢？"));
+                    MessageManager.SendMessage(sourceType, messages, fromQQ, toGroup);
                     return;
                 }
             }
             else
             {
-                if (!(originMessage?.ElementAt(1) is ImageMessage im))
+                if (!(originMessage?.ElementAt(2) is ImageMessage im))
                 {
-                    MessageManager.SendTextMessage(MessageSourceType.Group, "图呢？", fromQQ, toGroup);
+                    messages.Add(new TextMessage("图呢？"));
+                    MessageManager.SendMessage(sourceType, messages, fromQQ, toGroup);
                     return;
                 }
 
@@ -118,25 +124,27 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 }
 
-                var message = "没鉴定出来><";
+                var messageText = "没鉴定出来><";
                 var result = jsonRes.OrderByDescending(p => p.Probability).FirstOrDefault();
                 switch (result?.ClassName)
                 {
                     case "Drawing":
                     case "Neutral":
-                        message = "这不是挺健全的嘛";
+                        messageText = "这不是挺健全的嘛";
                         break;
                     case "Hentai":
-                        message = "色疯辣！";
+                        messageText = "色疯辣！";
                         break;
                     case "Sexy":
-                        message = "我超，太烧啦！";
+                        messageText = "我超，太烧啦！";
                         break;
                     case "Porn":
-                        message = "你完了，我这就叫狗管理来抓你";
+                        messageText = "你完了，我这就叫狗管理来抓你";
                         break;
                 }
-                MessageManager.SendTextMessage(sourceType, message, fromQQ, toGroup);
+
+                messages.Add(new TextMessage(messageText));
+                MessageManager.SendMessage(sourceType, messages, fromQQ, toGroup);
             }
         }
 

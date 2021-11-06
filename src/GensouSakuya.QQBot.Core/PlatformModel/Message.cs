@@ -21,6 +21,11 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
         {
             Content.Add(new ImageMessage(imagePath));
         }
+
+        public void AddRange(List<BaseMessage> messages)
+        {
+            Content.AddRange(messages);
+        }
     }
 
     public abstract class BaseMessage
@@ -53,12 +58,12 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
         /// <summary>
         /// 接收用
         /// </summary>
-        public string Id{ get; set; }
-        public ImageMessage(string path = null,string url = null,string id=null)
+        public string ImageId{ get; set; }
+        public ImageMessage(string path = null,string url = null,string imageId=null)
         {
             ImagePath = path;
             Url = url;
-            Id = id;
+            ImageId = imageId;
         }
     }
 
@@ -72,15 +77,21 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
         }
     }
 
-    //public class QuoteMessage : BaseMessage
-    //{
-    //    public int MessageId{ get; set; }
+    public class QuoteMessage : BaseMessage
+    {
+        public long GroupNumber { get; set; }
 
-    //    public QuoteMessage(int id)
-    //    {
-    //        MessageId = id;
-    //    }
-    //}
+        public long SenderId { get; set; }
+
+        public long MessageId { get; set; }
+
+        public QuoteMessage(long groupNumber,long senderId,long messageId)
+        {
+            GroupNumber = groupNumber;
+            SenderId = senderId;
+            MessageId = messageId;
+        }
+    }
 
     public class OtherMessage : BaseMessage
     {
@@ -102,12 +113,25 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
         /// <summary>
         /// 接收用
         /// </summary>
-        public string Id { get; set; }
+        public string VoiceId { get; set; }
 
-        public VoiceMessage(string url = null, string id = null)
+        public VoiceMessage(string url = null, string voiceId = null)
         {
             Url = url;
-            Id = id;
+            VoiceId = voiceId;
+        }
+    }
+
+    public class SourceMessage : BaseMessage
+    {
+        public int Id { get; set; }
+
+        public DateTime Time { get; set; }
+
+        public SourceMessage(int id, DateTime time)
+        {
+            this.Id = id;
+            this.Time = time;
         }
     }
 }
