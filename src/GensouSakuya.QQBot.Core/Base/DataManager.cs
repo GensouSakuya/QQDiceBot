@@ -51,6 +51,7 @@ namespace GensouSakuya.QQBot.Core.Base
         public ConcurrentDictionary<long, string> QQBan { get; set; }
 
         public ConcurrentDictionary<(long, long), string> GroupBan { get; set; }
+        public ConcurrentDictionary<(long, long), string> GroupIgnore { get; set; }
 
         public List<GroupMember> GroupMembers { get; set; }
 
@@ -84,6 +85,7 @@ namespace GensouSakuya.QQBot.Core.Base
             GroupTodayHistoryConfig = TodayHistoryManager.GroupTodayHistoryConfig;
             GroupNewsConfig = NewsManager.GroupNewsConfig;
             GroupHentaiCheckConfig = HentaiCheckManager.GroupHentaiCheckConfig;
+            GroupIgnore = IgnoreManager.GroupIgnore;
         }
 
         private void UpdateData()
@@ -106,6 +108,7 @@ namespace GensouSakuya.QQBot.Core.Base
             TodayHistoryManager.GroupTodayHistoryConfig = GroupTodayHistoryConfig;
             NewsManager.GroupNewsConfig = GroupNewsConfig;
             HentaiCheckManager.GroupHentaiCheckConfig = GroupHentaiCheckConfig;
+            IgnoreManager.GroupIgnore = GroupIgnore;
         }
 
         public static Task Save()

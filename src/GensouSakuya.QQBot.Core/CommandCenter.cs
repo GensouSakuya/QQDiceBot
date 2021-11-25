@@ -48,6 +48,10 @@ namespace GensouSakuya.QQBot.Core
             if(qqNo.HasValue && groupNo.HasValue)
             {
                 member = await GroupMemberManager.Get(qqNo.Value, groupNo.Value);
+                if(DataManager.Instance.GroupIgnore.ContainsKey((member.GroupNumber, member.QQ)))
+                {
+                    return;
+                }
             }
 
             if (!command.StartsWith(".") && !command.StartsWith("/"))
