@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Commands;
+using GensouSakuya.QQBot.Core.Commands.V2;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.QQManager;
 
@@ -16,6 +17,7 @@ namespace GensouSakuya.QQBot.Core.Base
     {
         private readonly Subject<string> _observedLogList = new Subject<string>();
         private static readonly Logger _logger = Logger.GetLogger<DataManager>();
+        public static long QQ { get; private set; }
 
         private DataManager()
         {
@@ -63,8 +65,11 @@ namespace GensouSakuya.QQBot.Core.Base
         public ConcurrentDictionary<long, bool> GroupNewsConfig { get; set; }
         public ConcurrentDictionary<long, bool> GroupHentaiCheckConfig { get; set; }
 
-        public static async Task Init()
+        public List<string> RuipingSentences { get; set; }
+
+        public static async Task Init(long qq)
         {
+            QQ = qq;
             await Load();
 
             Instance ??= new DataManager();
@@ -86,6 +91,7 @@ namespace GensouSakuya.QQBot.Core.Base
             GroupNewsConfig = NewsManager.GroupNewsConfig;
             GroupHentaiCheckConfig = HentaiCheckManager.GroupHentaiCheckConfig;
             GroupIgnore = IgnoreManager.GroupIgnore;
+            RuipingSentences = RuipingCommander.RuipingSentences;
         }
 
         private void UpdateData()
@@ -109,6 +115,7 @@ namespace GensouSakuya.QQBot.Core.Base
             NewsManager.GroupNewsConfig = GroupNewsConfig;
             HentaiCheckManager.GroupHentaiCheckConfig = GroupHentaiCheckConfig;
             IgnoreManager.GroupIgnore = GroupIgnore;
+            RuipingCommander.RuipingSentences = RuipingSentences;
         }
 
         public static Task Save()

@@ -37,9 +37,9 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             EventCenter.Log += log => { Console.WriteLine(log.Message); };
         }
 
-        public async Task Start()
+        public async Task Start(long qq)
         {
-            await Main.Init();
+            await Main.Init(qq);
         }
 
         private async void SendMessage(Message m)

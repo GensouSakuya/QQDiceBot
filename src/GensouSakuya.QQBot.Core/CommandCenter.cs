@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
 using GensouSakuya.QQBot.Core.Commands;
+using GensouSakuya.QQBot.Core.Commands.V2;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
 using GensouSakuya.QQBot.Core.QQManager;
@@ -18,6 +19,7 @@ namespace GensouSakuya.QQBot.Core
         private static readonly Logger _logger = Logger.GetLogger<CommandCenter>();
         private static readonly Random Random = new Random();
         private static readonly Dictionary<string, Type> Managers = new Dictionary<string, Type>();
+        private static CommanderEngine _engine;
 
         public static void ReloadManagers()
         {
@@ -32,7 +34,14 @@ namespace GensouSakuya.QQBot.Core
                 CommandList = p.GetCustomAttributes<CommandAttribute>().ToList()
             }).Where(p => p.CommandList.Any()).ToList();
             managerWithCommands.ForEach(p => { p.CommandList.ForEach(q => { Managers.Add(q.Command, p.Type); }); });
-            _logger.Debug($"found {managerWithCommands.Count}");
+            _logger.Debug($"found {managerWithCommands.Count} valid v1 managers");
+
+            var commanderTypes = Assembly.GetExecutingAssembly().GetTypes()
+                .Where(p => p.BaseType == typeof(BaseCommanderV2)).ToList();
+            _logger.Debug($"found {commanderTypes.Count} commanders");
+            var commanders = new List<BaseCommanderV2>();
+            commanders.AddRange(commanderTypes.Where(p => !p.IsAbstract).Select(p => (BaseCommanderV2)Activator.CreateInstance(p)));
+            _engine = new CommanderEngine(commanders);
         }
 
         public static async Task Execute(string command, List<BaseMessage> originMessage, MessageSourceType sourceType,long? qqNo = null, long? groupNo = null)
@@ -58,7 +67,7 @@ namespace GensouSakuya.QQBot.Core
             {
                 if (sourceType == MessageSourceType.Group)
                 {
-                    ExecuteWithoutCommand(command, originMessage, sourceType, qq, member);
+                    await ExecuteWithoutCommand(command, originMessage, sourceType, qq, group, member);
                 }
                 return;
             }
@@ -75,7 +84,7 @@ namespace GensouSakuya.QQBot.Core
             {
                 if (sourceType == MessageSourceType.Group)
                 {
-                    ExecuteWithoutCommand(command, originMessage, sourceType, qq, member);
+                    await ExecuteWithoutCommand(command, originMessage, sourceType, qq, group, member);
                 }
                 return;
             }
@@ -99,8 +108,13 @@ namespace GensouSakuya.QQBot.Core
             await manager.ExecuteAsync(args, originMessage, sourceType, qq, group, member);
         }
 
-        private static void ExecuteWithoutCommand(string message, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, GroupMember member)
+        private static async Task ExecuteWithoutCommand(string message, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
+            if (await _engine.ExecuteAsync(originMessage, sourceType, qq, group, member))
+            {
+                return;
+            }
+
             var managerList = new List<Tuple<BaseManager, List<string>>>();
             var randomRes = Random.Next(1, 101);
             if (member != null && RepeatManager.GroupRepeatConfig.ContainsKey(member.GroupNumber))

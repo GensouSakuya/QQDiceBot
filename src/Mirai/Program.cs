@@ -56,7 +56,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             //session.AddPlugin(bot); // 实时添加
             bot.SetSession(session);
             await session.ConnectAsync(opt.QQ); // 填入期望连接到的机器人QQ号
-            await bot.Start();
+            await bot.Start(opt.QQ);
             while (true)
             {
                 var readline = await Console.In.ReadLineAsync();
