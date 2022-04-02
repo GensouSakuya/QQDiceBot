@@ -37,9 +37,9 @@ namespace GensouSakuya.QQBot.Platform.Mirai.StartTool
             p.BeginOutputReadLine();
             p.OutputDataReceived += (s,e)=>
             {
-                if (e?.Data == null)
+                if (string.IsNullOrWhiteSpace(e?.Data))
                     return;
-                Console.WriteLine("[Mirai]"+e.Data);
+
                 if (!isLogin)
                 {
                     if (e.Data.Contains("BotOnlineEvent", StringComparison.OrdinalIgnoreCase))
@@ -48,6 +48,12 @@ namespace GensouSakuya.QQBot.Platform.Mirai.StartTool
                         botWaitHandle.Set();
                     }
                 }
+
+                if (e.Data.Contains("I/stdout") || e.Data.Equals("[0m[m"))
+                {
+                    return;
+                }
+                Console.WriteLine("[Mirai]" + e.Data);
             };
 
             botWaitHandle.WaitOne();
