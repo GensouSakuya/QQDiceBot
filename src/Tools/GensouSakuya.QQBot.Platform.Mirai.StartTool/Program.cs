@@ -49,7 +49,7 @@ namespace GensouSakuya.QQBot.Platform.Mirai.StartTool
                     }
                 }
 
-                if (e.Data.Contains("I/stdout") || e.Data.Equals("[0m[m"))
+                if (e.Data.Contains("I/stdout") || e.Data.Equals("[0m[m") || e.Data.Equals("> "))
                 {
                     return;
                 }
