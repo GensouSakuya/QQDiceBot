@@ -15,23 +15,35 @@ namespace GensouSakuya.QQBot.Platform.Mirai.StartTool
         {
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLine(string.Join(Environment.NewLine, args));
-            if (args == null || args.Length < 4)
+            if (args == null || args.Length < 3)
                 return;
+            var miraiDir = args[0];
+            var botPath = args[1];
+            var botArgs = args[2];
+            if (args.Length > 3 && args[3] == "debug")
+            {
+                botArgs += " --debug";
+                System.Diagnostics.Debugger.Launch();
+            }
             var iStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
             GetConsoleMode(iStdOut, out uint outConsoleMode);
             outConsoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING | DISABLE_NEWLINE_AUTO_RETURN;
             SetConsoleMode(iStdOut, outConsoleMode);
 
-            //var miraiLibsPath = args[0];
-            var botPath = args[2];
+            var mclcmdPath = Path.Combine(miraiDir, "mcl.cmd");
+            if (!File.Exists(mclcmdPath))
+            {
+                Console.WriteLine($"{mclcmdPath} 未找到");
+                return;
+            }
+
             var p = Process.Start(new ProcessStartInfo
             {
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 RedirectStandardInput = true,
-                FileName = "mcl.cmd",
-                //WorkingDirectory = miraiLibsPath,
-                //Arguments = $@"-cp ""{miraiLibsPath}\libs\*"" net.mamoe.mirai.console.pure.MiraiConsolePureLoader {args[1]}",
+                FileName = mclcmdPath,//"mcl.cmd",
+                WorkingDirectory = miraiDir,
                 UseShellExecute = false
             });
             var isLogin = false;
@@ -65,13 +77,18 @@ namespace GensouSakuya.QQBot.Platform.Mirai.StartTool
                 RedirectStandardInput = true,
                 WorkingDirectory = Path.GetDirectoryName(botPath),
                 FileName = botPath,
-                Arguments = args[3],
+                Arguments = botArgs,
                 UseShellExecute = false
             });
+            botP.BeginErrorReadLine();
             botP.BeginOutputReadLine();
             botP.OutputDataReceived += (s, e) =>
             {
                 Console.WriteLine("[Bot]" + e.Data);
+            };
+            botP.ErrorDataReceived += (s, e) =>
+            {
+                Console.WriteLine("[BotError]" + e.Data);
             };
 
             while (true)

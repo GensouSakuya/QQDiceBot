@@ -24,6 +24,11 @@ namespace GensouSakuya.QQBot.Platform.Mirai
             {
                 opt = o;
             });
+            if (opt.IsDebug)
+            {
+                System.Diagnostics.Debugger.Launch();
+                AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            }
 
             var bot = new Bot();
             IServiceProvider services = new ServiceCollection().AddMiraiBaseFramework() // 表示使用基于基础框架的构建器
@@ -88,6 +93,11 @@ namespace GensouSakuya.QQBot.Platform.Mirai
                     await DataManager.Load();
                 }
             }
+        }
+
+        private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            System.Diagnostics.Debugger.Launch();
         }
     }
 }
