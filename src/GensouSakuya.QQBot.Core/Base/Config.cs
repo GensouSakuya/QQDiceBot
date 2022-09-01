@@ -11,10 +11,10 @@ namespace GensouSakuya.QQBot.Core.Base
         public static Dictionary<string, string> GroupCommandDesc => new Dictionary<string, string>
         {
             {
-                ".ask [需要决策的问题] [供选择的方案(用'|'分隔)]", $"向{DataManager.Instance.BotName}征求意见"
+                ".ask [需要决策的问题] <供选择的方案(用'|'分隔)>", $"向{DataManager.Instance.BotName}征求意见"
             },
             {
-                ".hc [图片]", "色图鉴定"
+                ".hc <图片>", "色图鉴定"
             },
             {
                 ".jrrp", "今日人品检定"
@@ -23,13 +23,13 @@ namespace GensouSakuya.QQBot.Core.Base
                 ".li", "疯狂发作-总结症状"
             },
             {
-                ".me [需要转述的内容]", "转述"
+                ".me <需要转述的内容>", "转述"
             },
             {
                 ".news", "新闻播报"
             },
             {
-                ".nn [昵称]", "设置/删除群内昵称"
+                ".nn <昵称>", "设置/删除群内昵称"
             },
             {
                 ".null", "略一下"
@@ -48,7 +48,7 @@ namespace GensouSakuya.QQBot.Core.Base
         public static Dictionary<string, string> PrivateCommandDesc => new Dictionary<string, string>
         {
             {
-                ".ask [需要决策的问题] [供选择的方案(用'|'分隔)]", $"向{DataManager.Instance.BotName}征求意见"
+                ".ask [需要决策的问题] <供选择的方案(用'|'分隔)>", $"向{DataManager.Instance.BotName}征求意见"
             },
             {
                 ".jrrp", "今日人品检定"
@@ -57,7 +57,7 @@ namespace GensouSakuya.QQBot.Core.Base
                 ".li", "疯狂发作-总结症状"
             },
             {
-                ".me [转述群号] [需要转述的内容]", "转述"
+                ".me <转述群号> <需要转述的内容>", "转述"
             },
             {
                 ".null", "略一下"

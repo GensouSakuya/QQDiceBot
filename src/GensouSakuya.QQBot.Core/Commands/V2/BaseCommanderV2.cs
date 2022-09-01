@@ -10,7 +10,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
     {
         public abstract Task<bool> Check(List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member);
 
-        public bool IsHandled { get; set; }
+        public bool IsHandled { get; private set; }
 
         protected void StopChain()
         {
