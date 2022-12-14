@@ -8,10 +8,10 @@ namespace GensouSakuya.QQBot.Core
     {
         private static readonly Logger _logger = Logger.GetLogger<Main>();
 
-        public static async Task Init()
+        public static async Task Init(long qq)
         {
             AppDomain.CurrentDomain.UnhandledException += UnhandledException;
-            await DataManager.Init();
+            await DataManager.Init(qq);
             CommandCenter.ReloadManagers();
             _logger.Info("bot is started");
         }

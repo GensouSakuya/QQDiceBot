@@ -25,6 +25,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 user.Jrrp = DiceManager.RollDice();
                 user.LastJrrpDate = DateTime.Today;
                 ReRollCheck(ref user);
+                DataManager.Instance.NoticeConfigUpdated();
                 return user.Jrrp;
             }
             else
@@ -37,6 +38,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                     ReRollCheck(ref user);
                     user.LastJrrpDate = DateTime.Today;
+                    DataManager.Instance.NoticeConfigUpdated();
                 }
                 else
                 {
@@ -57,6 +59,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                             user.ReRollStep = UserInfo.RerollStep.RerollDevastated;
                             user.Jrrp = DiceManager.RollDice((rerollJrrp + 1) / 2);
                         }
+                        DataManager.Instance.NoticeConfigUpdated();
                     }
                 }
                 return user.Jrrp;

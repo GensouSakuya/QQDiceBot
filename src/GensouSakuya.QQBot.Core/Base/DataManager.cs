@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Commands;
+using GensouSakuya.QQBot.Core.Commands.V2;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.QQManager;
 
@@ -16,6 +17,7 @@ namespace GensouSakuya.QQBot.Core.Base
     {
         private readonly Subject<string> _observedLogList = new Subject<string>();
         private static readonly Logger _logger = Logger.GetLogger<DataManager>();
+        public static long QQ { get; private set; }
 
         private DataManager()
         {
@@ -31,17 +33,7 @@ namespace GensouSakuya.QQBot.Core.Base
         public string BotName
         {
             get => _botName;
-            set
-            {
-                if (value == null)
-                {
-                    _botName = "骰娘";
-                }
-                else
-                {
-                    _botName = value;
-                }
-            }
+            set => _botName = value ?? "骰娘";
         }
 
         public long AdminQQ { get; set; }
@@ -54,80 +46,82 @@ namespace GensouSakuya.QQBot.Core.Base
             _observedLogList.OnNext("");
         }
 
-        public ConcurrentDictionary<long, RepeatConfig> GroupRepeatConfig
+        public ConcurrentDictionary<long, RepeatConfig> GroupRepeatConfig { get; set; }
+
+        public ConcurrentDictionary<long, ShaDiaoTuConfig> GroupShaDiaoTuConfig { get; set; }
+
+        public ConcurrentDictionary<long, string> QQBan { get; set; }
+
+        public ConcurrentDictionary<(long, long), string> GroupBan { get; set; }
+        public ConcurrentDictionary<(long, long), string> GroupIgnore { get; set; }
+
+        public List<GroupMember> GroupMembers { get; set; }
+
+        public List<UserInfo> Users { get; set; }
+
+        public ConcurrentDictionary<long, BakiConfig> GroupBakiConfig { get; set; }
+
+        public ConcurrentDictionary<long, bool> GroupTodayHistoryConfig { get; set; }
+        public ConcurrentDictionary<long, bool> GroupNewsConfig { get; set; }
+        public ConcurrentDictionary<long, bool> GroupHentaiCheckConfig { get; set; }
+
+        public List<string> RuipingSentences { get; set; }
+
+        public static async Task Init(long qq)
         {
-            get => RepeatManager.GroupRepeatConfig;
-            set => RepeatManager.GroupRepeatConfig = value;
+            QQ = qq;
+            await Load();
+
+            Instance ??= new DataManager();
+
+            await GroupMemberManager.StartLoadTask();
+            await UserManager.StartLoadTask();
         }
 
-        public ConcurrentDictionary<long, ShaDiaoTuConfig> GroupShaDiaoTuConfig
+        private void RefreshData()
         {
-            get => ShaDiaoTuManager.GroupShaDiaoTuConfig;
-            set => ShaDiaoTuManager.GroupShaDiaoTuConfig = value;
+            GroupMembers = GroupMemberManager.GroupMembers.Values.OrderBy(p => p.GroupNumber).ThenBy(p => p.QQ).ToList();
+            GroupBakiConfig = BakiManager.GroupBakiConfig;
+            Users = UserManager.Users.Values.OrderBy(p=>p.QQ).ToList();
+            GroupBan = BanManager.GroupBan;
+            QQBan = BanManager.QQBan;
+            GroupShaDiaoTuConfig = ShaDiaoTuManager.GroupShaDiaoTuConfig;
+            GroupRepeatConfig = RepeatManager.GroupRepeatConfig;
+            GroupTodayHistoryConfig = TodayHistoryManager.GroupTodayHistoryConfig;
+            GroupNewsConfig = NewsManager.GroupNewsConfig;
+            GroupHentaiCheckConfig = HentaiCheckManager.GroupHentaiCheckConfig;
+            GroupIgnore = IgnoreManager.GroupIgnore;
+            RuipingSentences = RuipingCommander.RuipingSentences;
         }
 
-        public ConcurrentDictionary<long, string> QQBan
+        private void UpdateData()
         {
-            get => BanManager.QQBan;
-            set => BanManager.QQBan = value;
-        }
-
-        public ConcurrentDictionary<(long, long), string> GroupBan
-        {
-            get => BanManager.GroupBan;
-            set => BanManager.GroupBan = value;
-        }
-
-        public List<GroupMember> GroupMembers
-        {
-            get => GroupMemberManager.GroupMembers.Values.ToList();
-            set => GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>(value?.Select(p => new KeyValuePair<(long, long), GroupMember>((p.QQ, p.GroupNumber), p)));
-        }
-
-        public List<UserInfo> Users
-        {
-            get => UserManager.Users;
-            set => UserManager.Users = value;
-        }
-
-        public ConcurrentDictionary<long, BakiConfig> GroupBakiConfig
-        {
-            get => BakiManager.GroupBakiConfig;
-            set => BakiManager.GroupBakiConfig = value;
-        }
-
-        public static async Task Init()
-        {
-            var path = Config.ConfigFile;
-            _logger.Debug( "InitPath:" + path);
-            if (File.Exists(path))
+            GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
+            GroupMembers?.ForEach(p =>
             {
-                var xml = File.ReadAllText(path);
-                try
-                {
-                    var db = Tools.DeserializeObject<DataManager>(xml);
-                    Instance = db;
-                }
-                catch(Exception e)
-                {
-                    _logger.Error(e,"ConfigLoadError");
-                }
-            }
-            else
+                GroupMemberManager.GroupMembers.AddOrUpdate((p.QQ, p.GroupNumber), p, (key, q) => p);
+            });
+            BakiManager.GroupBakiConfig = GroupBakiConfig;
+            UserManager.Users = new ConcurrentDictionary<long, UserInfo>();
+            Users?.ForEach(p =>
             {
-                _logger.Debug("not found" + path);
-            }
-
-            if (Instance == null)
-            {
-                Instance = new DataManager();
-            }
-
-            await GroupMemberManager.StartLoadTask(System.Threading.CancellationToken.None);
+                UserManager.Users.AddOrUpdate(p.QQ, p, (key, q) => p);
+            });
+            BanManager.GroupBan = GroupBan;
+            BanManager.QQBan = QQBan;
+            ShaDiaoTuManager.GroupShaDiaoTuConfig = GroupShaDiaoTuConfig;
+            RepeatManager.GroupRepeatConfig = GroupRepeatConfig;
+            TodayHistoryManager.GroupTodayHistoryConfig = GroupTodayHistoryConfig;
+            NewsManager.GroupNewsConfig = GroupNewsConfig;
+            HentaiCheckManager.GroupHentaiCheckConfig = GroupHentaiCheckConfig;
+            IgnoreManager.GroupIgnore = GroupIgnore;
+            RuipingCommander.RuipingSentences = RuipingSentences;
         }
 
         public static Task Save()
         {
+            _logger.Info("saving data");
+            Instance.RefreshData();
             var path = Config.ConfigFile;
             try
             {
@@ -137,7 +131,9 @@ namespace GensouSakuya.QQBot.Core.Base
                     Directory.CreateDirectory(dir);
                 }
 
-                File.WriteAllText(path, Tools.SerializeObject(Instance));
+                var data = Tools.SerializeObject(Instance);
+
+                File.WriteAllText(path, data);
                 _logger.Debug("Config updated");
             }
             catch (Exception e)
@@ -145,6 +141,30 @@ namespace GensouSakuya.QQBot.Core.Base
                 _logger.Error(e, "save config error");
             }
             return Task.CompletedTask;
+        }
+
+        public static async Task Load()
+        {
+            var path = Config.ConfigFile;
+            _logger.Debug("loading from:" + path);
+            if (File.Exists(path))
+            {
+                var text = await File.ReadAllTextAsync(path);
+                try
+                {
+                    var db = Tools.DeserializeObject<DataManager>(text);
+                    Instance = db;
+                    Instance.UpdateData();
+                }
+                catch (Exception e)
+                {
+                    _logger.Error(e, "ConfigLoadError");
+                }
+            }
+            else
+            {
+                _logger.Debug("not found" + path);
+            }
         }
 
         public static async Task Stop()

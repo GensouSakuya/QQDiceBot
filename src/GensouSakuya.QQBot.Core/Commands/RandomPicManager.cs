@@ -10,7 +10,7 @@ using net.gensousakuya.dice;
 
 namespace GensouSakuya.QQBot.Core.Commands
 {
-    //[Command("setu")]
+    [Command("setu")]
     public class RandomPicManager : BaseManager
     {
         private static readonly  Logger _logger = Logger.GetLogger<RandomPicManager>();
@@ -42,6 +42,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                         {
                             DataManager.Instance.EnabledRandomImgNumbers.Add(member.GroupNumber);
                             MessageManager.SendTextMessage(sourceType, "启用成功！", fromQQ, toGroup);
+                            DataManager.Instance.NoticeConfigUpdated();
                             return;
                         }
                     }
@@ -54,6 +55,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                         {
                             DataManager.Instance.EnabledRandomImgNumbers.Remove(member.GroupNumber);
                             MessageManager.SendTextMessage(sourceType, "禁用成功！", fromQQ, toGroup);
+                            DataManager.Instance.NoticeConfigUpdated();
                             return;
                         }
                     }

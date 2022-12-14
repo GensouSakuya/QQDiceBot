@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
+using GensouSakuya.QQBot.Core.QQManager;
 using net.gensousakuya.dice;
 
 namespace GensouSakuya.QQBot.Core.Commands
 {
-    [Command("nn")]
-    public class NickNameManager : BaseManager
+    [Command("ann")]
+    public class NickNameAdminManager : BaseManager
     {
         public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
@@ -18,15 +20,36 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 return;
             }
-            var newNickName = (originMessage.ElementAt(1) is TextMessage tm) && tm.Text?.Length > 3 ? tm.Text?.Substring(4) : null;
+            var permit = member.PermitType;
+            if (permit == PermitType.None)
+            {
+                return;
+            }
             string message = null;
+            if (!long.TryParse(command.FirstOrDefault(), out var targetQQ))
+            {
+                return;
+            }
+
+            var targetMember = await GroupMemberManager.Get(targetQQ, member.GroupId);
+            if (targetMember == null)
+            {
+                return;
+            }
+
+            var originText = (originMessage.ElementAt(1) is TextMessage tm) ? tm.Text : null;
+            if (originText == null)
+                return;
+
+            var index = originText.IndexOf(targetQQ.ToString(), StringComparison.Ordinal)+ targetQQ.ToString().Length;
+            var newNickName = originText.Length < index + 1 ? null : originText.Substring(index + 1);
             if (string.IsNullOrWhiteSpace(newNickName))
             {
-                DelNickName(member, ref message);
+                DelNickName(targetMember, ref message);
             }
             else
             {
-                SetNickName(member, newNickName, ref message);
+                SetNickName(targetMember, newNickName, ref message);
             }
 
             MessageManager.SendTextMessage(sourceType, message, member.QQ, member.GroupNumber);

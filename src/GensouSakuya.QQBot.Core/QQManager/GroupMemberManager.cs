@@ -3,60 +3,110 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GensouSakuya.QQBot.Core.Base;
+using GensouSakuya.QQBot.Core.Exceptions;
 using GensouSakuya.QQBot.Core.Model;
 
 namespace GensouSakuya.QQBot.Core.QQManager
 {
     public class GroupMemberManager
     {
-        public static ConcurrentDictionary<(long,long),GroupMember> GroupMembers = new ConcurrentDictionary<(long,long),GroupMember>();
+        private static readonly Logger _logger = Logger.GetLogger<GroupMemberManager>();
+        public static ConcurrentDictionary<(long qq, long gruopNo), GroupMember> GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
 
         public static async Task<GroupMember> Get(long qq, long groupNo)
         {
-            if (GroupMembers.TryGetValue((qq,groupNo),out var member))
+            if (GroupMembers.TryGetValue((qq, groupNo), out var member))
                 return member;
 
             var sourceMembers = await PlatformManager.Info.GetGroupMembers(groupNo);
             if (sourceMembers == null)
                 return null;
 
+            var hasUpdate = false;
             sourceMembers.ForEach(p =>
             {
-                GroupMembers.AddOrUpdate((qq, groupNo), new GroupMember(p), (ids, p) => p);
+                GroupMembers.AddOrUpdate((p.QQId, p.GroupId), new GroupMember(p), (ids, updateMember) =>
+                {
+                    if (updateMember.Card != p.Card || updateMember.PermitType != p.PermitType)
+                    {
+                        hasUpdate = true;
+                        updateMember.Card = p.Card;
+                        updateMember.PermitType = p.PermitType;
+                    }
+                    return updateMember;
+                });
             });
+
+            if(hasUpdate)
+                DataManager.Instance.NoticeConfigUpdated();
 
             return GroupMembers.TryGetValue((qq, groupNo), out member) ? member : null;
         }
 
-        public static Task StartLoadTask(CancellationToken token)
+        public static Task StartLoadTask(CancellationToken token = default)
         {
             Task.Run(async () =>
             {
                 while (!token.IsCancellationRequested)
                 {
-                    var groupIds = GroupMembers.Values.Select(p => p.GroupNumber).Distinct();
-                    foreach(var groupId in groupIds)
+                    var hasUpdate = false;
+                    try
                     {
-                        var sourceMembers = await PlatformManager.Info.GetGroupMembers(groupId);
-                        if (sourceMembers != null)
+                        var groupIds = GroupMembers.Values.Select(p => p.GroupNumber).Distinct();
+                        foreach (var groupId in groupIds)
                         {
-                            sourceMembers.ForEach(p =>
+                            try
                             {
-                                if (GroupMembers.TryGetValue((p.QQId,p.GroupId),out var tmember))
+                                var sourceMembers = await PlatformManager.Info.GetGroupMembers(groupId);
+                                if (sourceMembers == null)
+                                    continue;
+
+                                sourceMembers?.ForEach(p =>
                                 {
-                                    tmember.Card = p.Card;
-                                    tmember.PermitType = p.PermitType;
-                                }
-                                else
+                                    var key = (p.QQId, p.GroupId);
+                                    if (!GroupMembers.ContainsKey(key))
+                                        hasUpdate = true;
+
+                                    GroupMembers.AddOrUpdate((p.QQId, p.GroupId), new GroupMember(p),
+                                        (ids, updateMember) =>
+                                        {
+                                            if (updateMember.Card != p.Card || updateMember.PermitType != p.PermitType)
+                                            {
+                                                hasUpdate = true;
+                                                updateMember.Card = p.Card;
+                                                updateMember.PermitType = p.PermitType;
+                                            }
+                                            return updateMember;
+                                        });
+                                });
+                            }
+                            catch (GroupNotExistsException)
+                            {
+                                _logger.Info("group[{0}] is not exists anymore, cleaning data", groupId);
+                                foreach (var deleteKey in GroupMemberManager.GroupMembers.Keys.Where(p =>
+                                    p.gruopNo == groupId))
                                 {
-                                    GroupMembers.TryAdd((p.QQId,p.GroupId), new GroupMember(p));
+                                    GroupMembers.TryRemove(deleteKey, out _);
                                 }
-                            });
+
+                                hasUpdate = true;
+                            }
                         }
                     }
-                    await Task.Delay(TimeSpan.FromMinutes(5));
+                    catch (Exception e)
+                    {
+                        _logger.Error(e, "load groupmember error");
+                    }
+
+                    if (hasUpdate)
+                    {
+                        DataManager.Instance.NoticeConfigUpdated();
+                    }
+
+                    await Task.Delay(TimeSpan.FromMinutes(5), token);
                 }
-            });
+            }, CancellationToken.None);
             return Task.CompletedTask;
         }
     }

@@ -13,27 +13,50 @@ namespace GensouSakuya.QQBot.Core.Commands
     {
         public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
         {
+            var sourceMessageId = (originMessage?.FirstOrDefault() as SourceMessage)?.Id ?? default;
+            var messages = new List<BaseMessage>();
+            messages.Add(new QuoteMessage(member?.GroupNumber, qq?.QQ, sourceMessageId));
+
             await Task.Yield();
             if (command.Count < 1)
             {
-                MessageManager.SendTextMessage(sourceType, "不提问怎么帮你选0 0？", qq?.QQ, member?.GroupNumber);
+                messages.Add(new TextMessage("不提问怎么帮你选0 0？"));
+                MessageManager.SendMessage(sourceType, messages, qq?.QQ, member?.GroupNumber);
                 return;
             }
 
+            string quest = null;
             if (command.Count < 2)
             {
-                MessageManager.SendTextMessage(sourceType, "快把你打算的选择告诉我！", qq?.QQ, member?.GroupNumber);
-                return;
+                if(command[0].Contains("|"))
+                {
+                    //当没提问时直接忽略处理问题，优化体验
+                }
+                else
+                {
+                    messages.Add(new TextMessage("快把你打算的选择告诉我"));
+                    MessageManager.SendMessage(sourceType, messages, qq?.QQ, member?.GroupNumber);
+                    return;
+                }
             }
-            var quest = command.First();
+            else
+            {
+                quest = command.First();
+                command.RemoveAt(0);
+            }
 
-            command.RemoveAt(0);
+            //为了处理选项中有空格的情况
             var ansStr = string.Join(" ", command);
             var ans = ansStr.Split('|').ToList();
             var res = Ask(ans);
-            var message = $"关于[{quest}]：\n" + string.Join("\n", res.Select(p => $"{p.Quest}:{p.Percent}%")) + "\n"
-                          + $"小夜觉得{string.Join("、", GetMax(res).Select(p => p.Quest))}比较好";
-            MessageManager.SendTextMessage(sourceType, message, qq?.QQ, member?.GroupNumber);
+            var message = string.Join("\n", res.Select(p => $"{p.Quest}:{p.Percent}%")) + "\n"
+                + $"{DataManager.Instance.BotName}觉得{string.Join("、", GetMax(res).Select(p => p.Quest))}比较好";
+            if (!string.IsNullOrWhiteSpace(quest))
+            {
+                message = $"关于[{quest}]：\n" + message;
+            }
+            messages.Add(new TextMessage(message));
+            MessageManager.SendMessage(sourceType, messages, qq?.QQ, member?.GroupNumber);
         }
 
         public static List<AskModel> Ask(List<string> ques)

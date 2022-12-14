@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GensouSakuya.QQBot.Core.Exceptions;
 using GensouSakuya.QQBot.Core.PlatformModel;
 
 namespace GensouSakuya.QQBot.Core
@@ -12,17 +13,42 @@ namespace GensouSakuya.QQBot.Core
         {
             public static QQSourceInfo GetQQInfo(long qq)
             {
-                return EventCenter.GetQQInfo?.Invoke(qq);
+                if (EventCenter.GetQQInfo == null)
+                    return null;
+                //后续逻辑若资源不存在应该抛出对应的异常
+                var res = EventCenter.GetQQInfo?.Invoke(qq);
+                if(res == null)
+                {
+                    throw new QQNotExistsException(qq);
+                }
+                return res;
             }
 
             public static async Task<GroupMemberSourceInfo> GetGroupoMember(long groupNo, long qq)
             {
-                return await EventCenter.GetGroupMember?.Invoke(groupNo, qq);
+                if (EventCenter.GetGroupMember == null)
+                    return null;
+
+                //后续逻辑若资源不存在应该抛出对应的异常
+                var res = await EventCenter.GetGroupMember?.Invoke(groupNo, qq);
+                if (res == null)
+                {
+                    throw new GroupMemberNotExistsException(groupNo, qq);
+                }
+                return res;
             }
 
             public static async Task<List<GroupMemberSourceInfo>> GetGroupMembers(long groupNo)
             {
-                return await EventCenter.GetGroupMemberList?.Invoke(groupNo);
+                if (EventCenter.GetGroupMemberList == null)
+                    return null;
+                //后续逻辑若资源不存在应该抛出对应的异常
+                var res = await EventCenter.GetGroupMemberList?.Invoke(groupNo);
+                if (res == null)
+                {
+                    throw new GroupNotExistsException(groupNo);
+                }
+                return res;
             }
         }
 
