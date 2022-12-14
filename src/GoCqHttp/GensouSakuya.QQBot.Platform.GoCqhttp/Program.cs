@@ -9,7 +9,7 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
         static async Task Main(string[] args)
         {
             var bot = new Bot("127.0.0.1", 8080);
-            await bot.Start();
+            await bot.Start(args[0]);
 
             while (true)
             {

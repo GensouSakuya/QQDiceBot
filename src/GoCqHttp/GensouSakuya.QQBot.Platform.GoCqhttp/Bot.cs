@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using System;
+using System.IO;
 
 namespace GensouSakuya.QQBot.Platform.GoCqhttp
 {
@@ -16,13 +17,15 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
     {
         private readonly WebsocketSession _session;
         public WebsocketSession Session => _session;
+        private readonly ILogger _logger;
         public Bot(string host, int port)
         {
             var factory = LoggerFactory.Create(p =>
             {
                 p.AddConsole().SetMinimumLevel(LogLevel.Information);
             });
-            _session = new WebsocketSession(host, port, null, logger: factory.CreateLogger("bot"));
+            _logger = factory.CreateLogger<Bot>();
+            _session = new WebsocketSession(host, port, null, logger: _logger);
             _session.PrivateMessageReceived += FriendMessage;
             _session.GroupMessageReceived += GroupMessage;
             _session.GuildMessageReceived += GuildMessage;
@@ -32,58 +35,85 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
             EventCenter.Log += log => { Console.WriteLine(log.Message); };
         }
 
-        public async Task Start()
+        public async Task Start(string qq)
         {
-            await Main.Init();
+            await Main.Init(qq.ToLong());
             await _session.ConnectAsync();
         }
 
         private async void SendMessage(Core.PlatformModel.Message m)
         {
-            var builder = new List<BaseMessage>();
-            m.Content.ForEach(p =>
-            {
-                if (p is Core.PlatformModel.TextMessage tm)
-                    builder.Add(new TextMessage(tm.Text));
-                else if (p is Core.PlatformModel.ImageMessage im)
+            string deleteFile = null;
+            try
+            {;
+                var builder = new List<BaseMessage>();
+                m.Content.ForEach(p =>
                 {
-                    if (!string.IsNullOrWhiteSpace(im.ImagePath))
+                    if (p is Core.PlatformModel.TextMessage tm)
+                        builder.Add(new TextMessage(tm.Text));
+                    else if (p is Core.PlatformModel.ImageMessage im)
                     {
-                        //处理成相对路径
-                        //或是拷贝到当前目录下
+                        if (!string.IsNullOrWhiteSpace(im.ImagePath))
+                        {
+                            //拷贝到当前临时目录下，发送成功后删除
+                            var fileName = Path.GetFileName(im.ImagePath);
+                            var newFile = Path.Combine(Environment.CurrentDirectory, @"data\images", fileName);
+                            File.Copy(im.ImagePath, newFile);
+                            im.ImagePath = fileName;
+                            deleteFile = newFile;
+                        }
+                        else if (!string.IsNullOrWhiteSpace(im.Url))
+                        {
+                            im.ImagePath = im.Url;
+                            im.Url = null;
+                        }
+                        builder.Add(new ImageMessage(im.ImagePath, 0, im.Url));
                     }
-                    builder.Add(new GensouSakuya.GoCqhttp.Sdk.Models.Messages.ImageMessage
+                    else if (p is Core.PlatformModel.AtMessage am)
                     {
-                        File = im.ImagePath,
-                        Url = im.Url,
-                    });
-                }
-                else if (p is Core.PlatformModel.AtMessage am)
-                {
-                    builder.Add(new AtMessage(am.QQ.ToString()));
-                }
-                //else if (p is Core.PlatformModel.QuoteMessage qm)
-                //{
-                //    builder = builder.Add(new Mirai_CSharp.Models.QuoteMessage(qm.QQ));
-                //}
-                else if (p is Core.PlatformModel.OtherMessage om)
-                {
-                    if (om.Origin is BaseMessage imb)
+                        builder.Add(new AtMessage(am.QQ.ToString()));
+                    }
+                    //else if (p is Core.PlatformModel.QuoteMessage qm)
+                    //{
+                    //    builder = builder.Add(new Mirai_CSharp.Models.QuoteMessage(qm.QQ));
+                    //}
+                    else if (p is Core.PlatformModel.OtherMessage om)
                     {
-                        builder.Add(imb);
+                        if (om.Origin is BaseMessage imb)
+                        {
+                            builder.Add(imb);
+                        }
+                    }
+                });
+                if (builder.Count == 0)
+                    return;
+                switch (m.Type)
+                {
+                    case Core.PlatformModel.MessageSourceType.Group:
+                        await _session.SendGroupMessage(m.ToGroup.ToString(), builder.ToRawMessage());
+                        break;
+                    case Core.PlatformModel.MessageSourceType.Friend:
+                        await _session.SendPrivateMessage(m.ToQQ.ToString(), builder.ToRawMessage());
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex,"send failed");
+            }
+            finally
+            {
+                if (!string.IsNullOrWhiteSpace(deleteFile))
+                {
+                    try
+                    {
+                        File.Delete(deleteFile);
+                    }
+                    catch(Exception e)
+                    {
+                        //ignore
                     }
                 }
-            });
-            if (builder.Count == 0)
-                return;
-            switch (m.Type)
-            {
-                case Core.PlatformModel.MessageSourceType.Group:
-                    await _session.SendGroupMessage(m.ToGroup.ToString(), builder.ToRawMessage());
-                    break;
-                case Core.PlatformModel.MessageSourceType.Friend:
-                    await _session.SendPrivateMessage(m.ToQQ.ToString(), builder.ToRawMessage());
-                    break;
             }
         }
 
@@ -96,7 +126,7 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
             {
                 if (c is ImageMessage im)
                 {
-                    mes.Add(new Core.PlatformModel.ImageMessage(url: im.Url, id: null));
+                    mes.Add(new Core.PlatformModel.ImageMessage(url: im.Url));
                     Console.WriteLine($"received image:{im.Url}");
                 }
                 else if (c is TextMessage pm)

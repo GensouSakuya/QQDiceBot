@@ -1,10 +1,13 @@
 ﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 
 class Program
 {
+    private static EventWaitHandle botWaitHandle = new EventWaitHandle(false, EventResetMode.ManualReset);
     static async Task Main(string[] args)
     {
+        Console.OutputEncoding = Encoding.UTF8;
         Console.WriteLine(string.Join(Environment.NewLine, args));
         if (args == null || args.Length < 1)
             return;
@@ -15,16 +18,25 @@ class Program
 
         var waitStartTask = new TaskCompletionSource<bool>();
         var botPath = args[0];
+        var qq = args[1];
         var p = Process.Start(new ProcessStartInfo
         {
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             RedirectStandardInput = true,
-            FileName = "start.cmd",
+            FileName = "go-cqhttp_windows_amd64.exe",
             UseShellExecute = false
         });
         var isLogin = false;
+        var isNeedCheck = true;
         p.BeginOutputReadLine();
+        p.BeginErrorReadLine();
+        p.ErrorDataReceived += (s, e) =>
+        {
+            if (e?.Data == null)
+                return;
+            Console.WriteLine("[GoCqhttp]" + e.Data);
+        };
         p.OutputDataReceived += (s, e) =>
         {
             if (e?.Data == null)
@@ -35,19 +47,28 @@ class Program
                 if (e.Data.Contains("服务器已启动", StringComparison.OrdinalIgnoreCase))
                 {
                     isLogin = true;
-                    waitStartTask.TrySetResult(true);
+                    botWaitHandle.Set();
+                    //waitStartTask.TrySetResult(true);
+                }
+                else if (isNeedCheck && e.Data.Contains("请输入(1 - 2) (将在10秒后自动选择1)"))
+                {
+                    isNeedCheck = false;
+                    p.StandardInput.WriteLine(Console.ReadLine());
                 }
             }
         };
 
-        await waitStartTask.Task;
+        botWaitHandle.WaitOne();
+
+        //await waitStartTask.Task.ConfigureAwait(false);
         var botP = Process.Start(new ProcessStartInfo
         {
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             RedirectStandardInput = true,
-            WorkingDirectory = Path.GetDirectoryName(botPath),
+            WorkingDirectory = Environment.CurrentDirectory,
             FileName = botPath,
+            Arguments = qq,
             UseShellExecute = false
         });
         botP.BeginOutputReadLine();

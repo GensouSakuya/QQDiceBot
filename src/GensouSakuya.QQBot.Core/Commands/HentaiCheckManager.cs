@@ -35,7 +35,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             toGroup = member.GroupNumber;
             var permit = member.PermitType;
 
-            if (originMessage.Count<= 2)
+            if (originMessage.Count <= 2)
             {
                 if (command[0].Equals("on", StringComparison.CurrentCultureIgnoreCase))
                 {
@@ -89,9 +89,11 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 }
 
-                var client = new RestClient();
-                client.Timeout = -1;
-                var imageDownloadRequest = new RestRequest(imageUrl, Method.GET);
+                var client = new RestClient(new RestClientOptions
+                {
+                    MaxTimeout = -1
+                });;
+                var imageDownloadRequest = new RestRequest(imageUrl, Method.Get);
                 var imgRes = await client.ExecuteAsync(imageDownloadRequest);
                 if (!imgRes.IsSuccessful)
                 {
@@ -101,11 +103,11 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                 var savedPath = Path.Combine(Config.TempPath, Guid.NewGuid() + ".png");
 
-                var uploadRequest = new RestRequest("https://checkimage.querydata.org/api", Method.POST)
+                var uploadRequest = new RestRequest("https://checkimage.querydata.org/api", Method.Post)
                 {
                     AlwaysMultipartFormData = true
                 };
-                uploadRequest.AddFileBytes("image", imgRes.RawBytes, savedPath, contentType: imgRes.ContentType);
+                uploadRequest.AddFile("image", imgRes.RawBytes, savedPath, contentType: imgRes.ContentType);
                 var res = await client.ExecuteAsync(uploadRequest);
 
                 if (!res.IsSuccessful)

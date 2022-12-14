@@ -31,10 +31,10 @@ namespace GensouSakuya.QQBot.Core.Commands
 
             StringBuilder desc =
                 new StringBuilder().AppendLine(string.Join("\n", descDic.Select(p => $"{p.Key}\t\t{p.Value}")));
-            if (DataManager.Instance.AdminQQ > 0)
-            {
-                desc.Append($"bug反馈请联系QQ:{DataManager.Instance.AdminQQ}");
-            }
+            //if (DataManager.Instance.AdminQQ > 0)
+            //{
+            //    desc.Append($"bug反馈请联系QQ:{DataManager.Instance.AdminQQ}");
+            //}
             MessageManager.SendTextMessage(sourceType, desc.ToString(), qq: qq?.QQ, toGroupNo: member?.GroupNumber);
         }
     }
