@@ -57,6 +57,7 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
                         {
                             //拷贝到当前临时目录下，发送成功后删除
                             var fileName = Path.GetFileName(im.ImagePath);
+                            fileName = fileName.Replace("[","").Replace("]","");
                             var newFile = Path.Combine(Environment.CurrentDirectory, @"data\images", fileName);
                             File.Copy(im.ImagePath, newFile);
                             im.ImagePath = fileName;
