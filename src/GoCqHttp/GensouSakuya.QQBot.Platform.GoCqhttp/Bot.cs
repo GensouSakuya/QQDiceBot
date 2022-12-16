@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Linq;
 using System;
 using System.IO;
+using Microsoft.AspNetCore.Builder;
+using GensouSakuya.QQBot.Platform.GoCqhttp.LiveChat;
 
 namespace GensouSakuya.QQBot.Platform.GoCqhttp
 {
@@ -17,14 +19,16 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
     {
         private readonly WebsocketSession _session;
         public WebsocketSession Session => _session;
+
+        private WebApplication _webApplication;
+        private readonly static ILoggerFactory _loggerFactory = LoggerFactory.Create(p =>
+        {
+            p.AddConsole().SetMinimumLevel(LogLevel.Information);
+        });
         private readonly ILogger _logger;
         public Bot(string host, int port)
         {
-            var factory = LoggerFactory.Create(p =>
-            {
-                p.AddConsole().SetMinimumLevel(LogLevel.Information);
-            });
-            _logger = factory.CreateLogger<Bot>();
+            _logger = _loggerFactory.CreateLogger<Bot>();
             _session = new WebsocketSession(host, port, null, logger: _logger);
             _session.PrivateMessageReceived += FriendMessage;
             _session.GroupMessageReceived += GroupMessage;
@@ -34,12 +38,17 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
             EventCenter.GetGroupMemberList += GetGroupMemberList;
             EventCenter.GetGuildMember += GetGuildMember;
             EventCenter.Log += log => { Console.WriteLine(log.Message); };
+
+            _webApplication = LiveChatHelper.Generate(_session).GetAwaiter().GetResult();
         }
 
         public async Task Start(string qq)
         {
             await Main.Init(qq.ToLong());
             await _session.ConnectAsync();
+            var url = "http://localhost:5202";
+            _webApplication.Run(url);
+            _logger.LogInformation($"弹幕设置页面:{url}/index.html");
         }
 
         private async void SendMessage(Core.PlatformModel.Message m)
