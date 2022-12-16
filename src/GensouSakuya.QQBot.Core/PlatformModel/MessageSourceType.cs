@@ -6,6 +6,7 @@
         Friend = 2,
         Group = 3,
         Private = 4,
+        Guild = 5
     }
 
     //public static class SourceExtension

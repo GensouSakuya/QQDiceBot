@@ -13,7 +13,7 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("ann")]
     public class NickNameAdminManager : BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             await Task.Yield();
             if (member == null)
@@ -52,7 +52,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 SetNickName(targetMember, newNickName, ref message);
             }
 
-            MessageManager.SendTextMessage(sourceType, message, member.QQ, member.GroupNumber);
+            MessageManager.SendTextMessage(source.Type, message, member.QQ, member.GroupNumber);
 
         }
 

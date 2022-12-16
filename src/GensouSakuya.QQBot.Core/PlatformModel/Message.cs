@@ -1,4 +1,5 @@
 ﻿
+using GensouSakuya.QQBot.Core.Model;
 using System;
 using System.Collections.Generic;
 
@@ -10,6 +11,8 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
         //public string FromQQ { get; set; }
         public long ToQQ { get; set; }
         public long ToGroup { get; set; }
+        public string ToGuild { get; set; }
+        public string ToChannel { get; set; }
         public List<BaseMessage> Content { get; } = new List<BaseMessage>();
 
         public void AddTextMessage(string text)
@@ -25,6 +28,27 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
         public void AddRange(List<BaseMessage> messages)
         {
             Content.AddRange(messages);
+        }
+
+        public void FromSource(MessageSource source)
+        {
+            Type = source.Type;
+            switch (source.Type)
+            {
+                case MessageSourceType.Group:
+                    ToGroup = source.GroupId.ToLong();
+                    break;
+                case MessageSourceType.Private:
+                    ToQQ = source.QQ.ToLong();
+                    break;
+                case MessageSourceType.Friend:
+                    ToQQ = source.QQ.ToLong();
+                    break;
+                case MessageSourceType.Guild:
+                    ToGuild = source.GuildId;
+                    ToChannel = source.ChannelId;
+                    break;
+            }
         }
     }
 

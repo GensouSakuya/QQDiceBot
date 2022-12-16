@@ -50,6 +50,19 @@ namespace GensouSakuya.QQBot.Core
                 }
                 return res;
             }
+
+            public static async Task<GuildMemberSourceInfo> GetGuildMember(string userId,string guildId)
+            {
+                if (EventCenter.GetGuildMember == null)
+                    return null;
+                //后续逻辑若资源不存在应该抛出对应的异常
+                var res = await EventCenter.GetGuildMember?.Invoke(userId,guildId);
+                if (res == null)
+                {
+                    throw new GuildMemberNotExistsException(userId, guildId);
+                }
+                return res;
+            }
         }
 
         public static void SendMessage(Message message)
@@ -61,19 +74,6 @@ namespace GensouSakuya.QQBot.Core
             catch(Exception e)
             {
                 _logger.Error(e, "send message error");
-            }
-        }
-
-        //输出到外部UI用的logger，有需要时再考虑接入
-        public class Log
-        {
-            public static void Debug(string message)
-            {
-                EventCenter.Log?.Invoke(new PlatformModel.Log(message, LogLevel.Debug));
-            }
-            public static void Error(string message)
-            {
-                EventCenter.Log?.Invoke(new PlatformModel.Log(message, LogLevel.Error));
             }
         }
     }

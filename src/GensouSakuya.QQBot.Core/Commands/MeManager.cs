@@ -12,12 +12,12 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("me")]
     public class MeManager : BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             var fromQQ = 0L;
             var toGroup = 0L;
             var message = "";
-            if (sourceType == MessageSourceType.Private)
+            if (source.Type == MessageSourceType.Private)
             {
                 fromQQ = qq.QQ;
                 if (command.Count < 2)
@@ -37,7 +37,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                 MessageManager.SendTextMessage(MessageSourceType.Group, message, fromQQ, toGroup);
             }
-            else if (sourceType == MessageSourceType.Group)
+            else if (source.Type == MessageSourceType.Group)
             {
                 fromQQ = member.QQ;
                 toGroup = member.GroupNumber;

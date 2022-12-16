@@ -13,10 +13,10 @@ namespace net.gensousakuya.dice
     {
         private static Random _rand = new Random();
 
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group groupNo, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group groupNo, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             await Task.Yield();
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
         }
 
         public static List<int> RollMultiDice(int diceCount = 1, int surfaceCount = 100)

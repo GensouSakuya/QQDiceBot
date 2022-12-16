@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace GensouSakuya.QQBot.Core.Model
+﻿namespace GensouSakuya.QQBot.Core.Model
 {
     public class GroupMember:PlatformModel.GroupMemberSourceInfo
     {

@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using GensouSakuya.QQBot.Core.Base;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
@@ -17,12 +16,12 @@ namespace GensouSakuya.QQBot.Core.Commands
     {
         private static readonly Logger _logger = Logger.GetLogger<HentaiCheckManager>();
 
-        public override async System.Threading.Tasks.Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async System.Threading.Tasks.Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             var fromQQ = 0L;
             var toGroup = 0L;
             //var message = "";
-            if (sourceType != MessageSourceType.Group)
+            if (source.Type != MessageSourceType.Group)
             {
                 return;
             }
@@ -69,7 +68,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 else
                 {
                     messages.Add(new TextMessage("图呢？"));
-                    MessageManager.SendMessage(sourceType, messages, fromQQ, toGroup);
+                    MessageManager.SendToSource(source, messages);
                     return;
                 }
             }
@@ -78,14 +77,14 @@ namespace GensouSakuya.QQBot.Core.Commands
                 if (!(originMessage?.ElementAt(2) is ImageMessage im))
                 {
                     messages.Add(new TextMessage("图呢？"));
-                    MessageManager.SendMessage(sourceType, messages, fromQQ, toGroup);
+                    MessageManager.SendToSource(source, messages);
                     return;
                 }
 
                 var imageUrl = im.Url;
                 if (string.IsNullOrWhiteSpace(imageUrl))
                 {
-                    MessageManager.SendTextMessage(MessageSourceType.Group, "图片上传失败惹", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, "图片上传失败惹");
                     return;
                 }
 
@@ -97,7 +96,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 var imgRes = await client.ExecuteAsync(imageDownloadRequest);
                 if (!imgRes.IsSuccessful)
                 {
-                    MessageManager.SendTextMessage(sourceType, "请求失败了QAQ", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, "请求失败了QAQ");
                     return;
                 }
 
@@ -112,7 +111,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                 if (!res.IsSuccessful)
                 {
-                    MessageManager.SendTextMessage(sourceType, "请求失败了QAQ", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, "请求失败了QAQ");
                     return;
                 }
 
@@ -122,7 +121,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                 if (jsonRes == null || !jsonRes.Any())
                 {
-                    MessageManager.SendTextMessage(sourceType, "请求失败了QAQ", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, "请求失败了QAQ");
                     return;
                 }
 
@@ -146,7 +145,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 }
 
                 messages.Add(new TextMessage(messageText));
-                MessageManager.SendMessage(sourceType, messages, fromQQ, toGroup);
+                MessageManager.SendToSource(source, messages);
             }
         }
 

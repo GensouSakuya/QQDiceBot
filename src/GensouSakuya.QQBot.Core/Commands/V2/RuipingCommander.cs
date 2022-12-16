@@ -10,14 +10,14 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
 {
     internal class RuipingCommander : BaseCommanderV2
     {
-        public override async Task<bool> Check(List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task<bool> Check(MessageSource source, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             await Task.Yield();
             if (originMessage == null)
                 return false;
             if (RuipingSentences == null || !RuipingSentences.Any())
                 return false;
-            if (sourceType != MessageSourceType.Group && sourceType != MessageSourceType.Discuss)
+            if (source.Type != MessageSourceType.Group && source.Type != MessageSourceType.Discuss)
                 return false;
             if ((originMessage?.FirstOrDefault() as SourceMessage)?.Id == null)
                 return false;
@@ -31,7 +31,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
             return true;
         }
 
-        public override async Task NextAsync(List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task NextAsync(MessageSource source, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             await Task.Yield();
 
@@ -40,7 +40,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
             messages.Add(new QuoteMessage(member.GroupNumber, member.QQ, sourceMessageId));
             var sentence = GetRandomRuipingSentence();
             messages.Add(new TextMessage(sentence));
-            MessageManager.SendMessage(sourceType, messages, member.QQ, member.GroupNumber);
+            MessageManager.SendToSource(source, messages);
         }
 
         private static Random _random = new Random();

@@ -10,10 +10,10 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("null")]
     public class NullManager : BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             await Task.Yield();
-            MessageManager.SendTextMessage(sourceType, "略略略😝", qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+            MessageManager.SendToSource(source, "略略略😝");
             return;
         }
     }

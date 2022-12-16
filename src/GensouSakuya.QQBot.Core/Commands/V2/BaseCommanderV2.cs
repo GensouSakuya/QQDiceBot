@@ -8,7 +8,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
 {
     internal abstract class BaseCommanderV2
     {
-        public abstract Task<bool> Check(List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member);
+        public abstract Task<bool> Check(MessageSource source, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember);
 
         public bool IsHandled { get; private set; }
 
@@ -17,7 +17,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
             this.IsHandled = true;
         }
 
-        public abstract Task NextAsync(List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member);
+        public abstract Task NextAsync(MessageSource source, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember);
     }
 
     internal class CommanderEngine
@@ -31,7 +31,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
 
         public List<BaseCommanderV2> Commanders { get; }
 
-        public async Task<bool> ExecuteAsync(List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public async Task<bool> ExecuteAsync(MessageSource source, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             var handled = false;
             try
@@ -39,12 +39,12 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
                 if (Commanders == null)
                     return handled;
 
-                foreach(var commander in Commanders)
+                foreach (var commander in Commanders)
                 {
-                    if (!await commander.Check(originMessage, sourceType, qq, group, member))
+                    if (!await commander.Check(source, originMessage, qq, group, member, guildUser, guildmember))
                         continue;
 
-                    await commander.NextAsync(originMessage, sourceType, qq, group, member);
+                    await commander.NextAsync(source, originMessage, qq, group, member, guildUser, guildmember);
 
                     if (commander.IsHandled)
                     {
@@ -54,7 +54,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
                 }
                 return handled;
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.Error(e, "execute message error");
                 return handled;

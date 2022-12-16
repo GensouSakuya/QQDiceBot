@@ -1,42 +1,12 @@
 ﻿using System.Collections.Generic;
+using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
-using net.gensousakuya.dice;
 
 namespace GensouSakuya.QQBot.Core.Base
 {
     public class MessageManager
     {
-        public static void SendMessage(MessageSourceType sourceType, List<BaseMessage> messages, long? qq = null,
-            long? toGroupNo = null)
-        {
-            var message = new Message();
-            switch (sourceType)
-            {
-                case MessageSourceType.Group:
-                    if (!toGroupNo.HasValue || toGroupNo <= 0)
-                        return;
-                    message.Type = MessageSourceType.Group;
-                    message.ToGroup = toGroupNo.Value;
-                    break;
-                case MessageSourceType.Private:
-                    if (!qq.HasValue || qq <= 0)
-                        return;
-                    message.Type = MessageSourceType.Private;
-                    message.ToQQ = qq.Value;
-                    break;
-                case MessageSourceType.Friend:
-                    if (!qq.HasValue || qq <= 0)
-                        return;
-                    message.Type = MessageSourceType.Friend;
-                    message.ToQQ = qq.Value;
-                    break;
-            }
-
-            message.Content.AddRange(messages);
-            EventCenter.SendMessage(message);
-        }
-
-        public static void SendTextMessage(MessageSourceType sourceType,string message,long? qq = null, long? toGroupNo = null)
+        public static void SendTextMessage(MessageSourceType sourceType,string message,long? qq = null, long? toGroupNo = null, string guildId = null, string channelId = null)
         {
             switch (sourceType)
             {
@@ -55,7 +25,30 @@ namespace GensouSakuya.QQBot.Core.Base
                         return;
                     SendTextMessageFriend(qq.Value, message);
                     break;
+                case MessageSourceType.Guild:
+                    if(guildId.HasValue()&& channelId.HasValue())
+                    {
+                        SendTextMessageGuild(guildId,channelId,message);
+                        break;
+                    }
+                    break;
             }
+        }
+
+        public static void SendToSource(MessageSource source, List<BaseMessage> messages)
+        {
+            var message = new Message();
+            message.FromSource(source);
+            message.Content.AddRange(messages);
+            PlatformManager.SendMessage(message);
+        }
+
+        public static void SendToSource(MessageSource source, string text)
+        {
+            var message = new Message();
+            message.FromSource(source);
+            message.AddTextMessage(text);
+            PlatformManager.SendMessage(message);
         }
 
         public static void SendTextMessageToGroup(long groupNo,string textMessage)
@@ -81,6 +74,16 @@ namespace GensouSakuya.QQBot.Core.Base
             var message = new Message();
             message.Type = MessageSourceType.Friend;
             message.ToQQ = qq;
+            message.AddTextMessage(textMessage);
+            PlatformManager.SendMessage(message);
+        }
+
+        public static void SendTextMessageGuild(string guildId, string channelId, string textMessage)
+        {
+            var message = new Message();
+            message.Type = MessageSourceType.Guild;
+            message.ToGuild = guildId;
+            message.ToChannel = channelId;
             message.AddTextMessage(textMessage);
             PlatformManager.SendMessage(message);
         }

@@ -20,12 +20,12 @@ namespace GensouSakuya.QQBot.Core.Commands
         private static readonly Regex _imageGuid = new Regex(@"\[QQ:pic=(?<Guid>.*?)\]");
         private static readonly Dictionary<long, DateTime> _lastTime = new Dictionary<long, DateTime>();
         private static Random _rand = new Random();
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             var fromQQ = 0L;
             var toGroup = 0L;
             //var message = "";
-            if (sourceType != MessageSourceType.Group)
+            if (source.Type != MessageSourceType.Group)
             {
                 return;
             }
@@ -171,7 +171,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 if (!files.Any())
                     return;
                 var fileName = files[_rand.Next(0, files.Length)];
-                MessageManager.SendImageMessage(sourceType, fileName, fromQQ, toGroup);
+                MessageManager.SendImageMessage(source.Type, fileName, fromQQ, toGroup);
             }
         }
 

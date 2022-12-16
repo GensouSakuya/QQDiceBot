@@ -12,13 +12,13 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("ignore")]
     public class IgnoreManager : BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             await Task.Yield();
             var fromQQ = 0L;
             var toGroup = 0L;
             //var message = "";
-            if (sourceType != MessageSourceType.Group)
+            if (source.Type != MessageSourceType.Group)
             {
                 return;
             }

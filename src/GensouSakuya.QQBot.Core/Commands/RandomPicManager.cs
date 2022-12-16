@@ -17,20 +17,20 @@ namespace GensouSakuya.QQBot.Core.Commands
         private static Dictionary<Tuple<MessageSourceType,long>, DateTime> _lastFetchTimeDic = new Dictionary<Tuple<MessageSourceType,long>, DateTime>();
         private const int _intervalSeconds = 60;
 
-        public override async System.Threading.Tasks.Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async System.Threading.Tasks.Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             var toGroup = 0L;
             var fromQQ = 0L;
-            if (sourceType == MessageSourceType.Private)
+            if (source.Type == MessageSourceType.Private)
             {
                 fromQQ = qq.QQ;
                 if (fromQQ != DataManager.Instance.AdminQQ)
                 {
-                    MessageManager.SendTextMessage(sourceType, "不给看不给看！", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, "不给看不给看！");
                     return;
                 }
             }
-            else if (sourceType == MessageSourceType.Group)
+            else if (source.Type == MessageSourceType.Group)
             {
                 fromQQ = member.QQ;
                 toGroup = member.GroupNumber;
@@ -41,7 +41,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                         if (!DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                         {
                             DataManager.Instance.EnabledRandomImgNumbers.Add(member.GroupNumber);
-                            MessageManager.SendTextMessage(sourceType, "启用成功！", fromQQ, toGroup);
+                            MessageManager.SendToSource(source, "启用成功！");
                             DataManager.Instance.NoticeConfigUpdated();
                             return;
                         }
@@ -54,7 +54,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                         if (DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                         {
                             DataManager.Instance.EnabledRandomImgNumbers.Remove(member.GroupNumber);
-                            MessageManager.SendTextMessage(sourceType, "禁用成功！", fromQQ, toGroup);
+                            MessageManager.SendToSource(source, "禁用成功！");
                             DataManager.Instance.NoticeConfigUpdated();
                             return;
                         }
@@ -63,7 +63,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                 if (!DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                 {
-                    MessageManager.SendTextMessage(sourceType, "这个群没启用这个功能，快去找开发者来开启", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(source.Type, "这个群没启用这个功能，快去找开发者来开启", fromQQ, toGroup);
                     return;
                 }
             }
@@ -74,18 +74,18 @@ namespace GensouSakuya.QQBot.Core.Commands
 
             if (command.Count > 2)
             {
-                MessageManager.SendTextMessage(sourceType, "Tag太多啦，一次最多只能查两个", fromQQ, toGroup);
+                MessageManager.SendToSource(source, "Tag太多啦，一次最多只能查两个");
                 return;
             }
 
-            var key = new Tuple<MessageSourceType, long>(sourceType, sourceType == MessageSourceType.Private ? fromQQ : toGroup);
+            var key = new Tuple<MessageSourceType, long>(source.Type, source.Type == MessageSourceType.Private ? fromQQ : toGroup);
             if (fromQQ != DataManager.Instance.AdminQQ)
             {
                 if (_lastFetchTimeDic.ContainsKey(key))
                 {
                     if (DateTime.Now.Subtract(_lastFetchTimeDic[key]).TotalSeconds < _intervalSeconds)
                     {
-                        MessageManager.SendTextMessage(sourceType, "太频繁啦，每分钟只能出一张图", fromQQ, toGroup);
+                        MessageManager.SendToSource(source, "太频繁啦，每分钟只能出一张图");
                         return;
                     }
                 }
@@ -102,12 +102,12 @@ namespace GensouSakuya.QQBot.Core.Commands
                 var res = await client.GetAsync(url);
                 if (res.StatusCode == System.Net.HttpStatusCode.NotFound)
                 {
-                    MessageManager.SendTextMessage(sourceType, $"{tag}:\ntag写错了吗，没找到图呢", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, $"{tag}:\ntag写错了吗，没找到图呢");
                     return;
                 }
                 if (!res.IsSuccessStatusCode)
                 {
-                    MessageManager.SendTextMessage(sourceType, $"{tag}:\n请求失败了QAQ", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, $"{tag}:\n请求失败了QAQ");
                     return;
                 }
 
@@ -121,13 +121,13 @@ namespace GensouSakuya.QQBot.Core.Commands
                 });
                 if (jsonRes.success.HasValue && !jsonRes.success.Value)
                 {
-                    MessageManager.SendTextMessage(sourceType, $"{tag}:\ntag写错了吗，没找到图呢", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, $"{tag}:\ntag写错了吗，没找到图呢");
                     return;
                 }
 
                 if (jsonRes.is_banned.HasValue && jsonRes.is_banned.Value)
                 {
-                    MessageManager.SendTextMessage(sourceType, $"{tag}:\nid:{jsonRes.id}\n这张图被作者要求下架了QAQ", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, $"{tag}:\nid:{jsonRes.id}\n这张图被作者要求下架了QAQ");
                     return;
                 }
 
@@ -145,8 +145,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     }
 
                     img.Save(path);
-                    MessageManager.SendTextMessage(sourceType, $"[CQ:image,file={fileName}]\n{tag}:\nhttps://danbooru.donmai.us/posts/{jsonRes.id}",
-                        fromQQ, toGroup);
+                    MessageManager.SendToSource(source, $"[CQ:image,file={fileName}]\n{tag}:\nhttps://danbooru.donmai.us/posts/{jsonRes.id}");
                     File.Delete(path);
                 }
                 catch (Exception e)

@@ -32,6 +32,7 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
 
             EventCenter.SendMessage += SendMessage;
             EventCenter.GetGroupMemberList += GetGroupMemberList;
+            EventCenter.GetGuildMember += GetGuildMember;
             EventCenter.Log += log => { Console.WriteLine(log.Message); };
         }
 
@@ -45,7 +46,8 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
         {
             string deleteFile = null;
             try
-            {;
+            {
+                ;
                 var builder = new List<BaseMessage>();
                 m.Content.ForEach(p =>
                 {
@@ -57,7 +59,7 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
                         {
                             //拷贝到当前临时目录下，发送成功后删除
                             var fileName = Path.GetFileName(im.ImagePath);
-                            fileName = fileName.Replace("[","").Replace("]","");
+                            fileName = fileName.Replace("[", "").Replace("]", "");
                             var newFile = Path.Combine(Environment.CurrentDirectory, @"data\images", fileName);
                             File.Copy(im.ImagePath, newFile);
                             im.ImagePath = fileName;
@@ -96,11 +98,14 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
                     case Core.PlatformModel.MessageSourceType.Friend:
                         await _session.SendPrivateMessage(m.ToQQ.ToString(), builder.ToRawMessage());
                         break;
+                    case Core.PlatformModel.MessageSourceType.Guild:
+                        await _session.SendGuildChannelMsg(m.ToGuild, m.ToChannel, builder.ToRawMessage());
+                        break;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,"send failed");
+                _logger.LogError(ex, "send failed");
             }
             finally
             {
@@ -110,7 +115,7 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
                     {
                         File.Delete(deleteFile);
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
                         //ignore
                     }
@@ -121,7 +126,7 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
         private List<Core.PlatformModel.BaseMessage> GetMessage(IEnumerable<BaseMessage> chain, out string command)
         {
             command = chain.ToRawMessage();
-//            command = string.Join(Environment.NewLine, chain);
+            //            command = string.Join(Environment.NewLine, chain);
             var mes = new List<Core.PlatformModel.BaseMessage>();
             chain.ToList().ForEach(c =>
             {
@@ -165,6 +170,43 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
             }).ToList();
         }
 
+        private async Task<Core.PlatformModel.GuildMemberSourceInfo> GetGuildMember(string userId, string guildId)
+        {
+            try
+            {
+                var res = await _session.GetGuildMemberProfile(guildId, userId);
+                if (res == null)
+                    return null;
+                return new Core.PlatformModel.GuildMemberSourceInfo
+                {
+                    GuildId = guildId,
+                    UserId = res.TinyId,
+                    NickName = res.NickName
+                };
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message?.Contains("58002") ?? false)
+                {
+                    var list = await _session.GetGuildMemberList(guildId, null);
+                    if (list?.Members != null)
+                    {
+                        var user = list.Members.FirstOrDefault(p => p.TinyId == userId);
+                        if (user != null)
+                        {
+                            return new Core.PlatformModel.GuildMemberSourceInfo
+                            {
+                                GuildId = guildId,
+                                UserId = user.TinyId,
+                                NickName = user.NickName
+                            };
+                        }
+                    }
+                }
+                return null;
+            }
+        }
+
         public async Task<bool> GroupMessage(object sender, GroupMessage e)
         {
             var message = GetMessage(e.MessageChain, out var command);
@@ -175,13 +217,13 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
                     Id = long.TryParse(e.UserId, out var qq) ? qq : default,
                     Nick = (string)e.Sender.card,
                 });
-                await CommandCenter.Execute(command, message, Core.PlatformModel.MessageSourceType.Group, qqNo: e.UserId?.ToLong(),
+                await CommandCenter.Execute(Core.Model.MessageSource.FromGroup(e.UserId, e.GroupId), command, message, userId: e.UserId?.ToLong(),
                     groupNo: e.GroupId?.ToLong());
                 return true;
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]{ex.Message}{Environment.NewLine}{ex.StackTrace}[/]");
+                ProcessErrorMessage($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
                 return false;
             }
         }
@@ -196,12 +238,12 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
                     Id = long.TryParse(e.UserId, out var qq) ? qq : default,
                     Nick = (string)e.Sender.card,
                 });
-                await CommandCenter.Execute(command, message, Core.PlatformModel.MessageSourceType.Friend, qqNo: e.UserId?.ToLong());
+                await CommandCenter.Execute(Core.Model.MessageSource.FromFriend(e.UserId), command, message, userId: e.UserId?.ToLong());
                 return true;
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]{ex.Message}{Environment.NewLine}{ex.StackTrace}[/]");
+                ProcessErrorMessage($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
                 return false;
             }
         }
@@ -211,19 +253,30 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
             var message = GetMessage(e.MessageChain, out var command);
             try
             {
-                //Core.QQManager.UserManager.Add(new Core.PlatformModel.QQSourceInfo
-                //{
-                //    Id = long.TryParse(e.UserId, out var qq) ? qq : default,
-                //    Nick = e.Sender.card,
-                //});
-                //await CommandCenter.Execute(command, message, Core.PlatformModel.MessageSourceType.Group, qqNo: e.UserId,
-                //    groupNo: e.GroupId);
+                Core.QQManager.GuildUserManager.Add(new Core.Model.GuildUserInfo
+                {
+                    Id = e.UserId,
+                });
+                await CommandCenter.Execute(Core.Model.MessageSource.FromGuild(e.UserId, e.GuildId, e.ChannelId), command, message, userId: e.UserId?.ToLong(),
+                    guildId: e.GuildId);
                 return true;
             }
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]{ex.Message}{Environment.NewLine}{ex.StackTrace}[/]");
+                ProcessErrorMessage($"{ex.Message}{Environment.NewLine}{ex.StackTrace}");
                 return false;
+            }
+        }
+
+        private static void ProcessErrorMessage(string msg)
+        {
+            try
+            {
+                AnsiConsole.MarkupLine($"[red]{msg}[/]");
+            }
+            catch
+            {
+                Console.WriteLine(msg);
             }
         }
     }

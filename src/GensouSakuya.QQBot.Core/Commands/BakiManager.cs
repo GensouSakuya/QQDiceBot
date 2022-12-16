@@ -16,13 +16,13 @@ namespace GensouSakuya.QQBot.Core.Commands
     public class BakiManager : BaseManager
     {
         private static Random _rand = new Random();
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             await Task.Yield();
             var fromQQ = 0L;
             var toGroup = 0L;
             //var message = "";
-            if (sourceType != MessageSourceType.Group)
+            if (source.Type != MessageSourceType.Group)
             {
                 return;
             }
@@ -34,11 +34,11 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 if (!GroupBakiConfig.TryGetValue(toGroup, out var config))
                 {
-                    MessageManager.SendTextMessage(MessageSourceType.Group, "当前群尚未开启热狗图功能", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, "当前群尚未开启热狗图功能");
                 }
                 else
                 {
-                    MessageManager.SendTextMessage(MessageSourceType.Group, $"当前热狗人纯度：{config.Percent}%", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, $"当前热狗人纯度：{config.Percent}%");
                 }
                 
                 return;
@@ -48,7 +48,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 if (permit == PermitType.None)
                 {
-                    MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限开启热狗图功能", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, "只有群主或管理员才有权限开启热狗图功能");
                     return;
                 }
                 BakiConfig config;
@@ -73,18 +73,18 @@ namespace GensouSakuya.QQBot.Core.Commands
                 }
 
                 UpdateGroupBakiConfig(toGroup, config);
-                MessageManager.SendTextMessage(MessageSourceType.Group, $"随机热狗图已开启，提升纯度概率：{config.Percent}%", fromQQ, toGroup);
+                MessageManager.SendToSource(source, $"随机热狗图已开启，提升纯度概率：{config.Percent}%");
             }
             else if (command[0].Equals("off", StringComparison.CurrentCultureIgnoreCase))
             {
                 if (permit == PermitType.None)
                 {
-                    MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限关闭热狗图功能", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, "只有群主或管理员才有权限关闭热狗图功能");
                     return;
                 }
                 
                 UpdateGroupBakiConfig(toGroup, null);
-                MessageManager.SendTextMessage(MessageSourceType.Group, "随机热狗图已关闭", fromQQ, toGroup);
+                MessageManager.SendToSource(source, "随机热狗图已关闭");
             }
             else if (command[0].Equals("baki", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -95,7 +95,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 if (!files.Any())
                     return;
                 var fileName = files[_rand.Next(0, files.Length)];
-                MessageManager.SendImageMessage(sourceType, fileName, fromQQ, toGroup);
+                MessageManager.SendImageMessage(source.Type, fileName, fromQQ, toGroup);
             }
         }
         

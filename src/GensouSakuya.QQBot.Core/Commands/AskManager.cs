@@ -11,17 +11,20 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("ask")]
     public class AskManager : BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             var sourceMessageId = (originMessage?.FirstOrDefault() as SourceMessage)?.Id ?? default;
             var messages = new List<BaseMessage>();
-            messages.Add(new QuoteMessage(member?.GroupNumber, qq?.QQ, sourceMessageId));
+            if(source.IsTraditionSource)
+                messages.Add(new QuoteMessage(member?.GroupNumber, qq?.QQ, sourceMessageId));
+            else
+                
 
             await Task.Yield();
             if (command.Count < 1)
             {
                 messages.Add(new TextMessage("不提问怎么帮你选0 0？"));
-                MessageManager.SendMessage(sourceType, messages, qq?.QQ, member?.GroupNumber);
+                MessageManager.SendToSource(source, messages);
                 return;
             }
 
@@ -35,7 +38,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 else
                 {
                     messages.Add(new TextMessage("快把你打算的选择告诉我"));
-                    MessageManager.SendMessage(sourceType, messages, qq?.QQ, member?.GroupNumber);
+                    MessageManager.SendToSource(source, messages);
                     return;
                 }
             }
@@ -56,7 +59,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 message = $"关于[{quest}]：\n" + message;
             }
             messages.Add(new TextMessage(message));
-            MessageManager.SendMessage(sourceType, messages, qq?.QQ, member?.GroupNumber);
+            MessageManager.SendToSource(source, messages);
         }
 
         public static List<AskModel> Ask(List<string> ques)

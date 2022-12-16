@@ -1,9 +1,10 @@
 ﻿using System;
+using GensouSakuya.QQBot.Core.Interfaces;
 using GensouSakuya.QQBot.Core.PlatformModel;
 
 namespace GensouSakuya.QQBot.Core.Model
 {
-    public class UserInfo: QQSourceInfo
+    public class UserInfo: QQSourceInfo, IUserJrrp
     {
         public long QQ
         {
@@ -34,14 +35,6 @@ namespace GensouSakuya.QQBot.Core.Model
 
         public RerollStep ReRollStep { get; set; } = RerollStep.None;
 
-        public enum RerollStep
-        {
-            None = 0,
-            CanReroll = 1,
-            RerollSuccess = 2,
-            RerollFaild = 3,
-            RerollDevastated = 4,
-        }
         #endregion
     }
 }

@@ -10,22 +10,28 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("li")]
     public class LongInsaneManager : BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             await Task.Yield();
             var name = "";
-            if (sourceType == MessageSourceType.Group)
+            if (source.Type == MessageSourceType.Group)
             {
                 if (member == null)
                     return;
 
                 name = string.IsNullOrWhiteSpace(member.GroupName) ? qq.Name : member.GroupName;
             }
-            else if (sourceType == MessageSourceType.Private)
+            else if (source.Type == MessageSourceType.Private)
             {
                 if (qq == null)
                     return;
                 name = qq.Name;
+            }
+            else if( source .Type == MessageSourceType.Guild)
+            {
+                if (guildmember == null)
+                    return;
+                name = guildmember.NickName;
             }
 
             var str = $"{name}的疯狂发作 - 总结症状:\n";
@@ -50,7 +56,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 str += string.Format($"症状=>{_longInsaneList[insaneIndex]}", "1d10=" + duration);
             }
 
-            MessageManager.SendTextMessage(sourceType, str, qq?.QQ, member?.GroupNumber);
+            MessageManager.SendToSource(source, str);
         }
 
         public static readonly List<string> _longInsaneList = new List<string>

@@ -11,10 +11,10 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("admin")]
     public class AdminManager : BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             await Task.Yield();
-            if (sourceType != MessageSourceType.Private && sourceType != MessageSourceType.Friend)
+            if (source.Type != MessageSourceType.Private && source.Type != MessageSourceType.Friend)
                 return;
             if (qq == null || qq.QQ != DataManager.Instance.AdminQQ)
                 return;
@@ -28,15 +28,14 @@ namespace GensouSakuya.QQBot.Core.Commands
                         command.RemoveAt(0);
                         if (command.Count < 2)
                             return;
-                        var groupNumber = 0L;
-                        if (!long.TryParse(command.First(), out groupNumber))
+                        if (!long.TryParse(command.First(), out var groupNumber))
                         {
                             return;
                         }
 
                         command.RemoveAt(0);
                         var message = string.Join(" ", command);
-                        MessageManager.SendTextMessage(MessageSourceType.Group, message, qq?.QQ, groupNumber);
+                        MessageManager.SendTextMessageToGroup(groupNumber, message);
                         return;
                     }
                 case "rename":
@@ -45,11 +44,11 @@ namespace GensouSakuya.QQBot.Core.Commands
                         return;
                     var name = command[0];
                     DataManager.Instance.BotName = name;
-                    MessageManager.SendTextMessage(MessageSourceType.Friend, "改名成功", qq?.QQ);
+                    MessageManager.SendTextMessage(MessageSourceType.Friend, "改名成功", DataManager.Instance.AdminQQ);
                     return;
                 case "save":
                     DataManager.Save();
-                    MessageManager.SendTextMessage(MessageSourceType.Friend,"保存成功", qq?.QQ);
+                    MessageManager.SendTextMessage(MessageSourceType.Friend,"保存成功", DataManager.Instance.AdminQQ);
                     return;
             }
         }

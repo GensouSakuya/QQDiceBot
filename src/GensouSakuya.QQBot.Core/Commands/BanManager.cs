@@ -16,13 +16,13 @@ namespace GensouSakuya.QQBot.Core.Commands
     public class BanManager : BaseManager
     {
         private static Random _rand = new Random();
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             await Task.Yield();
             var fromQQ = 0L;
             var toGroup = 0L;
             //var message = "";
-            if (sourceType != MessageSourceType.Group)
+            if (source.Type != MessageSourceType.Group)
             {
                 return;
             }
@@ -32,7 +32,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             var permit = member.PermitType;
             if (permit == PermitType.None)
             {
-                MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限封禁用户", fromQQ, toGroup);
+                MessageManager.SendToSource(source, "只有群主或管理员才有权限封禁用户");
                 return;
             }
 
@@ -49,13 +49,13 @@ namespace GensouSakuya.QQBot.Core.Commands
                 if (GroupBan.ContainsKey((banGroup,banQQ)))
                 {
                     UpdateGroupQQBan(banGroup, banQQ, false);
-                    MessageManager.SendTextMessage(MessageSourceType.Group, $"用户{banQQ}在群{banGroup}的封禁已被解除", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, $"用户{banQQ}在群{banGroup}的封禁已被解除");
                     return;
                 }
                 else
                 {
                     UpdateGroupQQBan(banGroup, banQQ, true);
-                    MessageManager.SendTextMessage(MessageSourceType.Group, $"用户{banQQ}在群{banGroup}已被封禁", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, $"用户{banQQ}在群{banGroup}已被封禁");
                     return;
                 }
             }
@@ -64,13 +64,13 @@ namespace GensouSakuya.QQBot.Core.Commands
                 if (QQBan.ContainsKey(banQQ))
                 {
                     UpdateQQBan(banQQ, false);
-                    MessageManager.SendTextMessage(MessageSourceType.Group, $"用户{banQQ}的全局封禁已被解除", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, $"用户{banQQ}的全局封禁已被解除");
                     return;
                 }
                 else
                 {
                     UpdateQQBan(banQQ, true);
-                    MessageManager.SendTextMessage(MessageSourceType.Group, $"用户{banQQ}已被全局封禁", fromQQ, toGroup);
+                    MessageManager.SendToSource(source, $"用户{banQQ}已被全局封禁");
                     return;
                 }
             }

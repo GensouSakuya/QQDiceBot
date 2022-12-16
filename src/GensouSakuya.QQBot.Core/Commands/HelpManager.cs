@@ -12,15 +12,15 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("help")]
     public class HelpManager: BaseManager
     {
-        public override async Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             await Task.Yield();
             Dictionary<string, string> descDic = null;
-            if (sourceType == MessageSourceType.Group)
+            if (source.Type == MessageSourceType.Group || source.Type == MessageSourceType.Guild)
             {
                 descDic = Config.GroupCommandDesc;
             }
-            else if (sourceType == MessageSourceType.Private)
+            else if (source.Type == MessageSourceType.Private)
             {
                 descDic = Config.PrivateCommandDesc;
             }
@@ -35,7 +35,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             //{
             //    desc.Append($"bug反馈请联系QQ:{DataManager.Instance.AdminQQ}");
             //}
-            MessageManager.SendTextMessage(sourceType, desc.ToString(), qq: qq?.QQ, toGroupNo: member?.GroupNumber);
+            MessageManager.SendToSource(source, desc.ToString());
         }
     }
 }

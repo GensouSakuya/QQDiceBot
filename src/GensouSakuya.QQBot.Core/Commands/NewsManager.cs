@@ -15,12 +15,12 @@ namespace GensouSakuya.QQBot.Core.Commands
     {
         private static readonly Logger _logger = Logger.GetLogger<NewsManager>();
 
-        public override async System.Threading.Tasks.Task ExecuteAsync(List<string> command, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        public override async System.Threading.Tasks.Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             var fromQQ = 0L;
             var toGroup = 0L;
             //var message = "";
-            if (sourceType != MessageSourceType.Group)
+            if (source.Type != MessageSourceType.Group)
             {
                 return;
             }
@@ -70,7 +70,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 var res = await client.GetAsync(url);
                 if (!res.IsSuccessStatusCode)
                 {
-                    MessageManager.SendTextMessage(sourceType, "请求失败了QAQ", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(source.Type, "请求失败了QAQ", fromQQ, toGroup);
                     return;
                 }
 
@@ -85,7 +85,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                 if(!(jsonRes?.data?.newsList?.Any() ?? false))
                 {
-                    MessageManager.SendTextMessage(sourceType, "没找到新闻捏", fromQQ, toGroup);
+                    MessageManager.SendTextMessage(source.Type, "没找到新闻捏", fromQQ, toGroup);
                     return;
                 }
 
@@ -96,7 +96,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     message.Add($"{n.Title}:{n.Url}");
                 });
 
-                MessageManager.SendTextMessage(sourceType, string.Join("\n",message), fromQQ, toGroup);
+                MessageManager.SendTextMessage(source.Type, string.Join("\n",message), fromQQ, toGroup);
             }
         }
 

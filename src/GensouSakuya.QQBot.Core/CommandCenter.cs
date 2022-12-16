@@ -44,30 +44,46 @@ namespace GensouSakuya.QQBot.Core
             _engine = new CommanderEngine(commanders);
         }
 
-        public static async Task Execute(string command, List<BaseMessage> originMessage, MessageSourceType sourceType,long? qqNo = null, long? groupNo = null)
+        public static async Task Execute(MessageSource source, string command, List<BaseMessage> originMessage, long? userId = null, long? groupNo = null, string guildId = null, string channelId = null)
         {
-            UserInfo qq = null;
-            Group group = null; 
-            if (qqNo.HasValue)
+            UserInfo user = null;
+            GuildUserInfo guildUserInfo = null;
+            Group group = null;
+            if (userId.HasValue)
             {
-                qq = UserManager.Get(qqNo.Value);
+                if (source.Type != MessageSourceType.Guild)
+                {
+                    user = UserManager.Get(userId.Value);
+                }
+                else
+                {
+                    guildUserInfo = await GuildUserManager.Get(userId.ToString(), guildId);
+                }
             }
 
             GroupMember member = null;
-            if(qqNo.HasValue && groupNo.HasValue)
+            GuildMember guildMember = null;
+            if(userId.HasValue)
             {
-                member = await GroupMemberManager.Get(qqNo.Value, groupNo.Value);
-                if (member != null && (DataManager.Instance?.GroupIgnore?.ContainsKey((member.GroupNumber, member.QQ)) ?? false))
+                if (groupNo.HasValue)
                 {
-                    return;
+                    member = await GroupMemberManager.Get(userId.Value, groupNo.Value);
+                    if (member != null && (DataManager.Instance?.GroupIgnore?.ContainsKey((member.GroupNumber, member.QQ)) ?? false))
+                    {
+                        return;
+                    }
+                }
+                else if (guildId.HasValue())
+                {
+                    guildMember = await GuildMemberManager.Get(userId.ToString(), guildId);
                 }
             }
 
             if (!command.StartsWith(".") && !command.StartsWith("/"))
             {
-                if (sourceType == MessageSourceType.Group)
+                if (source.Type == MessageSourceType.Group)
                 {
-                    await ExecuteWithoutCommand(command, originMessage, sourceType, qq, group, member);
+                    await ExecuteWithoutCommand(source, command, originMessage,  user, group, member, null, null);
                 }
                 return;
             }
@@ -82,35 +98,35 @@ namespace GensouSakuya.QQBot.Core
             var manager = GetManagerByCommand(commandName);
             if (manager == null)
             {
-                if (sourceType == MessageSourceType.Group)
+                if (source.Type == MessageSourceType.Group)
                 {
-                    await ExecuteWithoutCommand(command, originMessage, sourceType, qq, group, member);
+                    await ExecuteWithoutCommand(source, command, originMessage, user, group, member, null,null);
                 }
                 return;
             }
 
             commandList.RemoveAt(0);
             var args = commandList;
-            if (sourceType == MessageSourceType.Group)
+            if (source.Type == MessageSourceType.Group)
             {
                 if (BanManager.QQBan.TryGetValue(member.QQ, out _))
                 {
-                    MessageManager.SendTextMessage(sourceType, "滚", member.QQ, member.GroupNumber);
+                    MessageManager.SendTextMessage(source.Type, "滚", member.QQ, member.GroupNumber);
                     return;
                 }
                 else if (BanManager.GroupBan.TryGetValue((member.QQ, member.GroupNumber), out _))
                 {
-                    MessageManager.SendTextMessage(sourceType, "滚", member.QQ, member.GroupNumber); 
+                    MessageManager.SendTextMessage(source.Type, "滚", member.QQ, member.GroupNumber); 
                     return;
                 }
             }
 
-            await manager.ExecuteAsync(args, originMessage, sourceType, qq, group, member);
+            await manager.ExecuteAsync(source, args, originMessage, user, group, member, guildUserInfo, guildMember);
         }
 
-        private static async Task ExecuteWithoutCommand(string message, List<BaseMessage> originMessage, MessageSourceType sourceType, UserInfo qq, Group group, GroupMember member)
+        private static async Task ExecuteWithoutCommand(MessageSource source, string message, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
-            if (await _engine.ExecuteAsync(originMessage, sourceType, qq, group, member))
+            if (await _engine.ExecuteAsync(source, originMessage, qq, group, member, guildUser, guildmember))
             {
                 return;
             }
@@ -155,10 +171,7 @@ namespace GensouSakuya.QQBot.Core
             {
                 var choose = Random.Next(0, managerList.Count);
                 var choosen = managerList[choose];
-                Task.Run(async () =>
-                {
-                    await choosen.Item1.ExecuteAsync(choosen.Item2, originMessage, sourceType, qq, null, member);
-                });
+                _ = choosen.Item1.ExecuteAsync(source, choosen.Item2, originMessage, qq, null, member, null, null);
             }
         }
 
