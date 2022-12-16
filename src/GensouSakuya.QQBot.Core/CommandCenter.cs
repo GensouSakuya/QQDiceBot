@@ -44,11 +44,13 @@ namespace GensouSakuya.QQBot.Core
             _engine = new CommanderEngine(commanders);
         }
 
-        public static async Task Execute(MessageSource source, string command, List<BaseMessage> originMessage, long? userId = null, long? groupNo = null, string guildId = null, string channelId = null)
+        public static async Task Execute(MessageSource source, string command, List<BaseMessage> originMessage)
         {
             UserInfo user = null;
             GuildUserInfo guildUserInfo = null;
             Group group = null;
+            long? userId = source.QQ.HasValue() ? (long?)source.QQ.ToLong() : null;
+            long? groupNo = source.GroupId.HasValue() ? (long?)source.GroupId.ToLong() : null;
             if (userId.HasValue)
             {
                 if (source.Type != MessageSourceType.Guild)
@@ -57,13 +59,13 @@ namespace GensouSakuya.QQBot.Core
                 }
                 else
                 {
-                    guildUserInfo = await GuildUserManager.Get(userId.ToString(), guildId);
+                    guildUserInfo = await GuildUserManager.Get(userId.ToString(), source.GuildId);
                 }
             }
 
             GroupMember member = null;
             GuildMember guildMember = null;
-            if(userId.HasValue)
+            if (userId.HasValue)
             {
                 if (groupNo.HasValue)
                 {
@@ -73,9 +75,14 @@ namespace GensouSakuya.QQBot.Core
                         return;
                     }
                 }
-                else if (guildId.HasValue())
+                else if (source.GuildId.HasValue())
                 {
-                    guildMember = await GuildMemberManager.Get(userId.ToString(), guildId);
+                    guildMember = await GuildMemberManager.Get(userId.ToString(), source.GuildId);
+                    if (guildMember == null)
+                    {
+                        return;
+                    }
+                    GuildMemberManager.UpdateNickName(guildMember, (string)source.Sender?.nickname);
                 }
             }
 
@@ -83,7 +90,7 @@ namespace GensouSakuya.QQBot.Core
             {
                 if (source.Type == MessageSourceType.Group)
                 {
-                    await ExecuteWithoutCommand(source, command, originMessage,  user, group, member, null, null);
+                    await ExecuteWithoutCommand(source, command, originMessage, user, group, member, null, null);
                 }
                 return;
             }
@@ -100,7 +107,7 @@ namespace GensouSakuya.QQBot.Core
             {
                 if (source.Type == MessageSourceType.Group)
                 {
-                    await ExecuteWithoutCommand(source, command, originMessage, user, group, member, null,null);
+                    await ExecuteWithoutCommand(source, command, originMessage, user, group, member, null, null);
                 }
                 return;
             }
@@ -116,7 +123,7 @@ namespace GensouSakuya.QQBot.Core
                 }
                 else if (BanManager.GroupBan.TryGetValue((member.QQ, member.GroupNumber), out _))
                 {
-                    MessageManager.SendTextMessage(source.Type, "滚", member.QQ, member.GroupNumber); 
+                    MessageManager.SendTextMessage(source.Type, "滚", member.QQ, member.GroupNumber);
                     return;
                 }
             }

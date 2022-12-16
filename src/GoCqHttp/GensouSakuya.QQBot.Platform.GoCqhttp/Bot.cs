@@ -217,8 +217,7 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
                     Id = long.TryParse(e.UserId, out var qq) ? qq : default,
                     Nick = (string)e.Sender.card,
                 });
-                await CommandCenter.Execute(Core.Model.MessageSource.FromGroup(e.UserId, e.GroupId), command, message, userId: e.UserId?.ToLong(),
-                    groupNo: e.GroupId?.ToLong());
+                await CommandCenter.Execute(Core.Model.MessageSource.FromGroup(e.UserId, e.GroupId, e.Sender), command, message);
                 return true;
             }
             catch (Exception ex)
@@ -238,7 +237,7 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
                     Id = long.TryParse(e.UserId, out var qq) ? qq : default,
                     Nick = (string)e.Sender.card,
                 });
-                await CommandCenter.Execute(Core.Model.MessageSource.FromFriend(e.UserId), command, message, userId: e.UserId?.ToLong());
+                await CommandCenter.Execute(Core.Model.MessageSource.FromFriend(e.UserId, e.Sender), command, message);
                 return true;
             }
             catch (Exception ex)
@@ -257,8 +256,7 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
                 {
                     Id = e.UserId,
                 });
-                await CommandCenter.Execute(Core.Model.MessageSource.FromGuild(e.UserId, e.GuildId, e.ChannelId), command, message, userId: e.UserId?.ToLong(),
-                    guildId: e.GuildId);
+                await CommandCenter.Execute(Core.Model.MessageSource.FromGuild(e.UserId, e.GuildId, e.ChannelId, e.Sender), command, message);
                 return true;
             }
             catch (Exception ex)

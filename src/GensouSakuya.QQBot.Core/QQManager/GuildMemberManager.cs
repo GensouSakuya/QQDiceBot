@@ -37,6 +37,27 @@ namespace GensouSakuya.QQBot.Core.QQManager
             return GuildMembers.TryGetValue((userId, guildId), out member) ? member : null;
         }
 
+        public static void UpdateNickName(GuildMember member, string name)
+        {
+            if (name == null)
+                return;
+
+            if(member.NickName != name)
+            {
+                GuildMembers.AddOrUpdate((member.UserId, member.GuildId), new GuildMember(member) {
+                    NickName = name
+                }, (ids, updateMember) =>
+                {
+                    if (updateMember.NickName != name)
+                    {
+                        updateMember.NickName = name;
+                    }
+                    return updateMember;
+                });
+                DataManager.Instance.NoticeConfigUpdated();
+            }
+        }
+
         public static Task StartLoadTask(CancellationToken token = default)
         {
             //Task.Run(async () =>

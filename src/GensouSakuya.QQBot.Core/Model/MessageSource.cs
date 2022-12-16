@@ -10,30 +10,34 @@ namespace GensouSakuya.QQBot.Core.Model
         public string GuildId { get; private set; }
         public string ChannelId { get; private set; }
 
+        public dynamic Sender { get; private set; }
+
         public bool IsTraditionSource => Type != MessageSourceType.Guild;
 
         private MessageSource() { }
 
-        public static MessageSource FromGroup(string userId, string groupId)
+        public static MessageSource FromGroup(string userId, string groupId, dynamic sender)
         {
             return new MessageSource
             {
                 Type = MessageSourceType.Group,
                 GroupId = groupId,
                 QQ = userId,
+                Sender = sender,
             };
         }
 
-        public static MessageSource FromFriend(string userId)
+        public static MessageSource FromFriend(string userId, dynamic sender)
         {
             return new MessageSource
             {
                 Type = MessageSourceType.Friend,
                 QQ = userId,
+                Sender = sender,
             };
         }
 
-        public static MessageSource FromGuild(string userId, string guildId, string channelId)
+        public static MessageSource FromGuild(string userId, string guildId, string channelId, dynamic sender)
         {
             return new MessageSource
             {
@@ -41,6 +45,7 @@ namespace GensouSakuya.QQBot.Core.Model
                 GuildId = guildId,
                 ChannelId = channelId,
                 QQ = userId,
+                Sender = sender,
             };
         }
     }
