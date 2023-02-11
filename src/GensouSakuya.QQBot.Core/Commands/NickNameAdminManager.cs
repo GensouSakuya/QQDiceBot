@@ -37,7 +37,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 return;
             }
 
-            var originText = (originMessage.ElementAt(1) is TextMessage tm) ? tm.Text : null;
+            var originText = (originMessage.ElementAt(0) is TextMessage tm) ? tm.Text : null;
             if (originText == null)
                 return;
 
