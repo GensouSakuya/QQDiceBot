@@ -88,9 +88,9 @@ namespace GensouSakuya.QQBot.Core
 
             if (!command.StartsWith(".") && !command.StartsWith("/"))
             {
-                if (source.Type == MessageSourceType.Group)
+                if (source.Type == MessageSourceType.Group || source.Type == MessageSourceType.Guild)
                 {
-                    await ExecuteWithoutCommand(source, command, originMessage, user, group, member, null, null);
+                    await ExecuteWithoutCommand(source, command, originMessage, user, group, member, guildUserInfo, guildMember);
                 }
                 return;
             }
@@ -105,9 +105,9 @@ namespace GensouSakuya.QQBot.Core
             var manager = GetManagerByCommand(commandName);
             if (manager == null)
             {
-                if (source.Type == MessageSourceType.Group)
+                if (source.Type == MessageSourceType.Group || source.Type == MessageSourceType.Guild)
                 {
-                    await ExecuteWithoutCommand(source, command, originMessage, user, group, member, null, null);
+                    await ExecuteWithoutCommand(source, command, originMessage, user, group, member, guildUserInfo, guildMember);
                 }
                 return;
             }
@@ -134,6 +134,10 @@ namespace GensouSakuya.QQBot.Core
         private static async Task ExecuteWithoutCommand(MessageSource source, string message, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             if (await _engine.ExecuteAsync(source, originMessage, qq, group, member, guildUser, guildmember))
+            {
+                return;
+            }
+            if(source.Type == MessageSourceType.Guild)
             {
                 return;
             }
