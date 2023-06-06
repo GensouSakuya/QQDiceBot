@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GensouSakuya.GoCqhttp.Sdk" Version="0.4.5-dev" />
+    <PackageReference Include="GensouSakuya.GoCqhttp.Sdk" Version="0.4.6-dev" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="7.0.0" />
     <PackageReference Include="Spectre.Console" Version="0.45.1-preview.0.47" />
   </ItemGroup>
