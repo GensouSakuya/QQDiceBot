@@ -158,4 +158,14 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
             this.Time = time;
         }
     }
+
+    public class JsonMessage: BaseMessage
+    {
+        public string Json { get; set; }
+
+        public JsonMessage(string json)
+        {
+            Json = json;
+        }
+    }
 }

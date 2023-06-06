@@ -156,6 +156,10 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
                 {
                     //ignore
                 }
+                else if(c is JsonMessage jm)
+                {
+                    mes.Add(new Core.PlatformModel.JsonMessage(jm.Data));
+                }
                 else
                 {
                     mes.Add(new Core.PlatformModel.OtherMessage(c));
