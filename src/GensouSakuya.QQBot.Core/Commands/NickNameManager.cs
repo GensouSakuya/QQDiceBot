@@ -18,7 +18,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 return;
             }
-            var newNickName = (originMessage.ElementAt(1) is TextMessage tm) && tm.Text?.Length > 3 ? tm.Text?.Substring(4) : null;
+            var newNickName = (originMessage.ElementAt(0) is TextMessage tm) && tm.Text?.Length > 3 ? tm.Text?.Substring(4) : null;
             string message = null;
             if (string.IsNullOrWhiteSpace(newNickName))
             {
