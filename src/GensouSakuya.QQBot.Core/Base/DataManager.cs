@@ -37,6 +37,7 @@ namespace GensouSakuya.QQBot.Core.Base
         }
 
         public long AdminQQ { get; set; }
+        public string AdminGuildUserId { get; set; }
 
         public List<long> DisabledJrrpGroupNumbers { get; set; } = new List<long>();
         public List<long> EnabledRandomImgNumbers { get; set; } = new List<long>();
@@ -49,6 +50,8 @@ namespace GensouSakuya.QQBot.Core.Base
         public ConcurrentDictionary<long, RepeatConfig> GroupRepeatConfig { get; set; }
 
         public ConcurrentDictionary<long, ShaDiaoTuConfig> GroupShaDiaoTuConfig { get; set; }
+
+        public ConcurrentDictionary<int, ConcurrentDictionary<string, SubscribeModel>> DouyinSubscribers { get; set; }
 
         public ConcurrentDictionary<long, string> QQBan { get; set; }
 
@@ -92,6 +95,7 @@ namespace GensouSakuya.QQBot.Core.Base
             GroupHentaiCheckConfig = HentaiCheckManager.GroupHentaiCheckConfig;
             GroupIgnore = IgnoreManager.GroupIgnore;
             RuipingSentences = RuipingCommander.RuipingSentences;
+            DouyinSubscribers = DouyinSubscribeManager.Subscribers;
         }
 
         private void UpdateData()
@@ -116,6 +120,7 @@ namespace GensouSakuya.QQBot.Core.Base
             HentaiCheckManager.GroupHentaiCheckConfig = GroupHentaiCheckConfig;
             IgnoreManager.GroupIgnore = GroupIgnore;
             RuipingCommander.RuipingSentences = RuipingSentences;
+            DouyinSubscribeManager.Subscribers = DouyinSubscribers;
         }
 
         public static Task Save()
