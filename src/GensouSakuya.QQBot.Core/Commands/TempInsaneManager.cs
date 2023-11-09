@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
 using GensouSakuya.QQBot.Core.Model;
@@ -27,6 +28,14 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 name = qq.Name;
             }
+            else if (source.Type == MessageSourceType.Guild)
+            {
+                name = guildmember.NickName;
+            }
+            else
+            {
+                throw new NotImplementedException("not support type");
+            }
 
             var str = $"{name}的疯狂发作 - 临时症状:\n";
             var insaneIndex = DiceManager.RollDice(_tempInsaneList.Count - 1);
@@ -50,7 +59,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 str += string.Format($"症状=>{_tempInsaneList[insaneIndex]}", "1d10=" + duration);
             }
 
-            MessageManager.SendTextMessage(source.Type, str, qq?.QQ, member?.GroupNumber);
+            MessageManager.SendToSource(source, str);
         }
 
         public static readonly List<string> _tempInsaneList = new List<string>
