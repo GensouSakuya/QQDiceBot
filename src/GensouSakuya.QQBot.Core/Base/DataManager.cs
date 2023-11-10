@@ -51,7 +51,7 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public ConcurrentDictionary<long, ShaDiaoTuConfig> GroupShaDiaoTuConfig { get; set; }
 
-        public ConcurrentDictionary<int, ConcurrentDictionary<string, SubscribeModel>> DouyinSubscribers { get; set; }
+        public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> DouyinSubscribers { get; set; }
 
         public ConcurrentDictionary<long, string> QQBan { get; set; }
 
