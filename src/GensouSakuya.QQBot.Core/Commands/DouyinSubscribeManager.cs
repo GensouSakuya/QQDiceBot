@@ -162,6 +162,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                             var jobj = JObject.FromObject(jsonRes);
                             var status = jobj["data"]["data"][0]["status"].Value<int>();
                             var name = jobj["data"]["user"]["nickname"];
+                            var title = jobj["data"]["data"][0]["title"].Value<string>();
                             if (status == 2)
                             {
                                 if (_notFireAgainList.ContainsKey(room.Key))
@@ -189,7 +190,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                     else
                                         continue;
 
-                                    MessageManager.SendToSource(source, $"{name}开播了！\nhttps://live.douyin.com/{room.Key}");
+                                    MessageManager.SendToSource(source, $"【{name}】开播了：{title}\nhttps://live.douyin.com/{room.Key}");
                                     await Task.Delay(2000);
                                 }
                             }
