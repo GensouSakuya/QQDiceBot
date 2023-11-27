@@ -39,16 +39,16 @@ namespace GensouSakuya.QQBot.Platform.GoCqhttp
             EventCenter.GetGuildMember += GetGuildMember;
             EventCenter.Log += log => { Console.WriteLine(log.Message); };
 
-            _webApplication = LiveChatHelper.Generate(_session).GetAwaiter().GetResult();
+            //_webApplication = LiveChatHelper.Generate(_session).GetAwaiter().GetResult();
         }
 
         public async Task Start(string qq)
         {
             await Main.Init(qq.ToLong());
             await _session.ConnectAsync();
-            var url = "http://localhost:5202";
-            _webApplication.Run(url);
-            _logger.LogInformation($"弹幕设置页面:{url}/index.html");
+            //var url = "http://localhost:5202";
+            //_webApplication.Run(url);
+            //_logger.LogInformation($"弹幕设置页面:{url}/index.html");
         }
 
         private async void SendMessage(Core.PlatformModel.Message m)
