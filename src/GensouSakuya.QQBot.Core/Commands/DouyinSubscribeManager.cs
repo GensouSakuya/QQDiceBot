@@ -178,7 +178,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                     else if (sorModel.Source == MessageSourceType.Guild)
                                     {
                                         var ids = sorModel.SourceId.Split('+');
-                                        if (ids.Length <= 2)
+                                        if (ids.Length < 2)
                                             continue;
 
                                         source = MessageSource.FromGuild(null, ids[0], ids[1], null);
