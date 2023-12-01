@@ -103,6 +103,10 @@ namespace GensouSakuya.QQBot.Core.Commands
                 }
                 return;
             }
+            else if(first == "trigger")
+            {
+                _completionSource.TrySetResult(true);
+            }
 
             return;
         }
@@ -132,6 +136,8 @@ namespace GensouSakuya.QQBot.Core.Commands
             Task.Run(() => LoopCheck(_cancellationTokenSource.Token));
         }
 
+        private static TaskCompletionSource<bool> _completionSource = new TaskCompletionSource<bool>();
+
         private static ConcurrentDictionary<string, string> _notFireAgainList;
         private static async Task LoopCheck(CancellationToken token)
         {
@@ -141,6 +147,8 @@ namespace GensouSakuya.QQBot.Core.Commands
             var templateUrl = "https://live.douyin.com/webcast/room/web/enter/?aid=6383&app_name=douyin_web&live_id=1&device_platform=web&language=zh-CN&cookie_enabled=true&screen_width=2048&screen_height=1152&browser_language=zh-CN&browser_platform=Win32&browser_name=Edge&browser_version=119.0.0.0&web_rid={0}";
             while (!token.IsCancellationRequested)
             {
+                if (_completionSource.Task.IsCompleted)
+                    _completionSource = new TaskCompletionSource<bool>();
                 using (var client = new RestClient())
                 {
                     client.AddDefaultHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0");
@@ -210,7 +218,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     }
                 }
 
-                await Task.Delay(loopSpan);
+                await Task.WhenAny(Task.Delay(loopSpan), _completionSource.Task);
             }
         }
     }
