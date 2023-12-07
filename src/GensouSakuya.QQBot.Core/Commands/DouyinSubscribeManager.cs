@@ -199,7 +199,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                         continue;
 
                                     MessageManager.SendToSource(source, $"【{name}】开播了：{title}\nhttps://live.douyin.com/{room.Key}");
-                                    await Task.Delay(2000);
+                                    await Task.Delay(10000);
                                 }
                             }
                             else
