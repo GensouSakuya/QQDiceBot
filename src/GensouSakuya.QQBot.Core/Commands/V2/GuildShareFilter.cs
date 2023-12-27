@@ -65,7 +65,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
                 {
                     var name = jobj["meta"]["detail_1"]["title"];
                     var title = jobj["meta"]["detail_1"]["desc"];
-                    var url = jobj["meta"]["detail_1"]["qqdocurl"];
+                    var url = HandleUrl(jobj["meta"]["detail_1"]["qqdocurl"]?.ToString());
 
                     var messages = new List<BaseMessage>
                     {
@@ -80,7 +80,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
                     {
                         var tag = jobj["meta"]["news"]["tag"];
                         var title = jobj["meta"]["news"]["title"];
-                        var url = jobj["meta"]["news"]["jumpUrl"];
+                        var url = HandleUrl(jobj["meta"]["news"]["jumpUrl"]?.ToString());
 
                         var messages = new List<BaseMessage>
                         {
@@ -91,7 +91,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
                 }
                 else if (_channelshareAppName.Equals(app, StringComparison.OrdinalIgnoreCase))
                 {
-                    var url = jobj["meta"]["detail"]["link"];
+                    var url = HandleUrl(jobj["meta"]["detail"]["link"]?.ToString());
                     var messages = new List<BaseMessage>
                     {
                         new TextMessage($"{guildmember.NickName}分享了链接\n{url}")
@@ -109,6 +109,31 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
         {
             MessageManager.SendToSource(source, messages);
             StopChain();
+        }
+
+        static Random _rand = new Random();
+        private string HandleUrl(string url)
+        {
+            if (url == null)
+                return null;
+            var trimedUrl = url;
+            var trimStartCount = 0;
+            if (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+            {
+                trimStartCount = 7;
+            }
+            else if (url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                trimStartCount = 8;
+            }
+            trimedUrl = trimedUrl.Substring(trimStartCount, url.Length - trimStartCount);
+            //var index1 = _rand.Next(trimedUrl.Length);
+            //var index2 = _rand.Next(trimedUrl.Length);
+            //var index3 = _rand.Next(trimedUrl.Length);
+            //trimedUrl = trimedUrl.Insert(index1, "请");
+            //trimedUrl = trimedUrl.Insert(index2, "删");
+            //trimedUrl = trimedUrl.Insert(index3, "除");
+            return trimedUrl;
         }
     }
 }
