@@ -141,85 +141,107 @@ namespace GensouSakuya.QQBot.Core.Commands
         private static ConcurrentDictionary<string, string> _notFireAgainList;
         private static async Task LoopCheck(CancellationToken token)
         {
-            await Task.Delay(5000);
-            var loopSpan = new TimeSpan(0, 1, 0);
-            var intervalSpan = new TimeSpan(0, 0, 10);
-            var templateUrl = "https://live.douyin.com/webcast/room/web/enter/?aid=6383&app_name=douyin_web&live_id=1&device_platform=web&language=zh-CN&cookie_enabled=true&screen_width=2048&screen_height=1152&browser_language=zh-CN&browser_platform=Win32&browser_name=Edge&browser_version=119.0.0.0&web_rid={0}";
-            while (!token.IsCancellationRequested)
+            try
             {
-                if (_completionSource.Task.IsCompleted)
-                    _completionSource = new TaskCompletionSource<bool>();
-                using (var client = new RestClient())
+                await Task.Delay(5000);
+                var loopSpan = new TimeSpan(0, 1, 0);
+                var intervalSpan = new TimeSpan(0, 0, 10);
+                var templateUrl = "https://live.douyin.com/webcast/room/web/enter/?aid=6383&app_name=douyin_web&live_id=1&device_platform=web&language=zh-CN&cookie_enabled=true&screen_width=2048&screen_height=1152&browser_language=zh-CN&browser_platform=Win32&browser_name=Edge&browser_version=119.0.0.0&web_rid={0}";
+                while (!token.IsCancellationRequested)
                 {
-                    client.AddDefaultHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0");
-                    //set cookie
-                    await client.GetAsync(new RestRequest("https://live.douyin.com"));
-                    foreach(var room in Subscribers)
+                    if (_completionSource.Task.IsCompleted)
+                        _completionSource = new TaskCompletionSource<bool>();
+                    using (var client = new RestClient())
                     {
-                        if (room.Value.Count <= 0)
-                            continue;
-
                         try
                         {
-                            var url = string.Format(templateUrl, room.Key);
-                            var res = await client.GetAsync(new RestRequest(url));
-                            if (!res.IsSuccessStatusCode)
+                            client.AddDefaultHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0");
+                            //set cookie
+                            await client.GetAsync(new RestRequest("https://live.douyin.com"));
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.Error(e, "douyin refresh cookies error");
+                        }
+                        foreach (var room in Subscribers)
+                        {
+                            if (room.Value.Count <= 0)
                                 continue;
-                            var content = res.Content;
-                            var jsonRes = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
-                            var jobj = JObject.FromObject(jsonRes);
-                            var status = jobj["data"]["data"][0]["status"].Value<int>();
-                            var name = jobj["data"]["user"]["nickname"];
-                            var title = jobj["data"]["data"][0]["title"].Value<string>();
-                            if (status == 2)
-                            {
-                                if (_notFireAgainList.ContainsKey(room.Key))
-                                    continue;
-                                _notFireAgainList.TryAdd(room.Key, room.Key);
 
-                                foreach (var sor in room.Value)
+                            try
+                            {
+                                var url = string.Format(templateUrl, room.Key);
+                                var res = await client.GetAsync(new RestRequest(url));
+                                if (!res.IsSuccessStatusCode)
                                 {
-                                    MessageSource source;
-                                    var sorModel = sor.Value;
-                                    if (sorModel.Source == MessageSourceType.Group)
-                                        source = MessageSource.FromGroup(null, sorModel.SourceId, null);
-                                    else if (sorModel.Source == MessageSourceType.Guild)
+                                    _logger.Error(res.ErrorException, "get roominfo failed");
+                                    continue;
+                                }
+                                var content = res.Content;
+                                var jsonRes = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
+                                var jobj = JObject.FromObject(jsonRes);
+                                var status = jobj["data"]["data"][0]["status"].Value<int>();
+                                var name = jobj["data"]["user"]["nickname"];
+                                var title = jobj["data"]["data"][0]["title"].Value<string>();
+                                if (status == 2)
+                                {
+                                    if (_notFireAgainList.ContainsKey(room.Key))
+                                        continue;
+                                    _notFireAgainList.TryAdd(room.Key, room.Key);
+                                    _logger.Info("douyin[{0}] start sending notice", room.Key);
+
+                                    foreach (var sor in room.Value)
                                     {
-                                        var ids = sorModel.SourceId.Split('+');
-                                        if (ids.Length < 2)
+                                        MessageSource source;
+                                        var sorModel = sor.Value;
+                                        if (sorModel.Source == MessageSourceType.Group)
+                                            source = MessageSource.FromGroup(null, sorModel.SourceId, null);
+                                        else if (sorModel.Source == MessageSourceType.Guild)
+                                        {
+                                            var ids = sorModel.SourceId.Split('+');
+                                            if (ids.Length < 2)
+                                                continue;
+
+                                            source = MessageSource.FromGuild(null, ids[0], ids[1], null);
+                                        }
+                                        else if (sorModel.Source == MessageSourceType.Friend)
+                                        {
+                                            source = MessageSource.FromFriend(sorModel.SourceId, null);
+                                        }
+                                        else
                                             continue;
 
-                                        source = MessageSource.FromGuild(null, ids[0], ids[1], null);
+                                        MessageManager.SendToSource(source, $"【{name}】开播了：{title}\nlive点douyin点com/{room.Key}");
+                                        await Task.Delay(10000);
                                     }
-                                    else if(sorModel.Source == MessageSourceType.Friend)
+                                }
+                                else
+                                {
+                                    if(_notFireAgainList.TryRemove(room.Key, out _))
                                     {
-                                        source = MessageSource.FromFriend(sorModel.SourceId, null);
+                                        _logger.Info("douyin[{0}] flag removed", room.Key);
                                     }
-                                    else
-                                        continue;
-
-                                    MessageManager.SendToSource(source, $"【{name}】开播了：{title}\nhttps://live.douyin.com/{room.Key}");
-                                    await Task.Delay(10000);
                                 }
                             }
-                            else
+                            catch (Exception e)
                             {
-                                _notFireAgainList.TryRemove(room.Key, out _);
+                                _logger.Error(e, "douyin failed to send msg");
+                            }
+                            finally
+                            {
+                                await Task.Delay(intervalSpan);
                             }
                         }
-                        catch(Exception e)
-                        {
-                            _logger.Error(e, "douyin loop error");
-                        }
-                        finally
-                        {
-                            await Task.Delay(intervalSpan);
-                        }
                     }
+                    await Task.WhenAny(Task.Delay(loopSpan), _completionSource.Task);
                 }
-
-                await Task.WhenAny(Task.Delay(loopSpan), _completionSource.Task);
+                _logger.Error("loop finished");
             }
+            catch(Exception e)
+            {
+                _logger.Error(e, "douyin loop error");
+            }
+
         }
     }
 
