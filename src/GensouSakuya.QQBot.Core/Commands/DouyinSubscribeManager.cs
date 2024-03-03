@@ -180,15 +180,42 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 var content = res.Content;
                                 var jsonRes = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
                                 var jobj = JObject.FromObject(jsonRes);
-                                var status = jobj["data"]["data"][0]["status"].Value<int>();
                                 var name = jobj["data"]["user"]["nickname"];
-                                var title = jobj["data"]["data"][0]["title"].Value<string>();
-                                if (status == 2)
+                                var jdata = jobj["data"]["data"];
+                                string title = null;
+                                var isStreaming = false;
+                                StreamType type;
+                                if (jdata.HasValues)
+                                {
+                                    var status = jobj["data"]["data"][0]["status"].Value<int>();
+                                    title = jobj["data"]["data"][0]["title"].Value<string>();
+                                    if (status == 2)
+                                    {
+                                        isStreaming = true;
+                                    }
+                                    type = StreamType.PC;
+                                }
+                                else
+                                {
+                                    isStreaming = true;
+                                    type = StreamType.Radio;
+                                }
+                                if (isStreaming)
                                 {
                                     if (_notFireAgainList.ContainsKey(room.Key))
                                         continue;
                                     _notFireAgainList.TryAdd(room.Key, room.Key);
                                     _logger.Info("douyin[{0}] start sending notice", room.Key);
+
+                                    string msg;
+                                    if (type == StreamType.Radio)
+                                    {
+                                        msg = $"【{name}】开始了电台直播，请使用手机APP观看";
+                                    }
+                                    else
+                                    {
+                                        msg = $"【{name}】开播了：{title}\nlive点douyin点com/{room.Key}";
+                                    }
 
                                     foreach (var sor in room.Value)
                                     {
@@ -211,7 +238,8 @@ namespace GensouSakuya.QQBot.Core.Commands
                                         else
                                             continue;
 
-                                        MessageManager.SendToSource(source, $"【{name}】开播了：{title}\nlive点douyin点com/{room.Key}");
+
+                                        MessageManager.SendToSource(source, msg);
                                         await Task.Delay(10000);
                                     }
                                 }
@@ -242,6 +270,12 @@ namespace GensouSakuya.QQBot.Core.Commands
                 _logger.Error(e, "douyin loop error");
             }
 
+        }
+
+        internal enum StreamType
+        {
+            PC=0,
+            Radio=1
         }
     }
 
