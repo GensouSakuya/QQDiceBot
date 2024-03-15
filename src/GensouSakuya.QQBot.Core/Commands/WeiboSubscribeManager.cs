@@ -241,7 +241,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     }
                     await Task.WhenAny(Task.Delay(loopSpan), _completionSource.Task);
                 }
-                _logger.Error("loop finished");
+                _logger.Info("loop finished");
             }
             catch(Exception e)
             {
