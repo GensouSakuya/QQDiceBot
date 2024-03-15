@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
@@ -136,6 +137,10 @@ namespace GensouSakuya.QQBot.Core.Commands
             Task.Run(() => LoopCheck(_cancellationTokenSource.Token));
         }
 
+        static System.Text.RegularExpressions.Regex _faceRegex = new System.Text.RegularExpressions.Regex("<span class=[\"']url-icon[\"']><img\\s[^>]*?alt=[\"']?([^>]+?)[\"']?\\s[^>]*?\\/?><\\/span>");
+        static System.Text.RegularExpressions.Regex _newLineRegex = new System.Text.RegularExpressions.Regex("<br\\s/>");
+        static System.Text.RegularExpressions.Regex _fullTextRegex = new System.Text.RegularExpressions.Regex("<a href=\"(.*?)\">全文<\\/a>");
+
         private static TaskCompletionSource<bool> _completionSource = new TaskCompletionSource<bool>();
 
         private static ConcurrentDictionary<string, string> _lastWeiboId;
@@ -178,7 +183,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                     continue;
                                 }
                                 var content = res.Content;
-                                var jobj = JObject.FromObject(content);
+                                var jobj = JObject.Parse(content);
                                 var name = jobj["data"]["userInfo"]["screen_name"];
                                 var containerid = jobj["data"]["tabsInfo"]["tabs"][1]["containerid"];
                                 res = await client.ExecuteGetAsync(new RestRequest(url + "&containerid=" + containerid));
@@ -187,7 +192,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 var weibos = jobj["data"]["cards"];
                                 var newest = weibos[0];
                                 var id = newest["mblog"]["id"].ToString();
-                                var text = newest["mblog"]["text"];
+                                var text = newest["mblog"]["text"].ToString();
                                 if (!_lastWeiboId.ContainsKey(room.Key))
                                 {
                                     _lastWeiboId[room.Key] = id;
@@ -201,7 +206,11 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 _lastWeiboId[room.Key] = id;
                                 _logger.Info("weibo[{0}] start sending notice", room.Key);
 
-                                string msg = $"【{name}】发布了微博：{text}";
+                                text = _faceRegex.Replace(text, "$1");
+                                text = _newLineRegex.Replace(text, Environment.NewLine);
+                                text = _fullTextRegex.Replace(text, Environment.NewLine + "[完整内容见原微博:m点weibo点cn$1]");
+
+                                string msg = $"【{name}】发布了微博：{Environment.NewLine}{text}";
 
                                 foreach (var sor in room.Value)
                                 {
