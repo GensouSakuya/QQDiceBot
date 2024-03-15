@@ -53,6 +53,8 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> DouyinSubscribers { get; set; }
 
+        public ConcurrentDictionary<string,ConcurrentDictionary<string,WeiboSubscribeModel>> WeiboSubscribers { get; set; }
+
         public ConcurrentDictionary<long, string> QQBan { get; set; }
 
         public ConcurrentDictionary<(long, long), string> GroupBan { get; set; }
@@ -96,6 +98,7 @@ namespace GensouSakuya.QQBot.Core.Base
             GroupIgnore = IgnoreManager.GroupIgnore;
             RuipingSentences = RuipingCommander.RuipingSentences;
             DouyinSubscribers = DouyinSubscribeManager.Subscribers;
+            WeiboSubscribers = WeiboSubscribeManager.Subscribers;
         }
 
         private void UpdateData()
@@ -121,6 +124,7 @@ namespace GensouSakuya.QQBot.Core.Base
             IgnoreManager.GroupIgnore = GroupIgnore;
             RuipingCommander.RuipingSentences = RuipingSentences;
             DouyinSubscribeManager.Subscribers = DouyinSubscribers;
+            WeiboSubscribeManager.Subscribers = WeiboSubscribers;
         }
 
         public static Task Save()
