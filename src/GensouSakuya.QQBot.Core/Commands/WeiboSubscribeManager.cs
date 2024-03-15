@@ -137,6 +137,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             Task.Run(() => LoopCheck(_cancellationTokenSource.Token));
         }
 
+        //正则参考rsshub：https://github.com/DIYgod/RSSHub/blob/master/lib/routes/weibo/utils.ts
         static System.Text.RegularExpressions.Regex _faceRegex = new System.Text.RegularExpressions.Regex("<span class=[\"']url-icon[\"']><img\\s[^>]*?alt=[\"']?([^>]+?)[\"']?\\s[^>]*?\\/?><\\/span>");
         static System.Text.RegularExpressions.Regex _newLineRegex = new System.Text.RegularExpressions.Regex("<br\\s/>");
         static System.Text.RegularExpressions.Regex _fullTextRegex = new System.Text.RegularExpressions.Regex("<a href=\"(.*?)\">全文<\\/a>");
