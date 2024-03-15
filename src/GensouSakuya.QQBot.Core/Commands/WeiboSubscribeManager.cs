@@ -258,7 +258,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
         public override bool Equals(object obj)
         {
-            return obj is SubscribeModel model &&
+            return obj is WeiboSubscribeModel model &&
                    Source == model.Source &&
                    SourceId == model.SourceId;
         }
