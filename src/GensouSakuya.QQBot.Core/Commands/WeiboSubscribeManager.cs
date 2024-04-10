@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
@@ -141,6 +142,7 @@ namespace GensouSakuya.QQBot.Core.Commands
         static System.Text.RegularExpressions.Regex _faceRegex = new System.Text.RegularExpressions.Regex("<span class=[\"']url-icon[\"']><img\\s[^>]*?alt=[\"']?([^>]+?)[\"']?\\s[^>]*?\\/?><\\/span>");
         static System.Text.RegularExpressions.Regex _newLineRegex = new System.Text.RegularExpressions.Regex("<br\\s/>");
         static System.Text.RegularExpressions.Regex _fullTextRegex = new System.Text.RegularExpressions.Regex("<a href=\"(.*?)\">全文<\\/a>");
+        static System.Text.RegularExpressions.Regex _repostRegex = new System.Text.RegularExpressions.Regex("<a href='\\/n\\/(.*?)'>(.*?)<\\/a>");
 
         private static TaskCompletionSource<bool> _completionSource = new TaskCompletionSource<bool>();
 
@@ -194,6 +196,8 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 var newest = weibos[0];
                                 var id = newest["mblog"]["id"].ToString();
                                 var text = newest["mblog"]["text"].ToString();
+                                var images = newest["mblog"]["pic_ids"].ToArray();
+                                var retweeted = newest["mblog"]["retweeted_status"];
                                 if (!_lastWeiboId.ContainsKey(room.Key))
                                 {
                                     _lastWeiboId[room.Key] = id;
@@ -207,11 +211,35 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 _lastWeiboId[room.Key] = id;
                                 _logger.Info("weibo[{0}] start sending notice", room.Key);
 
+                                var isRepost = retweeted != null;
                                 text = _faceRegex.Replace(text, "$1");
                                 text = _newLineRegex.Replace(text, Environment.NewLine);
                                 text = _fullTextRegex.Replace(text, Environment.NewLine + "[完整内容见原微博:m点weibo点cn$1]");
+                                text = _repostRegex.Replace(text, "$2");
 
-                                string msg = $"【{name}】发布了微博：{Environment.NewLine}{text}";
+                                var messages = new List<BaseMessage>();
+
+                                var msgBody = $"{Environment.NewLine}{text}";
+
+                                var msg = "";
+                                if (!isRepost)
+                                {
+                                    msg = $"【{name}】发布了微博：{msgBody}";
+                                }
+                                else
+                                {
+                                    msg = $"【{name}】转发了微博：{msgBody}{Environment.NewLine}原微博：{Environment.NewLine}@{retweeted["user"]["screen_name"]}：{retweeted["text"]}";
+                                }
+
+                                messages.Add(new TextMessage(msg));
+
+                                if (images?.Any() ?? false)
+                                {
+                                    foreach(var image in images)
+                                    {
+                                        messages.Add(new ImageMessage(url = $"https://image.baidu.com/search/down?url=https://wx1.sinaimg.cn/large/{image}.jpg"));
+                                    }
+                                }
 
                                 foreach (var sor in room.Value)
                                 {
@@ -235,7 +263,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                         continue;
 
 
-                                    MessageManager.SendToSource(source, msg);
+                                    MessageManager.SendToSource(source, messages);
                                     await Task.Delay(10000);
                                 }
                             }
