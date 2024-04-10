@@ -240,7 +240,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                     tempImagePaths = new List<string>();
                                     foreach (var image in images)
                                     {
-                                        var imageUrl = image.ToString();
+                                        var imageUrl = $"https://image.baidu.com/search/down?url=https://wx1.sinaimg.cn/large/{image}.jpg";
                                         try
                                         {
                                             var savedPath = Path.Combine(Config.TempPath, Guid.NewGuid() + ".jpg");
