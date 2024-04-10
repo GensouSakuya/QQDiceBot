@@ -50,6 +50,11 @@ namespace GensouSakuya.QQBot.Core
             _logger.Error(e, message);
         }
 
+        public void Error(Exception e, string messageTemplate, params object[] args)
+        {
+            _logger.Error(e, messageTemplate, args);
+        }
+
         public void Debug(string message)
         {
             _logger.Debug(message);

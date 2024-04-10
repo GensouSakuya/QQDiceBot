@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -233,11 +234,30 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                                 messages.Add(new TextMessage(msg));
 
+                                List<string> tempImagePaths = null;
                                 if (images?.Any() ?? false)
                                 {
-                                    foreach(var image in images)
+                                    tempImagePaths = new List<string>();
+                                    foreach (var image in images)
                                     {
-                                        messages.Add(new ImageMessage(url = $"https://image.baidu.com/search/down?url=https://wx1.sinaimg.cn/large/{image}.jpg"));
+                                        var imageUrl = image.ToString();
+                                        try
+                                        {
+                                            var savedPath = Path.Combine(Config.TempPath, Guid.NewGuid() + ".jpg");
+                                            var imageDownloadRequest = new RestRequest(imageUrl, Method.Get);
+                                            using (var imgStream = await client.DownloadStreamAsync(imageDownloadRequest))
+                                            using(var fileStream = File.OpenWrite(savedPath))
+                                            {
+                                                await imgStream.CopyToAsync(fileStream);
+                                            }
+
+                                            messages.Add(new ImageMessage(path: savedPath));
+                                            tempImagePaths.Add(savedPath);
+                                        }
+                                        catch(Exception e)
+                                        {
+                                            _logger.Error(e, "image downloading failed, image:{0}", imageUrl);
+                                        }
                                     }
                                 }
 
@@ -265,6 +285,20 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                                     MessageManager.SendToSource(source, messages);
                                     await Task.Delay(10000);
+                                    if(tempImagePaths!=null && tempImagePaths.Any())
+                                    {
+                                        foreach(var file in tempImagePaths)
+                                        {
+                                            try
+                                            {
+                                                File.Delete(file);
+                                            }
+                                            catch
+                                            {
+                                                //ignore
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             catch (Exception e)
