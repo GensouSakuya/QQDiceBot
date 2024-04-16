@@ -134,7 +134,7 @@ namespace GensouSakuya.QQBot.Core.Commands
         static CancellationTokenSource _cancellationTokenSource;
         static WeiboSubscribeManager()
         {
-            _lastWeiboId = new ConcurrentDictionary<string, string>();
+            _lastWeiboId = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
             _cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() => LoopCheck(_cancellationTokenSource.Token));
         }
@@ -147,7 +147,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
         private static TaskCompletionSource<bool> _completionSource = new TaskCompletionSource<bool>();
 
-        private static ConcurrentDictionary<string, string> _lastWeiboId;
+        private static ConcurrentDictionary<string, ConcurrentQueue<string>> _lastWeiboId;
         private static async Task LoopCheck(CancellationToken token)
         {
             try
@@ -162,16 +162,6 @@ namespace GensouSakuya.QQBot.Core.Commands
                         _completionSource = new TaskCompletionSource<bool>();
                     using (var client = new RestClient())
                     {
-                        //try
-                        //{
-                        //    client.AddDefaultHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0");
-                        //    //set cookie
-                        //    await client.GetAsync(new RestRequest("https://live.douyin.com"));
-                        //}
-                        //catch (Exception e)
-                        //{
-                        //    _logger.Error(e, "douyin refresh cookies error");
-                        //}
                         foreach (var room in Subscribers)
                         {
                             if (room.Value.Count <= 0)
@@ -194,22 +184,45 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 content = res.Content;
                                 jobj = JObject.Parse(content);
                                 var weibos = jobj["data"]["cards"];
-                                var newest = weibos[0];
+                                var isStart = false;
+                                var weiboQueue = _lastWeiboId.GetOrAdd(room.Key, p => {
+                                    isStart = true;
+                                    return new ConcurrentQueue<string>();
+                                });
+                                var targetIndex = -1;
+                                var targetWeiboId = "";
+                                for (var index = 0; index < weibos.Count(); index++)
+                                {
+                                    var weiboId = weibos[index]["mblog"]["id"].ToString();
+                                    if (isStart)
+                                    {
+                                        weiboQueue.Enqueue(weiboId);
+                                        continue;
+                                    }
+                                    if (weiboQueue.Contains(weiboId))
+                                    {
+                                        break;
+                                    }
+                                    targetIndex = index;
+                                    targetWeiboId = weiboId;
+                                }
+                                if (isStart)
+                                {
+                                    continue;
+                                }
+                                if (targetIndex < 0)
+                                {
+                                    continue;
+                                }
+                                weiboQueue.Enqueue(targetWeiboId);
+                                if (weiboQueue.Count > 10)
+                                    weiboQueue.TryDequeue(out _);
+                                var newest = weibos[targetIndex];
                                 var id = newest["mblog"]["id"].ToString();
                                 var text = newest["mblog"]["text"].ToString();
                                 var images = newest["mblog"]["pic_ids"].ToArray();
                                 var retweeted = newest["mblog"]["retweeted_status"];
-                                if (!_lastWeiboId.ContainsKey(room.Key))
-                                {
-                                    _lastWeiboId[room.Key] = id;
-                                    continue;
-                                }
-                                else if (_lastWeiboId[room.Key] == id)
-                                {
-                                    continue;
-                                }
 
-                                _lastWeiboId[room.Key] = id;
                                 _logger.Info("weibo[{0}] start sending notice", room.Key);
 
                                 var isRepost = retweeted != null;
