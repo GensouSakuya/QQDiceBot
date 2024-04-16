@@ -213,10 +213,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 _logger.Info("weibo[{0}] start sending notice", room.Key);
 
                                 var isRepost = retweeted != null;
-                                text = _faceRegex.Replace(text, "$1");
-                                text = _newLineRegex.Replace(text, Environment.NewLine);
-                                text = _fullTextRegex.Replace(text, Environment.NewLine + "[完整内容见原微博:m点weibo点cn$1]");
-                                text = _repostRegex.Replace(text, "$2");
+                                text = HandleHtml(text);
 
                                 var messages = new List<BaseMessage>();
 
@@ -229,7 +226,9 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 }
                                 else
                                 {
-                                    msg = $"【{name}】转发了微博：{msgBody}{Environment.NewLine}原微博：{Environment.NewLine}@{retweeted["user"]["screen_name"]}：{retweeted["text"]}";
+                                    var retweetedText = retweeted["text"]?.ToString();
+                                    retweetedText = HandleHtml(retweetedText);
+                                    msg = $"【{name}】转发了微博：{msgBody}{Environment.NewLine}原微博：{Environment.NewLine}@{retweeted["user"]["screen_name"]}：{retweetedText}";
                                 }
 
                                 messages.Add(new TextMessage(msg));
@@ -319,7 +318,15 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 _logger.Error(e, "weibo loop error");
             }
+        }
 
+        private static string HandleHtml(string originText)
+        {
+            var text = _faceRegex.Replace(originText, "$1");
+            text = _newLineRegex.Replace(text, Environment.NewLine);
+            text = _fullTextRegex.Replace(text, Environment.NewLine + "[完整内容见原微博:m点weibo点cn$1]");
+            text = _repostRegex.Replace(text, "$2");
+            return text;
         }
     }
 
