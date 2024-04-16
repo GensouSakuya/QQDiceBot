@@ -174,6 +174,11 @@ namespace GensouSakuya.QQBot.Core.Base
             {
                 _logger.Debug("not found" + path);
             }
+
+            if (!Directory.Exists(Config.TempPath))
+            {
+                Directory.CreateDirectory(Config.TempPath);
+            }
         }
 
         public static async Task Stop()
