@@ -205,7 +205,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                         _logger.Error(res2.ErrorException, "get roominfo failed");
                                         continue;
                                     }
-                                    var content2 = res.Content;
+                                    var content2 = res2.Content;
                                     var jsonRes2 = Newtonsoft.Json.JsonConvert.DeserializeObject(content2);
                                     var jobj2 = JObject.FromObject(jsonRes2);
                                     if (!jobj["data"]["data"].HasValues)
