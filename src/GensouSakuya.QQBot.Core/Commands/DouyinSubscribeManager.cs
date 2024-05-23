@@ -195,25 +195,25 @@ namespace GensouSakuya.QQBot.Core.Commands
                                     }
                                     type = StreamType.PC;
                                 }
-                                else
-                                {
-                                    //拿不到data的时候额外再请求一次，以确保真的是在进行电台直播而非数据异常
-                                    _logger.Info("data is empty, full response:{0}", content);
-                                    var res2 = await client.GetAsync(new RestRequest(url));
-                                    if (!res2.IsSuccessStatusCode)
-                                    {
-                                        _logger.Error(res2.ErrorException, "get roominfo failed");
-                                        continue;
-                                    }
-                                    var content2 = res2.Content;
-                                    var jsonRes2 = Newtonsoft.Json.JsonConvert.DeserializeObject(content2);
-                                    var jobj2 = JObject.FromObject(jsonRes2);
-                                    if (!jobj["data"]["data"].HasValues)
-                                    {
-                                        isStreaming = true;
-                                    }
-                                    type = StreamType.Radio;
-                                }
+                                //else
+                                //{
+                                //    //拿不到data的时候额外再请求一次，以确保真的是在进行电台直播而非数据异常
+                                //    _logger.Info("data is empty, full response:{0}", content);
+                                //    var res2 = await client.GetAsync(new RestRequest(url));
+                                //    if (!res2.IsSuccessStatusCode)
+                                //    {
+                                //        _logger.Error(res2.ErrorException, "get roominfo failed");
+                                //        continue;
+                                //    }
+                                //    var content2 = res2.Content;
+                                //    var jsonRes2 = Newtonsoft.Json.JsonConvert.DeserializeObject(content2);
+                                //    var jobj2 = JObject.FromObject(jsonRes2);
+                                //    if (!jobj["data"]["data"].HasValues)
+                                //    {
+                                //        isStreaming = true;
+                                //    }
+                                //    type = StreamType.Radio;
+                                //}
                                 if (isStreaming)
                                 {
                                     if (_notFireAgainList.ContainsKey(room.Key))
@@ -222,11 +222,11 @@ namespace GensouSakuya.QQBot.Core.Commands
                                     _logger.Info("douyin[{0}] start sending notice", room.Key);
 
                                     string msg;
-                                    if (type == StreamType.Radio)
-                                    {
-                                        msg = $"【{name}】开始了电台直播，请使用手机APP观看";
-                                    }
-                                    else
+                                    //if (type == StreamType.Radio)
+                                    //{
+                                    //    msg = $"【{name}】开始了电台直播，请使用手机APP观看";
+                                    //}
+                                    //else
                                     {
                                         msg = $"【{name}】开播了：{title}\nlive点douyin点com/{room.Key}";
                                     }
