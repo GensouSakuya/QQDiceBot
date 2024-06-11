@@ -72,6 +72,10 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public List<string> RuipingSentences { get; set; }
 
+        public QWenConfig QWenConfig { get; set; }
+        public ConcurrentDictionary<long, bool> GroupQWenConfig { get; private set; }
+        public QWenLimit QWenLimig { get; set; }
+
         public static async Task Init(long qq)
         {
             QQ = qq;
@@ -103,6 +107,10 @@ namespace GensouSakuya.QQBot.Core.Base
 
         private void UpdateData()
         {
+            GroupQWenConfig ??= new ConcurrentDictionary<long, bool>();
+            QWenConfig ??= new QWenConfig();
+            QWenLimig ??= new QWenLimit();
+
             GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
             GroupMembers?.ForEach(p =>
             {

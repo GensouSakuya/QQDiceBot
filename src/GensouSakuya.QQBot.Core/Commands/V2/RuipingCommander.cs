@@ -24,8 +24,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
             var atMessage = originMessage.FirstOrDefault(p => p is AtMessage am && am.QQ == DataManager.QQ);
             if (atMessage == null)
                 return false;
-            var testMessage = originMessage.FirstOrDefault(p => p is TextMessage tm && tm.Text.Contains("锐评"));
-            if (testMessage == null)
+            if (!originMessage.Any(p => p is TextMessage tm && tm.Text.Contains("锐评")))
                 return false;
 
             return true;

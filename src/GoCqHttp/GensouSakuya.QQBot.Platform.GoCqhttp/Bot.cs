@@ -11,7 +11,6 @@ using System.Linq;
 using System;
 using System.IO;
 using Microsoft.AspNetCore.Builder;
-using GensouSakuya.QQBot.Platform.GoCqhttp.LiveChat;
 
 namespace GensouSakuya.QQBot.Platform.GoCqhttp
 {
