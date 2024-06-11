@@ -25,7 +25,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
                 return Task.FromResult(false);
             if (source.Type != MessageSourceType.Group && source.Type != MessageSourceType.Discuss)
                 return Task.FromResult(false);
-            if(!DataManager.Instance.GroupQWenConfig.TryGetValue(group.GroupNumber,out var res) || !res)
+            if(!DataManager.Instance.GroupQWenConfig.TryGetValue(member.GroupNumber,out var res) || !res)
                 return Task.FromResult(false);
             if(!originMessage.Any(p=>p is TextMessage))
                 return Task.FromResult(false);
@@ -50,6 +50,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
             var sourceMessageId = (originMessage?.FirstOrDefault() as SourceMessage)?.Id ?? default;
             var messages = new List<BaseMessage>();
             messages.Add(new QuoteMessage(member.GroupNumber, member.QQ, sourceMessageId));
+            messages.Add(new AtMessage(member.QQ));
 
             if(limit?.Check(config.TokenLimit) == false)
             {
@@ -61,7 +62,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
             var url = "https://dashscope.aliyuncs.com/api/v1/apps/{0}/completion";
             using (var client = new RestClient())
             {
-                var req = new RestRequest();
+                var req = new RestRequest(string.Format(url, config.AppId));
                 req.Method = Method.Post;
                 req.AddHeader("Authorization", $"Bearer {DataManager.Instance?.QWenConfig?.APIKey}");
                 req.AddJsonBody(new

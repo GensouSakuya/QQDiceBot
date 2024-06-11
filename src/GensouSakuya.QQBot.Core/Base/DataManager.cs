@@ -73,7 +73,7 @@ namespace GensouSakuya.QQBot.Core.Base
         public List<string> RuipingSentences { get; set; }
 
         public QWenConfig QWenConfig { get; set; }
-        public ConcurrentDictionary<long, bool> GroupQWenConfig { get; private set; }
+        public ConcurrentDictionary<long, bool> GroupQWenConfig { get; set; }
         public QWenLimit QWenLimig { get; set; }
 
         public static async Task Init(long qq)
