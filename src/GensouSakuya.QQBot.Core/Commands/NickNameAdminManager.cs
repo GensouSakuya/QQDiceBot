@@ -20,8 +20,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 return;
             }
-            var permit = member.PermitType;
-            if (permit == PermitType.None)
+            if (!member.IsGroupAdmin())
             {
                 return;
             }

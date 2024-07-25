@@ -36,7 +36,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 toGroup = member.GroupNumber;
                 if (command.Any() && command.First() == "on")
                 {
-                    if (member.QQ == DataManager.Instance.AdminQQ)
+                    if (Tools.IsRobotAdmin(fromQQ))
                     {
                         if (!DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                         {
@@ -49,7 +49,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 }
                 else if (command.Any() && command.First() == "off")
                 {
-                    if (member.QQ == DataManager.Instance.AdminQQ)
+                    if (Tools.IsRobotAdmin(fromQQ))
                     {
                         if (DataManager.Instance.EnabledRandomImgNumbers.Contains(member.GroupNumber))
                         {
@@ -79,7 +79,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             }
 
             var key = new Tuple<MessageSourceType, long>(source.Type, source.Type == MessageSourceType.Private ? fromQQ : toGroup);
-            if (fromQQ != DataManager.Instance.AdminQQ)
+            if (!Tools.IsRobotAdmin(fromQQ))
             {
                 if (_lastFetchTimeDic.ContainsKey(key))
                 {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using GensouSakuya.QQBot.Core.Model;
 using Newtonsoft.Json;
 
 namespace GensouSakuya.QQBot.Core.Base
@@ -26,6 +27,16 @@ namespace GensouSakuya.QQBot.Core.Base
         public static T DeserializeObject<T>(string xml)
         {
             return JsonConvert.DeserializeObject<T>(xml);
+        }
+
+        public static bool IsRobotAdmin(long qq)
+        {
+            return DataManager.Instance?.AdminQQ == qq;
+        }
+
+        public static bool IsGroupAdmin(this GroupMember gm)
+        {
+            return gm?.PermitType == PlatformModel.PermitType.Manage || gm?.PermitType == PlatformModel.PermitType.Holder;
         }
     }
 }

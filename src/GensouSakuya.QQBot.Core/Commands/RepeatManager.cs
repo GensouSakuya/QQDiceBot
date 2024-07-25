@@ -27,7 +27,6 @@ namespace GensouSakuya.QQBot.Core.Commands
 
             fromQQ = member.QQ;
             toGroup = member.GroupNumber;
-            var permit = member.PermitType;
             if (!command.Any())
             {
                 if (!GroupRepeatConfig.TryGetValue(toGroup, out var config))
@@ -44,7 +43,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
             if (command[0].Equals("on", StringComparison.CurrentCultureIgnoreCase))
             {
-                if (permit == PermitType.None)
+                if (!member.IsGroupAdmin() && !Tools.IsRobotAdmin(fromQQ))
                 {
                     MessageManager.SendToSource(source, "只有群主或管理员才有权限开启复读功能");
                     return;
@@ -76,7 +75,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             }
             else if (command[0].Equals("off", StringComparison.CurrentCultureIgnoreCase))
             {
-                if (permit == PermitType.None)
+                if (!member.IsGroupAdmin() && !Tools.IsRobotAdmin(fromQQ))
                 {
                     MessageManager.SendToSource(source, "只有群主或管理员才有权限关闭复读功能");
                     return;

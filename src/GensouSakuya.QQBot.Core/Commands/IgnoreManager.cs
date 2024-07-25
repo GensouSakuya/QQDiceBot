@@ -26,7 +26,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             fromQQ = member.QQ;
             toGroup = member.GroupNumber;
             var permit = member.PermitType;
-            if (permit == PermitType.None)
+            if (!member.IsGroupAdmin() && !Tools.IsRobotAdmin(fromQQ))
             {
                 MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限忽略用户", fromQQ, toGroup);
                 return;

@@ -32,7 +32,6 @@ namespace GensouSakuya.QQBot.Core.Commands
 
             fromQQ = member.QQ;
             toGroup = member.GroupNumber;
-            var permit = member.PermitType; 
             if (!command.Any())
             {
                 if (!GroupShaDiaoTuConfig.TryGetValue(toGroup, out var config))
@@ -49,7 +48,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
             if (command[0].Equals("on", StringComparison.CurrentCultureIgnoreCase))
             {
-                if (permit == PermitType.None)
+                if (!member.IsGroupAdmin() && !Tools.IsRobotAdmin(fromQQ))
                 {
                     MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限开启沙雕图功能", fromQQ, toGroup);
                     return;
@@ -81,7 +80,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             }
             else if (command[0].Equals("off", StringComparison.CurrentCultureIgnoreCase))
             {
-                if (permit == PermitType.None)
+                if (!member.IsGroupAdmin() && !Tools.IsRobotAdmin(fromQQ))
                 {
                     MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限关闭沙雕图功能", fromQQ, toGroup);
                     return;
