@@ -7,9 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GensouSakuya.QQBot.Core", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CurrentPlatform", "CurrentPlatform", "{367E435F-8D18-4D91-9DA7-AD209A00D1ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GensouSakuya.QQBot.Platform.GoCqhttp", "GoCqHttp\GensouSakuya.QQBot.Platform.GoCqhttp\GensouSakuya.QQBot.Platform.GoCqhttp.csproj", "{2AF240AF-E5C3-4BC5-82C1-469D59B370DC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GensouSakuya.QQBot.Platform.GoCqhttp.StartTool", "Tools\GensouSakuya.QQBot.Platform.GoCqhttp.StartTool\GensouSakuya.QQBot.Platform.GoCqhttp.StartTool.csproj", "{1F43F54B-1E23-4614-B0BA-1F50566A5F59}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GensouSakuya.QQBot.Platform.Onebot", "Onebot\GensouSakuya.QQBot.Platform.Onebot\GensouSakuya.QQBot.Platform.Onebot.csproj", "{5F79F2E9-A990-4355-83F9-3AE82FB1CA40}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,21 +19,16 @@ Global
 		{F435F703-0E64-49D5-BEB6-65680A61721A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F435F703-0E64-49D5-BEB6-65680A61721A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F435F703-0E64-49D5-BEB6-65680A61721A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2AF240AF-E5C3-4BC5-82C1-469D59B370DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2AF240AF-E5C3-4BC5-82C1-469D59B370DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2AF240AF-E5C3-4BC5-82C1-469D59B370DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2AF240AF-E5C3-4BC5-82C1-469D59B370DC}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1F43F54B-1E23-4614-B0BA-1F50566A5F59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1F43F54B-1E23-4614-B0BA-1F50566A5F59}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1F43F54B-1E23-4614-B0BA-1F50566A5F59}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1F43F54B-1E23-4614-B0BA-1F50566A5F59}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F79F2E9-A990-4355-83F9-3AE82FB1CA40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F79F2E9-A990-4355-83F9-3AE82FB1CA40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F79F2E9-A990-4355-83F9-3AE82FB1CA40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F79F2E9-A990-4355-83F9-3AE82FB1CA40}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{2AF240AF-E5C3-4BC5-82C1-469D59B370DC} = {367E435F-8D18-4D91-9DA7-AD209A00D1ED}
-		{1F43F54B-1E23-4614-B0BA-1F50566A5F59} = {367E435F-8D18-4D91-9DA7-AD209A00D1ED}
+		{5F79F2E9-A990-4355-83F9-3AE82FB1CA40} = {367E435F-8D18-4D91-9DA7-AD209A00D1ED}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FFBA07D3-9754-4B96-9C1B-41C93A1D0942}
