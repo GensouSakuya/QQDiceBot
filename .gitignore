@@ -251,3 +251,5 @@ __pycache__/
 /Native.Csharp/Sdk.Cqp/Api/CnApi.cs
 /src/Mirai/Properties/launchSettings.json
 /src/Tools/GensouSakuya.QQBot.Platform.Mirai.StartTool/Properties/launchSettings.json
+/src/Onebot/GensouSakuya.QQBot.Platform.Onebot/Properties/launchSettings.json
+/src/Onebot/GensouSakuya.QQBot.Platform.Onebot/logs

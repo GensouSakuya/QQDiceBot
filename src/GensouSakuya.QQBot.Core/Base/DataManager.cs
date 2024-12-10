@@ -19,6 +19,10 @@ namespace GensouSakuya.QQBot.Core.Base
         private static readonly Logger _logger = Logger.GetLogger<DataManager>();
         public static long QQ { get; private set; }
 
+        public static string DataPath { get; private set; }
+        private static string ConfigFilePath => Path.Combine(DataPath, Consts.ConfigFileName);
+        public static string TempPath => Path.Combine(DataPath, ".temp");
+
         private DataManager()
         {
             _observedLogList.Buffer(TimeSpan.FromMinutes(5), 2)
@@ -76,8 +80,9 @@ namespace GensouSakuya.QQBot.Core.Base
         public ConcurrentDictionary<long, bool> GroupQWenConfig { get; set; }
         public QWenLimit QWenLimig { get; set; }
 
-        public static async Task Init(long qq)
+        public static async Task Init(long qq, string dataPath = null)
         {
+            DataPath = string.IsNullOrWhiteSpace(dataPath) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".QQBot", "net.gensousakuya.dice") : dataPath;
             QQ = qq;
             await Load();
 
@@ -139,7 +144,7 @@ namespace GensouSakuya.QQBot.Core.Base
         {
             _logger.Info("saving data");
             Instance.RefreshData();
-            var path = Config.ConfigFile;
+            var path = ConfigFilePath;
             try
             {
                 var dir = Path.GetDirectoryName(path);
@@ -162,7 +167,7 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public static async Task Load()
         {
-            var path = Config.ConfigFile;
+            var path = ConfigFilePath;
             _logger.Debug("loading from:" + path);
             if (File.Exists(path))
             {
@@ -183,9 +188,9 @@ namespace GensouSakuya.QQBot.Core.Base
                 _logger.Debug("not found" + path);
             }
 
-            if (!Directory.Exists(Config.TempPath))
+            if (!Directory.Exists(TempPath))
             {
-                Directory.CreateDirectory(Config.TempPath);
+                Directory.CreateDirectory(TempPath);
             }
         }
 

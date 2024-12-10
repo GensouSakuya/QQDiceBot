@@ -17,9 +17,9 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("shadiao")]
     public class ShaDiaoTuManager : BaseManager
     {
-        private static readonly Regex _imageGuid = new Regex(@"\[QQ:pic=(?<Guid>.*?)\]");
         private static readonly Dictionary<long, DateTime> _lastTime = new Dictionary<long, DateTime>();
         private static Random _rand = new Random();
+        private static string ShaDiaoImagePath => Path.Combine(DataManager.DataPath, "沙雕图");
         public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             var fromQQ = 0L;
@@ -142,10 +142,10 @@ namespace GensouSakuya.QQBot.Core.Commands
                     var imgRes = await client.GetAsync(url);
                     var imgItem = System.Drawing.Image.FromStream(await imgRes.Content.ReadAsStreamAsync());
 
-                    var savedPath = Path.Combine(Config.ShaDiaoImagePath, Guid.NewGuid().ToString() + ".png");
-                    if (!Directory.Exists(Config.ShaDiaoImagePath))
+                    var savedPath = Path.Combine(ShaDiaoImagePath, Guid.NewGuid().ToString() + ".png");
+                    if (!Directory.Exists(ShaDiaoImagePath))
                     {
-                        Directory.CreateDirectory(Config.ShaDiaoImagePath);
+                        Directory.CreateDirectory(ShaDiaoImagePath);
                     }
 
                     imgItem.Save(savedPath);
@@ -163,7 +163,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             }
             else if (command[0].Equals("shadiaotu", StringComparison.CurrentCultureIgnoreCase))
             {
-                var dir = Path.Combine(Config.DataPath, "沙雕图");
+                var dir = ShaDiaoImagePath;
                 if (!Directory.Exists(dir))
                     return;
                 var files = Directory.GetFiles(dir);

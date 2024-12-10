@@ -100,7 +100,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 }
 
-                var savedPath = Path.Combine(Config.TempPath, Guid.NewGuid() + ".png");
+                var savedPath = Path.Combine(DataManager.TempPath, Guid.NewGuid() + ".png");
 
                 var uploadRequest = new RestRequest("https://checkimage.querydata.org/api", Method.Post)
                 {

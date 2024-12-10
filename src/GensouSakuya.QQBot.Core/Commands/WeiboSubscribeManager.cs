@@ -255,7 +255,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                         var imageUrl = $"https://image.baidu.com/search/down?url=https://wx1.sinaimg.cn/large/{image}.jpg";
                                         try
                                         {
-                                            var savedPath = Path.Combine(Config.TempPath, Guid.NewGuid() + ".jpg");
+                                            var savedPath = Path.Combine(DataManager.TempPath, Guid.NewGuid() + ".jpg");
                                             var imageDownloadRequest = new RestRequest(imageUrl, Method.Get);
                                             using (var imgStream = await client.DownloadStreamAsync(imageDownloadRequest))
                                             using(var fileStream = File.OpenWrite(savedPath))

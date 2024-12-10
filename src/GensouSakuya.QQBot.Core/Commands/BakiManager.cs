@@ -87,7 +87,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             }
             else if (command[0].Equals("baki", StringComparison.CurrentCultureIgnoreCase))
             {
-                var dir = Path.Combine(Config.DataPath, "Baki");
+                var dir = Path.Combine(DataManager.DataPath, "Baki");
                 if (!Directory.Exists(dir))
                     return;
                 var files = Directory.GetFiles(dir);

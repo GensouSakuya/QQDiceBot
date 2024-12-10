@@ -69,11 +69,5 @@ namespace GensouSakuya.QQBot.Core.Base
                 ".ti", "疯狂发作-临时症状"
             }
         };
-
-        public static readonly string DataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),".QQBot", "net.gensousakuya.dice");
-        public static readonly string ConfigFile = Path.Combine(DataPath, "config.json");
-        public static readonly string LogPath = Path.Combine(DataPath, "Log");
-        public static readonly string ShaDiaoImagePath = Path.Combine(DataPath, "沙雕图");
-        public static readonly string TempPath = Path.Combine(DataPath, ".temp");
     }
 }

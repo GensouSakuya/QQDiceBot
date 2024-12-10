@@ -3,6 +3,7 @@ using Spectre.Console;
 using Mliybs.OneBot.V11;
 using Mliybs.OneBot.V11.Data.Receivers.Messages;
 using Mliybs.OneBot.V11.Data.Messages;
+using Newtonsoft.Json;
 
 namespace GensouSakuya.QQBot.Platform.Onebot
 {
@@ -12,6 +13,8 @@ namespace GensouSakuya.QQBot.Platform.Onebot
 
         public OneBot OneBot => _bot;
 
+        private IConfiguration _configuration;
+
         private readonly static ILoggerFactory _loggerFactory = LoggerFactory.Create(p =>
         {
             p.AddConsole().SetMinimumLevel(LogLevel.Information);
@@ -19,8 +22,21 @@ namespace GensouSakuya.QQBot.Platform.Onebot
         private readonly ILogger _logger;
         public Bot(string host)
         {
+            _configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            host = host.StartsWith("ws") ? host : $"ws://{host}";
             _logger = _loggerFactory.CreateLogger<Bot>();
             _bot = OneBot.Websocket(host);
+            _bot.MessageReceived.Subscribe(msg =>
+            {
+                if(msg is GroupMessageReceiver gmr)
+                {
+                    Console.WriteLine($"收到来自群[{gmr.GroupId}]成员[{gmr.Sender.Nickname}:{gmr.UserId}]的消息:{gmr.RawMessage}");
+                }
+                else if(msg is PrivateMessageReceiver pmr)
+                {
+                    Console.WriteLine($"收到来自私聊[{pmr.UserId}]的消息:{pmr.RawMessage}");
+                }
+            });
             _bot.MessageReceived.AtGroup().Subscribe(async msg => await GroupMessage(msg));
             _bot.MessageReceived.AtPrivate().Subscribe(async msg => await FriendMessage(msg));
             EventCenter.SendMessage += SendMessage;
@@ -32,7 +48,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
 
         public async Task Start(long qq)
         {
-            await Main.Init(qq);
+            await Main.Init(qq, _configuration["DataPath"]);
             //var url = "http://localhost:5202";
             //_webApplication.Run(url);
             //_logger.LogInformation($"弹幕设置页面:{url}/index.html");
@@ -220,6 +236,11 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             {
                 Console.WriteLine(msg);
             }
+        }
+
+        private static string ReceiverToString(MessageReceiver msg)
+        {
+            return JsonConvert.SerializeObject(msg);
         }
     }
 

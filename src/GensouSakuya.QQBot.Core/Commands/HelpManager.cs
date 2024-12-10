@@ -20,7 +20,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 descDic = Config.GroupCommandDesc;
             }
-            else if (source.Type == MessageSourceType.Private)
+            else if (source.Type == MessageSourceType.Private || source.Type == MessageSourceType.Friend)
             {
                 descDic = Config.PrivateCommandDesc;
             }

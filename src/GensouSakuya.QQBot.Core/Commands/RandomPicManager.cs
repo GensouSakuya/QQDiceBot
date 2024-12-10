@@ -137,7 +137,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     var img = System.Drawing.Image.FromStream(await imgRes.Content.ReadAsStreamAsync());
                     var fileName = jsonRes.file_url.Split('/').Last();
 
-                    var dir = Path.Combine(Config.DataPath, "image");
+                    var dir = Path.Combine(DataManager.DataPath, "image");
                     var path = Path.Combine(dir, fileName);
                     if (!Directory.Exists(dir))
                     {
