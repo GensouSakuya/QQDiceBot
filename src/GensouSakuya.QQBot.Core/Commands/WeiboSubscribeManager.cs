@@ -22,7 +22,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
         public override async System.Threading.Tasks.Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
-            WeiboSubscribeModel sbm;
+            SubscribeModel sbm;
             if (source.Type == MessageSourceType.Group)
             {
                 if (member.QQ != DataManager.Instance.AdminQQ)
@@ -31,7 +31,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 }
 
-                sbm = new WeiboSubscribeModel
+                sbm = new SubscribeModel
                 {
                     Source = MessageSourceType.Group,
                     SourceId = source.GroupId
@@ -45,7 +45,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 }
 
-                sbm = new WeiboSubscribeModel
+                sbm = new SubscribeModel
                 {
                     Source = MessageSourceType.Guild,
                     SourceId = $"{source.GuildId}+{source.ChannelId}"
@@ -59,7 +59,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 }
 
-                sbm = new WeiboSubscribeModel
+                sbm = new SubscribeModel
                 {
                     Source = MessageSourceType.Friend,
                     SourceId = source.QQ
@@ -81,7 +81,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
             if (first == "subscribe")
             {
-                var sub = Subscribers.GetOrAdd(roomId, new ConcurrentDictionary<string, WeiboSubscribeModel>());
+                var sub = Subscribers.GetOrAdd(roomId, new ConcurrentDictionary<string, SubscribeModel>());
                 if (sub.ContainsKey(sbm.ToString()))
                 {
                     MessageManager.SendToSource(source, "该微博已订阅");
@@ -114,15 +114,15 @@ namespace GensouSakuya.QQBot.Core.Commands
             return;
         }
         
-        private static ConcurrentDictionary<string, ConcurrentDictionary<string, WeiboSubscribeModel>> _subscribers { get; set; }
-        public static ConcurrentDictionary<string, ConcurrentDictionary<string, WeiboSubscribeModel>> Subscribers
+        private static ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> _subscribers { get; set; }
+        public static ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> Subscribers
         {
             get => _subscribers;
             set
             {
                 if (value == null)
                 {
-                    _subscribers = new ConcurrentDictionary<string, ConcurrentDictionary<string, WeiboSubscribeModel>>();
+                    _subscribers = new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
                 }
                 else
                 {
@@ -340,29 +340,6 @@ namespace GensouSakuya.QQBot.Core.Commands
             text = _fullTextRegex.Replace(text, Environment.NewLine + "[完整内容见原微博:m点weibo点cn$1]");
             text = _repostRegex.Replace(text, "$2");
             return text;
-        }
-    }
-
-    public class WeiboSubscribeModel
-    {
-        public MessageSourceType Source { get; set; }
-        public string SourceId { get; set; }
-
-        public override bool Equals(object obj)
-        {
-            return obj is WeiboSubscribeModel model &&
-                   Source == model.Source &&
-                   SourceId == model.SourceId;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Source, SourceId);
-        }
-
-        public override string ToString()
-        {
-            return $"{Source}:{SourceId}";
         }
     }
 }

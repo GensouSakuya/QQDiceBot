@@ -89,6 +89,10 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                     {
                         builder.At(am.QQ);
                     }
+                    else if( p is Core.PlatformModel.JsonMessage jm)
+                    {
+                        builder.Json(jm.Json);
+                    }
                     //else if (p is Core.PlatformModel.QuoteMessage qm)
                     //{
                     //    builder = builder.Add(new Mirai_CSharp.Models.QuoteMessage(qm.QQ));
@@ -102,6 +106,8 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                     }
                 });
                 var msg = builder.Build();
+                if (msg.Count == 0)
+                    return;
                 switch (m.Type)
                 {
                     case Core.PlatformModel.MessageSourceType.Group:
