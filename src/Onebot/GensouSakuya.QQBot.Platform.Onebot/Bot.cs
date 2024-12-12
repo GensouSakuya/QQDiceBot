@@ -77,7 +77,12 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                             //拷贝到当前临时目录下，发送成功后删除
                             var fileName = Path.GetFileName(im.ImagePath);
                             fileName = fileName.Replace("[", "").Replace("]", "");
-                            var newFile = Path.Combine(Environment.CurrentDirectory, @"data\images", fileName);
+                            var dir = Path.Combine(Environment.CurrentDirectory, $@"data{Path.PathSeparator}images");
+                            if (!Directory.Exists(dir))
+                            {
+                                Directory.CreateDirectory(dir);
+                            }
+                            var newFile = Path.Combine(dir, fileName);
                             File.Copy(im.ImagePath, newFile);
                             im.ImagePath = fileName;
                             deleteFile = newFile;
