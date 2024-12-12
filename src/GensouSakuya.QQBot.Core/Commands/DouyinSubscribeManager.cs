@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
@@ -153,6 +154,11 @@ namespace GensouSakuya.QQBot.Core.Commands
                         _completionSource = new TaskCompletionSource<bool>();
                     using (var client = new RestClient())
                     {
+                        if(!Subscribers.Any())
+                        {
+                            await Task.WhenAny(Task.Delay(loopSpan), _completionSource.Task);
+                            continue;
+                        }
                         try
                         {
                             client.AddDefaultHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36 Edg/119.0.0.0");
