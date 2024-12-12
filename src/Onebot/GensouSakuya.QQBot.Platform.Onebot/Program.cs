@@ -7,7 +7,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
         {
             if(args.Length <2) 
             {
-                Console.WriteLine(".\bot.exe [onebotHost] [qq]");
+                Console.WriteLine(".\\bot.exe [onebotHost] [qq]");
                 return;
             }
             var host = args[0];

@@ -22,7 +22,10 @@ namespace GensouSakuya.QQBot.Platform.Onebot
         private readonly ILogger _logger;
         public Bot(string host)
         {
-            _configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            _configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: true)
+                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
+                .Build();
             host = host.StartsWith("ws") ? host : $"ws://{host}";
             _logger = _loggerFactory.CreateLogger<Bot>();
             _bot = OneBot.Websocket(host);
@@ -48,7 +51,8 @@ namespace GensouSakuya.QQBot.Platform.Onebot
 
         public async Task Start(long qq)
         {
-            await Main.Init(qq, _configuration["DataPath"]);
+            var dataPath = _configuration["DataPath"];
+            await Main.Init(qq, dataPath);
             //var url = "http://localhost:5202";
             //_webApplication.Run(url);
             //_logger.LogInformation($"弹幕设置页面:{url}/index.html");

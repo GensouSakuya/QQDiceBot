@@ -83,11 +83,10 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public static async Task Init(long qq, string dataPath = null)
         {
-            DataPath = string.IsNullOrWhiteSpace(dataPath) ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".QQBot", "net.gensousakuya.dice") : dataPath;
+            DataPath = string.IsNullOrWhiteSpace(dataPath) ? "data" : dataPath;
+            _logger.Info("数据目录：{0}", DataPath);
             QQ = qq;
             await Load();
-
-            Instance ??= new DataManager();
 
             await GroupMemberManager.StartLoadTask();
             await UserManager.StartLoadTask();
@@ -188,7 +187,10 @@ namespace GensouSakuya.QQBot.Core.Base
             }
             else
             {
-                _logger.Debug("not found" + path);
+                _logger.Debug("not found {0}, generate new config file", path);
+                Instance = new DataManager();
+                Instance.UpdateData();
+                await DataManager.Save();
             }
 
             if (!Directory.Exists(TempPath))

@@ -59,6 +59,10 @@ namespace GensouSakuya.QQBot.Core
         {
             _logger.Debug(message);
         }
+        public void Debug(string messageTemplate, params object[] args)
+        {
+            _logger.Debug(messageTemplate, args);
+        }
 
         public void Fatal(string message)
         {

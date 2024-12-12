@@ -253,3 +253,4 @@ __pycache__/
 /src/Tools/GensouSakuya.QQBot.Platform.Mirai.StartTool/Properties/launchSettings.json
 /src/Onebot/GensouSakuya.QQBot.Platform.Onebot/Properties/launchSettings.json
 /src/Onebot/GensouSakuya.QQBot.Platform.Onebot/logs
+/src/Onebot/GensouSakuya.QQBot.Platform.Onebot/appsettings.Development.json
