@@ -42,6 +42,13 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             });
             _bot.MessageReceived.AtGroup().Subscribe(async msg => await GroupMessage(msg));
             _bot.MessageReceived.AtPrivate().Subscribe(async msg => await FriendMessage(msg));
+            _bot.NoticeReceived.Subscribe(msg =>
+            {
+                if (msg.NoticeType == "bot_offline")
+                {
+                    _logger.LogWarning("QQ被踢下线了");
+                }
+            });
             EventCenter.SendMessage += SendMessage;
             EventCenter.GetGroupMemberList += GetGroupMemberList;
             EventCenter.Log += log => { Console.WriteLine(log.Message); };
