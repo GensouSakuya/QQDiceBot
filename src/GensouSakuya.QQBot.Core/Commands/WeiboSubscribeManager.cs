@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
+using GensouSakuya.QQBot.Core.Helpers;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
 using net.gensousakuya.dice;
@@ -139,12 +140,6 @@ namespace GensouSakuya.QQBot.Core.Commands
             Task.Run(() => LoopCheck(_cancellationTokenSource.Token));
         }
 
-        //正则参考rsshub：https://github.com/DIYgod/RSSHub/blob/master/lib/routes/weibo/utils.ts
-        static System.Text.RegularExpressions.Regex _faceRegex = new System.Text.RegularExpressions.Regex("<span class=[\"']url-icon[\"']><img\\s[^>]*?alt=[\"']?([^>]+?)[\"']?\\s[^>]*?\\/?><\\/span>");
-        static System.Text.RegularExpressions.Regex _newLineRegex = new System.Text.RegularExpressions.Regex("<br\\s/>");
-        static System.Text.RegularExpressions.Regex _fullTextRegex = new System.Text.RegularExpressions.Regex("<a href=\"(.*?)\">全文<\\/a>");
-        static System.Text.RegularExpressions.Regex _repostRegex = new System.Text.RegularExpressions.Regex("<a href='\\/n\\/(.*?)'>(.*?)<\\/a>");
-
         private static TaskCompletionSource<bool> _completionSource = new TaskCompletionSource<bool>();
 
         private static ConcurrentDictionary<string, ConcurrentQueue<string>> _lastWeiboId;
@@ -226,7 +221,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 _logger.Info("weibo[{0}] start sending notice", room.Key);
 
                                 var isRepost = retweeted != null;
-                                text = HandleHtml(text);
+                                text = WeiboHelper.FilterHtml(text);
 
                                 var messages = new List<BaseMessage>();
 
@@ -240,7 +235,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 else
                                 {
                                     var retweetedText = retweeted["text"]?.ToString();
-                                    retweetedText = HandleHtml(retweetedText);
+                                    retweetedText = WeiboHelper.FilterHtml(retweetedText);
                                     msg = $"【{name}】转发了微博：{msgBody}{Environment.NewLine}原微博：{Environment.NewLine}@{retweeted["user"]["screen_name"]}：{retweetedText}";
                                 }
 
@@ -331,15 +326,6 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 _logger.Error(e, "weibo loop error");
             }
-        }
-
-        private static string HandleHtml(string originText)
-        {
-            var text = _faceRegex.Replace(originText, "$1");
-            text = _newLineRegex.Replace(text, Environment.NewLine);
-            text = _fullTextRegex.Replace(text, Environment.NewLine + "[完整内容见原微博:m点weibo点cn$1]");
-            text = _repostRegex.Replace(text, "$2");
-            return text;
         }
     }
 }
