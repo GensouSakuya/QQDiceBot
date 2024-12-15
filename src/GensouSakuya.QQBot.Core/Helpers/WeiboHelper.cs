@@ -19,7 +19,7 @@ namespace GensouSakuya.QQBot.Core.Helpers
             text = _newLineRegex.Replace(text, Environment.NewLine);
             text = _tagRegex.Replace(text, "$1");
             text = _videoRegex.Replace(text, "$2($1)");
-            text = _fullTextRegex.Replace(text, Environment.NewLine + "[完整内容见原微博:m点weibo点cn$1]");
+            text = _fullTextRegex.Replace(text, Environment.NewLine + "[完整内容见原微博:https://m.weibo.cn$1]");
             text = _repostRegex.Replace(text, "$1");
             return text;
         }

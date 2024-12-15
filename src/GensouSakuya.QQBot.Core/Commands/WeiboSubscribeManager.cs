@@ -168,7 +168,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 var res = await client.GetAsync(new RestRequest(url));
                                 if (!res.IsSuccessStatusCode)
                                 {
-                                    _logger.Error(res.ErrorException, "get roominfo failed");
+                                    _logger.Error(res.ErrorException, "get weibo profile failed");
                                     continue;
                                 }
                                 var content = res.Content;
@@ -176,6 +176,11 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 var name = jobj["data"]["userInfo"]["screen_name"];
                                 var containerid = jobj["data"]["tabsInfo"]["tabs"][1]["containerid"];
                                 res = await client.ExecuteGetAsync(new RestRequest(url + "&containerid=" + containerid));
+                                if (!res.IsSuccessStatusCode)
+                                {
+                                    _logger.Error(res.ErrorException, "get weibo list failed");
+                                    continue;
+                                }
                                 content = res.Content;
                                 jobj = JObject.Parse(content);
                                 var weibos = jobj["data"]["cards"];
@@ -224,19 +229,17 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 text = WeiboHelper.FilterHtml(text);
 
                                 var messages = new List<BaseMessage>();
-
-                                var msgBody = $"{Environment.NewLine}{text}";
-
+                                
                                 var msg = "";
                                 if (!isRepost)
                                 {
-                                    msg = $"【{name}】发布了微博：{msgBody}";
+                                    msg = $"{name}发布了微博：{Environment.NewLine}{text}";
                                 }
                                 else
                                 {
                                     var retweetedText = retweeted["text"]?.ToString();
                                     retweetedText = WeiboHelper.FilterHtml(retweetedText);
-                                    msg = $"【{name}】转发了微博：{msgBody}{Environment.NewLine}原微博：{Environment.NewLine}@{retweeted["user"]["screen_name"]}：{retweetedText}";
+                                    msg = $"{name}转发了微博：{Environment.NewLine}{text}{Environment.NewLine}原微博：{Environment.NewLine}@{retweeted["user"]["screen_name"]}：{retweetedText}";
                                 }
 
                                 messages.Add(new TextMessage(msg));
