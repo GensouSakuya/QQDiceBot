@@ -83,11 +83,18 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
         /// 接收用
         /// </summary>
         public string ImageId{ get; set; }
-        public ImageMessage(string path = null,string url = null,string imageId=null)
+
+        /// <summary>
+        /// 是否是临时文件，如果不是。那么发送时拷贝到临时目录再进行发送
+        /// </summary>
+        public bool IsTempImg { get; set; }
+
+        public ImageMessage(string path = null,string url = null,string imageId=null, bool isTemp = true)
         {
             ImagePath = path;
             Url = url;
             ImageId = imageId;
+            IsTempImg = isTemp;
         }
     }
 

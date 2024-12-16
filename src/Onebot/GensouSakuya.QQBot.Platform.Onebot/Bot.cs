@@ -14,6 +14,9 @@ namespace GensouSakuya.QQBot.Platform.Onebot
         public OneBot OneBot => _bot;
 
         private IConfiguration _configuration;
+        private bool _isRunningInContainer;
+        private string _containerPathPrefix;
+        private string _volumePathPrefix;
 
         private readonly static ILoggerFactory _loggerFactory = LoggerFactory.Create(p =>
         {
@@ -59,6 +62,16 @@ namespace GensouSakuya.QQBot.Platform.Onebot
         public async Task Start(long qq)
         {
             var dataPath = _configuration["DataPath"];
+            _isRunningInContainer = bool.TryParse(_configuration["IsRunningInContainer"], out var result) ? result : _isRunningInContainer;
+            if(_isRunningInContainer)
+            {
+                _containerPathPrefix = _configuration["ContainerPathPrefix"];
+                _volumePathPrefix = _configuration["VolumePathPrefix"];
+                if (!Directory.Exists(_volumePathPrefix))
+                {
+                    Directory.CreateDirectory(_volumePathPrefix);
+                }
+            }
             await Main.Init(qq, dataPath);
             //var url = "http://localhost:5202";
             //_webApplication.Run(url);
@@ -79,20 +92,32 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                         builder.Text(tm.Text);
                     else if (p is Core.PlatformModel.ImageMessage im)
                     {
-                        if (!string.IsNullOrWhiteSpace(im.ImagePath))
+                        if (!string.IsNullOrWhiteSpace(im.ImagePath) && !im.IsTempImg)
                         {
                             //拷贝到当前临时目录下，发送成功后删除
                             var fileName = Path.GetFileName(im.ImagePath);
                             fileName = fileName.Replace("[", "").Replace("]", "");
-                            var dir = Path.Combine(Environment.CurrentDirectory, $@"data{Path.PathSeparator}images");
-                            if (!Directory.Exists(dir))
+                            //容器部署的话需要将文件拷贝到挂载目录下，并配置路径为容器目录
+                            if (_isRunningInContainer)
                             {
-                                Directory.CreateDirectory(dir);
+                                var localPath = Path.Combine(_volumePathPrefix, fileName);
+                                File.Copy(im.ImagePath, localPath);
+                                var containerPath = Path.Combine(_containerPathPrefix, fileName);
+                                im.ImagePath = containerPath;
+                                deleteFile = localPath;
                             }
-                            var newFile = Path.Combine(dir, fileName);
-                            File.Copy(im.ImagePath, newFile);
-                            im.ImagePath = fileName;
-                            deleteFile = newFile;
+                            else
+                            {
+                                var dir = Path.Combine(Environment.CurrentDirectory, $@"data{Path.PathSeparator}images");
+                                if (!Directory.Exists(dir))
+                                {
+                                    Directory.CreateDirectory(dir);
+                                }
+                                var newFile = Path.Combine(dir, fileName);
+                                File.Copy(im.ImagePath, newFile);
+                                im.ImagePath = newFile;
+                                deleteFile = newFile;
+                            }
                         }
                         else if (!string.IsNullOrWhiteSpace(im.Url))
                         {

@@ -72,44 +72,51 @@ namespace GensouSakuya.QQBot.Core.Commands
                 return;
             }
 
-            if(command.Count < 2)
+            if (command.Count < 1)
             {
                 return;
             }
 
             var first = command[0];
-            var roomId = command[1];
-
-            if (first == "subscribe")
-            {
-                var sub = Subscribers.GetOrAdd(roomId, new ConcurrentDictionary<string, SubscribeModel>());
-                if (sub.ContainsKey(sbm.ToString()))
-                {
-                    MessageManager.SendToSource(source, "该微博已订阅");
-                    return;
-                }
-
-                sub[sbm.ToString()] = sbm;
-                MessageManager.SendToSource(source, "订阅成功！");
-                DataManager.Instance.NoticeConfigUpdated();
-                return;
-            }
-            else if (first == "unsubscribe")
-            {
-                if(!Subscribers.TryGetValue(roomId, out var sub))
-                {
-                    return;
-                }
-                if(sub.Remove(sbm.ToString(), out _))
-                {
-                    MessageManager.SendToSource(source, "取消订阅成功！");
-                    DataManager.Instance.NoticeConfigUpdated();
-                }
-                return;
-            }
-            else if(first == "trigger")
+            if (first == "trigger")
             {
                 _completionSource.TrySetResult(true);
+            }
+            else
+            {
+                if (command.Count < 2)
+                {
+                    return;
+                }
+                var roomId = command[1];
+
+                if (first == "subscribe")
+                {
+                    var sub = Subscribers.GetOrAdd(roomId, new ConcurrentDictionary<string, SubscribeModel>());
+                    if (sub.ContainsKey(sbm.ToString()))
+                    {
+                        MessageManager.SendToSource(source, "该微博已订阅");
+                        return;
+                    }
+
+                    sub[sbm.ToString()] = sbm;
+                    MessageManager.SendToSource(source, "订阅成功！");
+                    DataManager.Instance.NoticeConfigUpdated();
+                    return;
+                }
+                else if (first == "unsubscribe")
+                {
+                    if (!Subscribers.TryGetValue(roomId, out var sub))
+                    {
+                        return;
+                    }
+                    if (sub.Remove(sbm.ToString(), out _))
+                    {
+                        MessageManager.SendToSource(source, "取消订阅成功！");
+                        DataManager.Instance.NoticeConfigUpdated();
+                    }
+                    return;
+                }
             }
 
             return;
@@ -147,7 +154,7 @@ namespace GensouSakuya.QQBot.Core.Commands
         {
             try
             {
-                await Task.Delay(5000);
+                await Task.WhenAny(Task.Delay(5000), _completionSource.Task);
                 var loopSpan = new TimeSpan(0, 10, 0);
                 var intervalSpan = new TimeSpan(0, 0, 10);
                 var templateUrl = "https://m.weibo.cn/api/container/getIndex?type=uid&value={0}";
@@ -261,7 +268,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                                 await imgStream.CopyToAsync(fileStream);
                                             }
 
-                                            messages.Add(new ImageMessage(path: savedPath));
+                                            messages.Add(new ImageMessage(path: savedPath, isTemp:false));
                                             tempImagePaths.Add(savedPath);
                                         }
                                         catch(Exception e)
