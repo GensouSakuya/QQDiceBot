@@ -33,11 +33,11 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             {
                 if(msg is GroupMessageReceiver gmr)
                 {
-                    Console.WriteLine($"收到来自群[{gmr.GroupId}]成员[{gmr.Sender.Nickname}:{gmr.UserId}]的消息:{gmr.RawMessage}");
+                    _logger.LogInformation("收到来自群[{0}]成员[{1}:{2}]的消息:{3}",gmr.GroupId,gmr.Sender.Nickname,gmr.UserId,gmr.RawMessage);
                 }
                 else if(msg is PrivateMessageReceiver pmr)
                 {
-                    Console.WriteLine($"收到来自私聊[{pmr.UserId}]的消息:{pmr.RawMessage}");
+                    _logger.LogInformation("收到来自私聊[{0}]的消息:{1}", pmr.UserId, pmr.RawMessage);
                 }
             });
             _bot.MessageReceived.AtGroup().Subscribe(async msg => await GroupMessage(msg));
