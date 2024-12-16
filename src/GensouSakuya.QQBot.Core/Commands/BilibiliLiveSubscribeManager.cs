@@ -177,7 +177,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                             try
                             {
                                 var url = string.Format(apiTemplateUrl, room.Key);
-                                var res = await client.GetAsync(new RestRequest(url));
+                                var res = await client.ExecuteAsync(new RestRequest(url, Method.Get));
                                 if (!res.IsSuccessStatusCode)
                                 {
                                     _logger.Error(res.ErrorException, "get roominfo failed");
