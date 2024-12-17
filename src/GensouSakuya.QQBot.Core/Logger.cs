@@ -1,5 +1,4 @@
-﻿using GensouSakuya.QQBot.Core.Base;
-using Serilog;
+﻿using Serilog;
 using System;
 using System.IO;
 

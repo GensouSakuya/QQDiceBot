@@ -31,7 +31,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                 .Build();
             host = host.StartsWith("ws") ? host : $"ws://{host}";
             _logger = _loggerFactory.CreateLogger<Bot>();
-            _bot = OneBot.Websocket(host);
+            _bot = new OneBot(new WebsocketOneBotHandler(host));
             _bot.MessageReceived.Subscribe(msg =>
             {
                 if(msg is GroupMessageReceiver gmr)
