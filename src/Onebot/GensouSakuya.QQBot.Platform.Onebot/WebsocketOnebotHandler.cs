@@ -47,7 +47,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                 }
                 return nativeClient;
             });
-            _client.DisconnectionHappened.Subscribe(async p => await ReconnectAsync(p, _source.Token));
+            //_client.DisconnectionHappened.Subscribe(async p => await ReconnectAsync(p, _source.Token));
             _client.MessageReceived.Subscribe(async p => await Received(p));
             _client.Start().ConfigureAwait(false).GetAwaiter().GetResult();
         }
