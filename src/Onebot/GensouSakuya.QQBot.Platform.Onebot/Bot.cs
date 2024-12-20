@@ -4,6 +4,7 @@ using Mliybs.OneBot.V11;
 using Mliybs.OneBot.V11.Data.Receivers.Messages;
 using Mliybs.OneBot.V11.Data.Messages;
 using Newtonsoft.Json;
+using System.Diagnostics;
 
 namespace GensouSakuya.QQBot.Platform.Onebot
 {
@@ -17,6 +18,9 @@ namespace GensouSakuya.QQBot.Platform.Onebot
         private bool _isRunningInContainer;
         private string _containerPathPrefix;
         private string _volumePathPrefix;
+        private string _offlineScript;
+
+        private CancellationTokenSource _heartbeatCancellationTokenSource;
 
         private readonly static ILoggerFactory _loggerFactory = LoggerFactory.Create(p =>
         {
@@ -56,6 +60,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             EventCenter.GetGroupMemberList += GetGroupMemberList;
             EventCenter.Log += log => { Console.WriteLine(log.Message); };
 
+            _heartbeatCancellationTokenSource = new CancellationTokenSource();
             //_webApplication = LiveChatHelper.Generate(_session).GetAwaiter().GetResult();
         }
 
@@ -73,6 +78,11 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                 }
             }
             await Main.Init(qq, dataPath);
+            _offlineScript = _configuration["OfflineRestartScript"];
+            if (!string.IsNullOrWhiteSpace(_offlineScript))
+            {
+                _ = Task.Run(async () => await HeartbeatAsync(_heartbeatCancellationTokenSource.Token));
+            }
             //var url = "http://localhost:5202";
             //_webApplication.Run(url);
             //_logger.LogInformation($"弹幕设置页面:{url}/index.html");
@@ -285,9 +295,43 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             }
         }
 
-        private static string ReceiverToString(MessageReceiver msg)
+        private async Task HeartbeatAsync(CancellationToken token)
         {
-            return JsonConvert.SerializeObject(msg);
+            try
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    try
+                    {
+                        var status = await _bot.GetStatus();
+                        if (status.Online == false)
+                        {
+                            var process = new Process
+                            {
+                                StartInfo = new ProcessStartInfo
+                                {
+                                    FileName = "sh",
+                                    Arguments = $"-c \"{_offlineScript}\""
+                                }
+                            };
+                            process.Start();
+                            process.WaitForExit();
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError("heartbeat failed: {0}", e.Message);
+                    }
+                    finally
+                    {
+                        await Task.Delay(30000, token);
+                    }
+                }
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e, "heartbeat error, stopped");
+            }
         }
     }
 
