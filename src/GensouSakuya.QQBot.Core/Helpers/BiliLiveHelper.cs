@@ -23,7 +23,9 @@ namespace GensouSakuya.QQBot.Core.Helpers
                 var chromeOpt = new ChromeOptions();
                 chromeOpt.AddArgument("--headless");
                 chromeOpt.AddArgument("--no-sandbox");
+                chromeOpt.AddArgument("--disable-gpu");
                 chromeOpt.AddArgument("--disable-dev-shm-usage");
+                chromeOpt.AddArgument("--remote-debugging-port=9222");
                 chromeOpt.AddArgument($"--user-data-dir={ChromeDataPath}");
                 string html;
                 using (var driver = new ChromeDriver(chromeOpt))
