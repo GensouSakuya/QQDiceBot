@@ -4,6 +4,7 @@ using System.IO;
 
 namespace GensouSakuya.QQBot.Core
 {
+    [Obsolete("旧版不再维护，逐渐向新版迁移")]
     public class Logger
     {
         static Logger()

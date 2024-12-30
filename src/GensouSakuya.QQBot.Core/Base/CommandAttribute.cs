@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace net.gensousakuya.dice
+namespace GensouSakuya.QQBot.Core.Base
 {
-    public class CommandAttribute:Attribute
+    public class CommandAttribute : Attribute
     {
         public string Command { get; }
         public CommandAttribute(string command)

@@ -11,14 +11,15 @@ namespace GensouSakuya.QQBot.Platform.Onebot
     public class Bot
     {
         private OneBot _bot;
+        private Core.Core _qqbotCore;
 
         public OneBot OneBot => _bot;
 
         private IConfiguration _configuration;
         private bool _isRunningInContainer;
-        private string _containerPathPrefix;
-        private string _volumePathPrefix;
-        private string _offlineScript;
+        private string? _containerPathPrefix;
+        private string? _volumePathPrefix;
+        private string? _offlineScript;
 
         private CancellationTokenSource _heartbeatCancellationTokenSource;
 
@@ -56,11 +57,9 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                     _logger.LogWarning("QQ被踢下线了");
                 }
             });
-            EventCenter.SendMessage += SendMessage;
-            EventCenter.GetGroupMemberList += GetGroupMemberList;
-            EventCenter.Log += log => { Console.WriteLine(log.Message); };
 
             _heartbeatCancellationTokenSource = new CancellationTokenSource();
+            _qqbotCore = new Core.Core();
             //_webApplication = LiveChatHelper.Generate(_session).GetAwaiter().GetResult();
         }
 
@@ -77,7 +76,11 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                     Directory.CreateDirectory(_volumePathPrefix);
                 }
             }
-            await Main.Init(qq, dataPath);
+            await _qqbotCore.Init(qq, new Core.PlatformModel.PlatformApiModel
+            {
+                SendMessage = SendMessage,
+                GetGroupMemberList = GetGroupMemberList,
+            }, dataPath);
             _offlineScript = _configuration["OfflineRestartScript"];
             if (!string.IsNullOrWhiteSpace(_offlineScript))
             {
@@ -88,7 +91,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             //_logger.LogInformation($"弹幕设置页面:{url}/index.html");
         }
 
-        private async void SendMessage(Core.PlatformModel.Message m)
+        private async Task SendMessage(Core.PlatformModel.Message m)
         {
             string deleteFile = null;
             try
@@ -254,7 +257,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                     Id = e.Sender.UserId ?? throw new InvalidDataException("group message sender without userid"),
                     Nick = e.Sender.Nickname
                 });
-                await CommandCenter.Execute(Core.Model.MessageSource.FromGroup(e.Sender.UserId.ToString(), e.GroupId.ToString(), e.Sender), command, message);
+                await _qqbotCore.HandlerMessage(Core.Model.MessageSource.FromGroup(e.Sender.UserId.ToString(), e.GroupId.ToString(), e.Sender), command, message);
                 return true;
             }
             catch (Exception ex)
@@ -273,7 +276,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                 {
                     Id = e.UserId
                 });
-                await CommandCenter.Execute(Core.Model.MessageSource.FromFriend(e.Sender.UserId.ToString(), e.Sender), command, message);
+                await _qqbotCore.HandlerMessage(Core.Model.MessageSource.FromFriend(e.Sender.UserId.ToString(), e.Sender), command, message);
                 return true;
             }
             catch (Exception ex)

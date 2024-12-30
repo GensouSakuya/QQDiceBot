@@ -5,7 +5,7 @@ using GensouSakuya.QQBot.Core.PlatformModel;
 
 namespace GensouSakuya.QQBot.Core
 {
-    public class EventCenter
+    internal class EventCenter
     {
         public static Action<Log> Log { get; set; }
 
@@ -15,6 +15,6 @@ namespace GensouSakuya.QQBot.Core
         public static Func<long, long, Task<GroupMemberSourceInfo>> GetGroupMember { get; set; }
         public static Func<string, string, Task<GuildMemberSourceInfo>> GetGuildMember { get; set; }
 
-        public static Func<long, QQSourceInfo> GetQQInfo { get; set; }
+        public static Func<long, Task<QQSourceInfo>> GetQQInfo { get; set; }
     }
 }

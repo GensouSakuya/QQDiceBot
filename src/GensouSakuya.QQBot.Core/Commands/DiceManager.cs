@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using GensouSakuya.QQBot.Core.Base;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
 

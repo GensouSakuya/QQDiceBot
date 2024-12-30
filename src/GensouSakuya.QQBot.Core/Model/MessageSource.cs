@@ -1,4 +1,5 @@
 ﻿using GensouSakuya.QQBot.Core.PlatformModel;
+using System;
 
 namespace GensouSakuya.QQBot.Core.Model
 {
@@ -6,7 +7,9 @@ namespace GensouSakuya.QQBot.Core.Model
     {
         public MessageSourceType Type { get; private set; }
         public string QQ { get; private set; }
+        public Lazy<long> QQNum { get; private set; }
         public string GroupId { get; private set; }
+        public Lazy<long> GroupIdNum { get; private set; }
         public string GuildId { get; private set; }
         public string ChannelId { get; private set; }
 
@@ -14,7 +17,11 @@ namespace GensouSakuya.QQBot.Core.Model
 
         public bool IsTraditionSource => Type != MessageSourceType.Guild;
 
-        private MessageSource() { }
+        private MessageSource() 
+        {
+            GroupIdNum = new Lazy<long>(() => long.Parse(GroupId));
+            QQNum = new Lazy<long>(() => long.Parse(QQ));
+        }
 
         public static MessageSource FromGroup(string userId, string groupId, dynamic sender)
         {

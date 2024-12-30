@@ -21,9 +21,9 @@ namespace GensouSakuya.QQBot.Core.Commands
     [Command("bililive")]
     public class BilibiliLiveSubscribeManager : BaseManager
     {
-        private static readonly  Logger _logger = Logger.GetLogger<BilibiliLiveSubscribeManager>();
+        private static readonly Logger _logger = Logger.GetLogger<BilibiliLiveSubscribeManager>();
 
-        public override async System.Threading.Tasks.Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
+        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
         {
             SubscribeModel sbm;
 
@@ -120,10 +120,10 @@ namespace GensouSakuya.QQBot.Core.Commands
                     return;
                 }
             }
-           
+
             return;
         }
-        
+
         private static ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> _subscribers { get; set; }
         public static ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> Subscribers
         {
@@ -232,7 +232,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 }
                                 else
                                 {
-                                    if(_notFireAgainList.TryRemove(room.Key, out _))
+                                    if (_notFireAgainList.TryRemove(room.Key, out _))
                                     {
                                         _logger.Info("bililive[{0}] flag removed", room.Key);
                                     }
@@ -252,7 +252,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 }
                 _logger.Error("loop finished");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.Error(e, "bililive loop error");
             }

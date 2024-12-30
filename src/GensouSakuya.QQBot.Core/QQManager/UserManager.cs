@@ -13,12 +13,12 @@ namespace GensouSakuya.QQBot.Core.QQManager
     {
         private static readonly Logger _logger = Logger.GetLogger<UserManager>();
         public static ConcurrentDictionary<long,UserInfo> Users { get; set; } = new ConcurrentDictionary<long,UserInfo>();
-        public static UserInfo Get(long qq)
+        public static async Task<UserInfo> Get(long qq)
         {
             if (Users.TryGetValue(qq, out var user))
                 return user;
 
-            var qqInfo = PlatformManager.Info.GetQQInfo(qq);
+            var qqInfo = await PlatformManager.Info.GetQQInfo(qq);
 
             return Add(qqInfo);
         }
@@ -59,7 +59,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
                         {
                             try
                             {
-                                var qqInfo = PlatformManager.Info.GetQQInfo(qq);
+                                var qqInfo = await PlatformManager.Info.GetQQInfo(qq);
                                 if (qqInfo == null)
                                     continue;
 

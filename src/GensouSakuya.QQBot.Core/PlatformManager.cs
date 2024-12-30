@@ -11,12 +11,12 @@ namespace GensouSakuya.QQBot.Core
         private static readonly Logger _logger = Logger.GetLogger<PlatformManager>();
         public class Info
         {
-            public static QQSourceInfo GetQQInfo(long qq)
+            public static async Task<QQSourceInfo> GetQQInfo(long qq)
             {
                 if (EventCenter.GetQQInfo == null)
                     return null;
                 //后续逻辑若资源不存在应该抛出对应的异常
-                var res = EventCenter.GetQQInfo?.Invoke(qq);
+                var res = await EventCenter.GetQQInfo?.Invoke(qq);
                 if(res == null)
                 {
                     throw new QQNotExistsException(qq);
