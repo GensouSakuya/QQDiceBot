@@ -128,8 +128,8 @@ namespace GensouSakuya.QQBot.Core
         {
             if (api == null)
                 return;
-            EventCenter.SendMessage.Attach(api.SendMessage);
-            EventCenter.GetGroupMemberList.Attach(api.GetGroupMemberList);
+            EventCenter.SendMessage = api.SendMessage;
+            EventCenter.GetGroupMemberList = api.GetGroupMemberList;
         }
 
         private bool NeedIgnore(MessageSource source)

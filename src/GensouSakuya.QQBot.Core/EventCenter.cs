@@ -9,7 +9,7 @@ namespace GensouSakuya.QQBot.Core
     {
         public static Action<Log> Log { get; set; }
 
-        public static Action<Message> SendMessage { get; set; }
+        public static Func<Message, Task> SendMessage { get; set; }
 
         public static Func<long, Task<List<GroupMemberSourceInfo>>> GetGroupMemberList { get; set; }
         public static Func<long, long, Task<GroupMemberSourceInfo>> GetGroupMember { get; set; }

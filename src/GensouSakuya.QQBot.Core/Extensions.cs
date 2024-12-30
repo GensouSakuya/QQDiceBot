@@ -15,14 +15,6 @@ namespace GensouSakuya.QQBot.Core
             return !string.IsNullOrWhiteSpace(str);
         }
 
-        public static Delegate Attach(this Delegate baseAction, Delegate attached)
-        {
-            if (baseAction == null || attached == null)
-                return baseAction;
-            baseAction = attached;
-            return baseAction;
-        }
-
         public static bool IsGroupAdmin(this GroupMember gm)
         {
             return gm?.PermitType == PlatformModel.PermitType.Manage || gm?.PermitType == PlatformModel.PermitType.Holder;
