@@ -5,6 +5,13 @@ using System;
 using GensouSakuya.QQBot.Core.Base;
 using System.IO;
 using HtmlAgilityPack;
+using OpenQA.Selenium.DevTools;
+using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Threading;
+using OpenQA.Selenium.Chromium;
+using Newtonsoft.Json.Linq;
+using System.Linq;
 
 namespace GensouSakuya.QQBot.Core.Helpers
 {
@@ -12,7 +19,9 @@ namespace GensouSakuya.QQBot.Core.Helpers
     {
         private static readonly Logger _logger = Logger.GetLogger<BiliLiveHelper>();
         private static readonly string _spaceHtmlTemplateUrl = "https://space.bilibili.com/{0}";
+        private static readonly string _spaceDynamicTemplateUrl = "https://space.bilibili.com/{0}/dynamic";
         private static string ChromeDataPath => Path.Combine(DataManager.DataPath, "chrome");
+        private static int _chromePort = 9222;
 
         public static BiliLiveInfo GetBiliLiveInfo(ulong uid, bool retry = true)
         {
@@ -20,15 +29,8 @@ namespace GensouSakuya.QQBot.Core.Helpers
             {
                 var spaceUrl = string.Format(_spaceHtmlTemplateUrl, uid);
                 var model = new BiliLiveInfo();
-                var chromeOpt = new ChromeOptions();
-                chromeOpt.AddArgument("--headless");
-                chromeOpt.AddArgument("--no-sandbox");
-                chromeOpt.AddArgument("--disable-gpu");
-                chromeOpt.AddArgument("--disable-dev-shm-usage");
-                chromeOpt.AddArgument("--remote-debugging-port=9222");
-                chromeOpt.AddArgument($"--user-data-dir={ChromeDataPath}");
                 string html;
-                using (var driver = new ChromeDriver(chromeOpt))
+                using (var driver = GetChromeDriver())
                 {
                     try
                     {
@@ -73,6 +75,144 @@ namespace GensouSakuya.QQBot.Core.Helpers
                 }
             }
         }
+
+        public static async Task<List<BiliSpaceDynamic>> GetBiliSpaceDynm(string uid, bool retry = true)
+        {
+            try
+            {
+                List<BiliSpaceDynamic> dynamics = null;
+                var complementTask = new TaskCompletionSource<string>();
+                var spaceUrl = string.Format(_spaceDynamicTemplateUrl, uid);
+                var model = new BiliLiveInfo();
+                using (var driver = GetChromeDriver())
+                {
+                    try
+                    {
+                        string requestId = null;
+                        DevToolsSession session = driver.GetDevToolsSession();
+                        await session.Domains.Network.EnableNetwork();
+                        session.DevToolsEventReceived += Session_DevToolsEventReceived;
+                        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+                        void Session_DevToolsEventReceived(object? sender, DevToolsEventReceivedEventArgs e)
+                        {
+                            var type = e.EventData["type"]?.GetValue<string>();
+                            if (type != "Fetch")
+                                return;
+
+                            var url = e.EventData["response"]?["url"]?.GetValue<string>(); //?? e.EventData["request"]?["url"]?.GetValue<string>();
+                            //Console.WriteLine(url);
+                            if (url != null && url.StartsWith("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space"))
+                            {
+                                ////Console.WriteLine(e.EventData);
+                                requestId = e.EventData["requestId"]?.GetValue<string>();
+                                complementTask.SetResult("test");
+                                session.DevToolsEventReceived -= Session_DevToolsEventReceived;
+                            }
+                        }
+                        driver.Navigate().GoToUrl(spaceUrl);
+                        var dynamicjson = await complementTask.Task.WaitAsync(cancellationTokenSource.Token);
+
+                        if (requestId == null)
+                        {
+                            return dynamics;
+                        }
+                        await Task.Delay(5000);
+                        var response = driver.ExecuteCdpCommand("Network.getResponseBody", new Dictionary<string, object>() { { "requestId", requestId } }) as Dictionary<string, object>;
+                        if (response.TryGetValue("body", out object? bodyObj) && bodyObj != null)
+                        {
+                            dynamics = new List<BiliSpaceDynamic>();
+                            string body = bodyObj.ToString();
+                            var json = JObject.Parse(body);
+                            var items = json["data"]["items"].ToArray();
+                            foreach(var item in items)
+                            {
+                                var dync = GetDynamicFromJson(item);
+                                if (dync != null)
+                                    dynamics.Add(dync);
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        driver.Quit();
+                    }
+                }
+
+                return dynamics;
+            }
+            catch (Exception e)
+            {
+                _logger.Error(e, "GetBiliSpaceDynm failed");
+                if (retry)
+                {
+                    return await GetBiliSpaceDynm(uid, false);
+                }
+                else
+                {
+                    throw;
+                }
+            }
+        }
+
+        private static BiliSpaceDynamic GetDynamicFromJson(JToken item)
+        {
+            var dyn = new BiliSpaceDynamic();
+            dyn.Id = item["id_str"].Value<string>();
+            var type = item["type"].Value<string>();
+            var modules = item["modules"];
+            dyn.IsTop = modules["module_tag"]?["text"]?.Value<string>() == "置顶";
+            dyn.AuthorName = modules["module_author"]?["name"]?.Value<string>();
+            //图文动态 or 纯文本动态
+            if (type == "DYNAMIC_TYPE_DRAW" || type == "DYNAMIC_TYPE_WORD")
+            {
+                var major = modules["module_dynamic"]["major"];
+                var dynContent = major["opus"];
+                dyn.Images = dynContent["pics"]?.ToArray().Select(p => p["url"].Value<string>()).ToList();
+                dyn.Content = dynContent["summary"]["text"].Value<string>();
+            }
+            //视频动态
+            else if (type == "DYNAMIC_TYPE_AV")
+            {
+                var major = modules["module_dynamic"]["major"];
+                dyn.Images = new List<string> { major["archive"]["cover"].Value<string>() };
+                dyn.Content = "投稿了视频：" + major["archive"]["title"].Value<string>();
+            }
+            //转发动态
+            else if (type == "DYNAMIC_TYPE_FORWARD")
+            {
+                var desc = modules["module_dynamic"]["desc"];
+                dyn.Content = desc["text"].Value<string>();
+                dyn.IsRepost = true;
+                dyn.RepostOrigin = GetDynamicFromJson(item["orig"]);
+            }
+            else
+            {
+                return null;
+            }
+            return dyn;
+        }
+
+        private static ChromeDriver GetChromeDriver()
+        {
+            var port = _chromePort++;
+            if(_chromePort >= 9230)
+            {
+                _chromePort = 9222;
+            }
+            var chromeOpt = new ChromeOptions();
+            chromeOpt.AddArgument("--headless");
+            chromeOpt.AddArgument("--no-sandbox");
+            chromeOpt.AddArgument("--disable-gpu");
+            chromeOpt.AddArgument("--disable-dev-shm-usage");
+            chromeOpt.AddArgument($"--remote-debugging-port={port}");
+            chromeOpt.AddArgument($"--user-data-dir={ChromeDataPath}");
+            chromeOpt.SetLoggingPreference("performance", OpenQA.Selenium.LogLevel.Info); //启用performance日志，等级为Info即可
+            chromeOpt.PerformanceLoggingPreferences = new ChromiumPerformanceLoggingPreferences()
+            {
+                IsCollectingNetworkEvents = true //采集网络请求事件
+            };
+            return new ChromeDriver(chromeOpt);
+        }
     }
 
     internal class BiliLiveInfo
@@ -81,5 +221,18 @@ namespace GensouSakuya.QQBot.Core.Helpers
         public string Title { get; set; }
         public string Image { get; set; }
         public string UserName { get; set; }
+    }
+
+    internal class BiliSpaceDynamic
+    {
+        public string Id { get; set; }
+        public string Content { get; set; }
+        public bool IsTop { get; set; }
+        public List<string> Images { get; set; }
+
+        public bool IsRepost { get; set; }
+
+        public string AuthorName { get; set; }
+        public BiliSpaceDynamic RepostOrigin { get; set; }
     }
 }

@@ -59,6 +59,7 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> WeiboSubscribers { get; set; }
         public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> BiliLiveSubscribers { get; set; }
+        public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> BiliSpaceSubscribers { get; set; }
 
         public ConcurrentDictionary<long, string> QQBan { get; set; }
 
@@ -88,8 +89,10 @@ namespace GensouSakuya.QQBot.Core.Base
             QQ = qq;
             await Load();
 
-            await GroupMemberManager.StartLoadTask();
-            await UserManager.StartLoadTask();
+            if (EventCenter.GetGroupMemberList != null)
+                await GroupMemberManager.StartLoadTask();
+            if(EventCenter.GetQQInfo != null)
+                await UserManager.StartLoadTask();
         }
 
         private void RefreshData()
@@ -116,6 +119,7 @@ namespace GensouSakuya.QQBot.Core.Base
             GroupQWenConfig ??= new ConcurrentDictionary<long, bool>();
             QWenConfig ??= new QWenConfig();
             QWenLimig ??= new QWenLimit();
+            BiliSpaceSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
 
             GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
             GroupMembers?.ForEach(p =>
