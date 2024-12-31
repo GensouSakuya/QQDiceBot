@@ -36,31 +36,28 @@ namespace GensouSakuya.QQBot.Core.Helpers
                     {
                         driver.Navigate().GoToUrl(spaceUrl);
                         var wait = new WebDriverWait(driver, TimeSpan.FromSeconds(30));
-                        IWebElement element = wait.Until(p => p.FindElement(By.ClassName("i-live-on")));
-                        html = driver.PageSource;
+                        IWebElement element;
+                        try
+                        {
+                            //wait new style
+                            element = wait.Until(p => p.FindElement(By.ClassName("living-section")));
+                            html = driver.PageSource;
+                            return GetBiliLiveInfoV2(html);
+                        }
+                        catch (WebDriverTimeoutException)
+                        {
+                            //新版元素没找到，尝试找旧版
+                            element = wait.Until(p => p.FindElement(By.ClassName("i-live-on")));
+                            html = driver.PageSource;
+                            return GetBiliLiveInfoV1(html);
+                        }
                     }
                     finally
                     {
                         driver.Quit();
                     }
                 }
-                var htmlDoc = new HtmlDocument();
-                htmlDoc.LoadHtml(html);
-                model.UserName = htmlDoc.DocumentNode.SelectSingleNode("//*[@id=\"h-name\"]").InnerText?.Trim();
-                var liveInfoNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@class=\"i-live-on\"]");
-                model.Title = liveInfoNode.SelectSingleNode("//*[@class=\"i-live-title\"]").InnerText?.Trim();
-                model.Image = liveInfoNode.SelectSingleNode("//*[@class=\"i-live-cover\"]").GetAttributeValue("src", (string)null);
-                if (model.Image != null)
-                {
-                    var webpIndex = model.Image.IndexOf("@");
-                    if (webpIndex > 0)
-                    {
-                        model.Image = model.Image.Substring(0, webpIndex);
-                    }
-                    model.Image = $"https:{model.Image}";
-                }
-
-                return model;
+                
             }
             catch(Exception e)
             {
@@ -74,6 +71,49 @@ namespace GensouSakuya.QQBot.Core.Helpers
                     throw;
                 }
             }
+        }
+
+        private static BiliLiveInfo GetBiliLiveInfoV2(string html)
+        {
+            var model = new BiliLiveInfo();
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(html);
+            model.UserName = htmlDoc.DocumentNode.SelectSingleNode("//*[@class=\"nickname\"]").InnerText?.Trim();
+            var liveInfoNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@class=\"living-section\"]");
+            model.Title = liveInfoNode.SelectSingleNode("//*[@class=\"living-section-title\"]").InnerText?.Trim();
+            model.Image = liveInfoNode.SelectSingleNode("//*[@class=\"b-img__inner\"]").GetAttributeValue("src", (string)null);
+            if (model.Image != null)
+            {
+                var webpIndex = model.Image.IndexOf("@");
+                if (webpIndex > 0)
+                {
+                    model.Image = model.Image.Substring(0, webpIndex);
+                }
+                model.Image = $"https:{model.Image}";
+            }
+
+            return model;
+        }
+        private static BiliLiveInfo GetBiliLiveInfoV1(string html)
+        {
+            var model = new BiliLiveInfo();
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(html);
+            model.UserName = htmlDoc.DocumentNode.SelectSingleNode("//*[@id=\"h-name\"]").InnerText?.Trim();
+            var liveInfoNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@class=\"i-live-on\"]");
+            model.Title = liveInfoNode.SelectSingleNode("//*[@class=\"i-live-title\"]").InnerText?.Trim();
+            model.Image = liveInfoNode.SelectSingleNode("//*[@class=\"i-live-cover\"]").GetAttributeValue("src", (string)null);
+            if (model.Image != null)
+            {
+                var webpIndex = model.Image.IndexOf("@");
+                if (webpIndex > 0)
+                {
+                    model.Image = model.Image.Substring(0, webpIndex);
+                }
+                model.Image = $"https:{model.Image}";
+            }
+
+            return model;
         }
 
         public static async Task<List<BiliSpaceDynamic>> GetBiliSpaceDynm(string uid, bool retry = true)
