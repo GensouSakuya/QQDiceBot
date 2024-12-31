@@ -22,8 +22,6 @@ namespace GensouSakuya.QQBot.Core.Handlers
     [Command("bilispace")]
     internal class BilibiliSpaceSubscribeHandler : BaseSubscribeHandler
     {
-        private readonly CancellationTokenSource _cancellationTokenSource;
-        private readonly ConcurrentDictionary<string, string> _notFireAgainList;
         private readonly ConcurrentDictionary<string, ConcurrentQueue<string>> _lastDynamicId;
         private static readonly TimeSpan _subscriberInterval = TimeSpan.FromSeconds(10);
         protected override TimeSpan StartDelay => TimeSpan.FromMinutes(1);
@@ -31,8 +29,6 @@ namespace GensouSakuya.QQBot.Core.Handlers
 
         public BilibiliSpaceSubscribeHandler(ILoggerFactory loggerFactory) : base(loggerFactory.CreateLogger<BilibiliSpaceSubscribeHandler>(), () => DataManager.Instance.BiliSpaceSubscribers)
         {
-            _notFireAgainList = new ConcurrentDictionary<string, string>();
-            _cancellationTokenSource = new CancellationTokenSource();
             _lastDynamicId = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
         }
 
