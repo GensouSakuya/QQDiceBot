@@ -57,16 +57,20 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
 
         protected abstract Task Loop(ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> subscribers, CancellationToken token);
 
-        public virtual async Task ExecuteAsync(MessageSource source, IEnumerable<string> commandArgs, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
+        public virtual async Task<bool> ExecuteAsync(MessageSource source, IEnumerable<string> commandArgs, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
         {
             await Task.Yield();
+            if (GetSubscribers == null)
+            {
+                return false;
+            }
             SubscribeModel sbm;
             if (source.Type == MessageSourceType.Group)
             {
                 if (sourceInfo.GroupMember.QQ != DataManager.Instance.AdminQQ)
                 {
                     MessageManager.SendToSource(source, "目前只有机器人管理员可以配置该功能哦");
-                    return;
+                    return false;
                 }
 
                 sbm = new SubscribeModel
@@ -80,7 +84,7 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
                 if (sourceInfo.GuildMember.UserId != DataManager.Instance.AdminGuildUserId)
                 {
                     MessageManager.SendToSource(source, "目前只有机器人管理员可以配置该功能哦");
-                    return;
+                    return false;
                 }
 
                 sbm = new SubscribeModel
@@ -94,7 +98,7 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
                 if (source.QQ != DataManager.Instance.AdminQQ.ToString())
                 {
                     MessageManager.SendToSource(source, "目前只有机器人管理员可以配置该功能哦");
-                    return;
+                    return false;
                 }
 
                 sbm = new SubscribeModel
@@ -106,12 +110,12 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
             else
             {
                 MessageManager.SendToSource(source, "懒得支持！");
-                return;
+                return false;
             }
 
             if (!commandArgs.Any())
             {
-                return;
+                return false;
             }
 
             var first = commandArgs.ElementAt(0);
@@ -123,11 +127,7 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
             {
                 if (commandArgs.Count() < 2)
                 {
-                    return;
-                }
-                if(GetSubscribers == null)
-                {
-                    return;
+                    return true;
                 }
                 var subscriber = GetSubscribers();
                 var roomId = commandArgs.ElementAt(1);
@@ -137,30 +137,30 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
                     if (sub.ContainsKey(sbm.ToString()))
                     {
                         MessageManager.SendToSource(source, "订阅已存在");
-                        return;
+                        return false;
                     }
 
                     sub[sbm.ToString()] = sbm;
                     MessageManager.SendToSource(source, "订阅成功！");
                     DataManager.Instance.NoticeConfigUpdated();
-                    return;
+                    return true;
                 }
                 else if (first == "unsubscribe")
                 {
                     if (!subscriber.TryGetValue(roomId, out var sub))
                     {
-                        return;
+                        return false;
                     }
                     if (sub.Remove(sbm.ToString(), out _))
                     {
                         MessageManager.SendToSource(source, "取消订阅成功！");
                         DataManager.Instance.NoticeConfigUpdated();
                     }
-                    return;
+                    return true;
                 }
             }
 
-            return;
+            return true;
         }
     }
 }

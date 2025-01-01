@@ -10,10 +10,10 @@ namespace GensouSakuya.QQBot.Core.Handlers
     [Help("略一下")]
     internal class NullHandler : IMessageCommandHandler
     {
-        public Task ExecuteAsync(MessageSource source, IEnumerable<string> commandArgs, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
+        public Task<bool> ExecuteAsync(MessageSource source, IEnumerable<string> commandArgs, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
         {
             MessageManager.SendToSource(source, "略略略😝");
-            return Task.CompletedTask;
+            return Task.FromResult(true);
         }
     }
 }

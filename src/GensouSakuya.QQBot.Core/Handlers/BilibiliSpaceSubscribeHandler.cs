@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,11 +10,7 @@ using GensouSakuya.QQBot.Core.Helpers;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
 using Microsoft.Extensions.Logging;
-using net.gensousakuya.dice;
-using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
-using RestSharp;
-using static GensouSakuya.QQBot.Core.PlatformManager;
 
 namespace GensouSakuya.QQBot.Core.Handlers
 {
@@ -32,6 +27,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
             _lastDynamicId = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
         }
 
+        private string _retryId = null;
         protected override async Task Loop(ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> subscribers, CancellationToken token)
         {
             foreach (var room in subscribers)
@@ -43,6 +39,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
                 {
                     var dynamics = await BiliLiveHelper.GetBiliSpaceDynm(room.Key);
                     dynamics = dynamics.Where(p => !p.IsTop).ToList();
+                    Logger.LogInformation("bili dynm get succeed");
 
                     var isStart = false;
                     var dynamicQueue = _lastDynamicId.GetOrAdd(room.Key, p => {
@@ -51,24 +48,38 @@ namespace GensouSakuya.QQBot.Core.Handlers
                     });
                     var targetIndex = -1;
                     var targetDynId = "";
-                    for (var index = 0; index < dynamics.Count; index++)
+                    if(_retryId != null)
                     {
-                        var dynId = dynamics[index].Id;
-                        if (isStart)
+                        var targetId = _retryId;
+                        _retryId = null;
+                        targetIndex = dynamics.FindIndex(0, p => p.Id == targetId);
+                        if(targetIndex < 0)
                         {
-                            dynamicQueue.Enqueue(dynId);
                             continue;
                         }
-                        if (dynamicQueue.Contains(dynId))
-                        {
-                            break;
-                        }
-                        targetIndex = index;
-                        targetDynId = dynId;
+                        targetDynId = targetId;
                     }
-                    if (isStart)
+                    else
                     {
-                        continue;
+                        for (var index = 0; index < dynamics.Count; index++)
+                        {
+                            var dynId = dynamics[index].Id;
+                            if (isStart)
+                            {
+                                dynamicQueue.Enqueue(dynId);
+                                continue;
+                            }
+                            if (dynamicQueue.Contains(dynId))
+                            {
+                                break;
+                            }
+                            targetIndex = index;
+                            targetDynId = dynId;
+                        }
+                        if (isStart)
+                        {
+                            continue;
+                        }
                     }
                     if (targetIndex < 0)
                     {
@@ -145,9 +156,17 @@ namespace GensouSakuya.QQBot.Core.Handlers
             }
         }
 
-        public override async Task ExecuteAsync(MessageSource source, IEnumerable<string> commandArgs, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
+        public override async Task<bool> ExecuteAsync(MessageSource source, IEnumerable<string> commandArgs, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
         {
-            await base.ExecuteAsync(source, commandArgs, originMessage, sourceInfo);
+            var res = await base.ExecuteAsync(source, commandArgs, originMessage, sourceInfo);
+            if (res)
+            {
+                if(commandArgs.Count() >=2 && commandArgs.ElementAt(0) == "retry")
+                {
+                    _retryId = commandArgs.ElementAt(1);
+                }
+            }
+            return res;
         }
     }
 }

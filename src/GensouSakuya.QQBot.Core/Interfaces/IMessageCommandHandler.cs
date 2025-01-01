@@ -7,6 +7,6 @@ namespace GensouSakuya.QQBot.Core.Interfaces
 {
     internal interface IMessageCommandHandler: IMessageHandler
     {
-        Task ExecuteAsync(MessageSource source, IEnumerable<string> command, List<BaseMessage> originMessage, SourceFullInfo sourceInfo);
+        Task<bool> ExecuteAsync(MessageSource source, IEnumerable<string> command, List<BaseMessage> originMessage, SourceFullInfo sourceInfo);
     }
 }

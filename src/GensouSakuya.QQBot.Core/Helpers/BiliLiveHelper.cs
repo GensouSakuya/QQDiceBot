@@ -81,7 +81,7 @@ namespace GensouSakuya.QQBot.Core.Helpers
             model.UserName = htmlDoc.DocumentNode.SelectSingleNode("//*[@class=\"nickname\"]").InnerText?.Trim();
             var liveInfoNode = htmlDoc.DocumentNode.SelectSingleNode("//*[@class=\"living-section\"]");
             model.Title = liveInfoNode.SelectSingleNode("//*[@class=\"living-section-title\"]").InnerText?.Trim();
-            model.Image = liveInfoNode.SelectSingleNode("//*[@class=\"b-img__inner\"]").GetAttributeValue("src", (string)null);
+            model.Image = liveInfoNode.SelectSingleNode("//*[@alt=\"living cover\"]").GetAttributeValue("src", (string)null);
             if (model.Image != null)
             {
                 var webpIndex = model.Image.IndexOf("@");
