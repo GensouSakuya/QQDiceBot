@@ -244,6 +244,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 }
                                 else
                                 {
+                                    images = retweeted["pic_ids"].ToArray();
                                     var retweetedText = retweeted["text"]?.ToString();
                                     retweetedText = WeiboHelper.FilterHtml(retweetedText);
                                     msg = $"{name}转发了微博：{Environment.NewLine}{text}{Environment.NewLine}原微博：{Environment.NewLine}@{retweeted["user"]["screen_name"]}：{retweetedText}";
