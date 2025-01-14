@@ -163,7 +163,7 @@ namespace GensouSakuya.QQBot.Core.Helpers
                             dynamics = new List<BiliSpaceDynamic>();
                             string body = bodyObj.ToString();
                             var json = JObject.Parse(body);
-                            var items = json["data"]["items"].ToArray();
+                            var items = json["data"]?["items"]?.ToArray();
                             foreach(var item in items)
                             {
                                 var dync = GetDynamicFromJson(item);

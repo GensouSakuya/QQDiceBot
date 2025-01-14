@@ -39,7 +39,9 @@ namespace GensouSakuya.QQBot.Core.Handlers
                 {
                     var dynamics = await BiliLiveHelper.GetBiliSpaceDynm(room.Key);
                     dynamics = dynamics.Where(p => !p.IsTop).ToList();
-                    Logger.LogInformation("bili dynm get succeed");
+                    Logger.LogInformation("bili dynm get succeed, count: {0}", dynamics.Count);
+                    if (!dynamics.Any())
+                        continue;
 
                     var isStart = false;
                     var dynamicQueue = _lastDynamicId.GetOrAdd(room.Key, p => {
