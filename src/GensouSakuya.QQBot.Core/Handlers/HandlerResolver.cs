@@ -13,12 +13,14 @@ namespace GensouSakuya.QQBot.Core.Handlers
     {
         private Dictionary<string, Type> _commandHandlersMap = new Dictionary<string, Type>();
         private List<Type> _chainHandlers = new List<Type>();
+        private List<Type> _warmupHandlers = new List<Type>();
         
         public Task RegisterHandlers(IServiceCollection serviceCollection)
         {
             var baseHandlerType = typeof(IMessageHandler);
             var baseCommandHandlerType = typeof(IMessageCommandHandler);
             var baseChainHandlerType = typeof(IMessageChainHandler);
+            var baseBackgroundSubscribeType = typeof(IBackgroundSubscribeHandler);
             var handlerTypes = Assembly.GetExecutingAssembly().GetTypes()
                 .Where(p => p.IsClass && !p.IsAbstract && baseHandlerType.IsAssignableFrom(p));
             foreach (var handlerType in handlerTypes)
@@ -46,6 +48,11 @@ namespace GensouSakuya.QQBot.Core.Handlers
                 {
                     _chainHandlers.Add(handlerType);
                 }
+
+                if (baseBackgroundSubscribeType.IsAssignableFrom(handlerType))
+                {
+                    _warmupHandlers.Add(handlerType);
+                }
             }
 
             return Task.CompletedTask;
@@ -65,6 +72,14 @@ namespace GensouSakuya.QQBot.Core.Handlers
             {
                 var handler = (IMessageChainHandler)serviceProvider.GetService(handlerType);
                 yield return handler;
+            }
+        }
+
+        public void WarmupHostHandlers(IServiceProvider serviceProvider)
+        {
+            foreach(var handlerType in _warmupHandlers)
+            {
+                _ = serviceProvider.GetService(handlerType);
             }
         }
     }

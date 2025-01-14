@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace GensouSakuya.QQBot.Core.Handlers.Base
 {
-    internal abstract class BaseSubscribeHandler : IMessageCommandHandler
+    internal abstract class BaseSubscribeHandler : IMessageCommandHandler, IBackgroundSubscribeHandler
     {
         protected readonly DataManager DataManager;
         protected readonly ILogger Logger;
@@ -57,7 +57,7 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
             }
         }
 
-        protected abstract Task Loop(ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> subscribers, CancellationToken token);
+        public abstract Task Loop(ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> subscribers, CancellationToken token);
 
         public virtual async Task<bool> ExecuteAsync(MessageSource source, IEnumerable<string> commandArgs, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
         {

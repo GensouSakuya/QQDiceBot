@@ -183,7 +183,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                                 var jsonRes = Newtonsoft.Json.JsonConvert.DeserializeObject(content);
                                 var jobj = JObject.FromObject(jsonRes);
-                                var isStreaming = jobj["data"]["live_status"].Value<int>() == 1;
+                                var isStreaming = jobj["data"]?["live_status"]?.Value<int>() == 1;
                                 if (isStreaming)
                                 {
                                     if (_notFireAgainList.ContainsKey(room.Key))

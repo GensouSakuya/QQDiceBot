@@ -54,6 +54,7 @@ namespace GensouSakuya.QQBot.Core
             await dataManager.Init(qq, dataPath);
             _logger.LogInformation("bot is started");
             IsInitialized = true;
+            _handlerResolver.WarmupHostHandlers(_messageServiceProvider);
         }
 
         public async Task HandlerMessage(MessageSource source, string rawMessage, List<BaseMessage> originMessage)

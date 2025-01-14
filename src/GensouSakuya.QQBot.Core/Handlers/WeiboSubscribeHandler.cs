@@ -31,7 +31,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
         }
 
         private string _retryId = null;
-        protected override async Task Loop(ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> subscribers, CancellationToken token)
+        public override async Task Loop(ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> subscribers, CancellationToken token)
         {
             using (var client = new RestClient())
             { 
@@ -70,24 +70,38 @@ namespace GensouSakuya.QQBot.Core.Handlers
                         });
                         var targetIndex = -1;
                         var targetWeiboId = "";
-                        for (var index = 0; index < weibos.Count(); index++)
+                        if (_retryId != null)
                         {
-                            var weiboId = weibos[index]["mblog"]["id"].ToString();
-                            if (isStart)
+                            var targetId = _retryId;
+                            _retryId = null;
+                            targetIndex = weibos.ToArray().ToList().FindIndex(0, p => p["mblog"]?["id"]?.ToString() == targetId);
+                            if (targetIndex < 0)
                             {
-                                weiboQueue.Enqueue(weiboId);
                                 continue;
                             }
-                            if (weiboQueue.Contains(weiboId))
-                            {
-                                break;
-                            }
-                            targetIndex = index;
-                            targetWeiboId = weiboId;
+                            targetWeiboId = targetId;
                         }
-                        if (isStart)
+                        else
                         {
-                            continue;
+                            for (var index = 0; index < weibos.Count(); index++)
+                            {
+                                var weiboId = weibos[index]["mblog"]["id"].ToString();
+                                if (isStart)
+                                {
+                                    weiboQueue.Enqueue(weiboId);
+                                    continue;
+                                }
+                                if (weiboQueue.Contains(weiboId))
+                                {
+                                    break;
+                                }
+                                targetIndex = index;
+                                targetWeiboId = weiboId;
+                            }
+                            if (isStart)
+                            {
+                                continue;
+                            }
                         }
                         if (targetIndex < 0)
                         {

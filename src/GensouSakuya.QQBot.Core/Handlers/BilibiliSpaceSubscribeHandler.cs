@@ -28,7 +28,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
         }
 
         private string _retryId = null;
-        protected override async Task Loop(ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> subscribers, CancellationToken token)
+        public override async Task Loop(ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> subscribers, CancellationToken token)
         {
             foreach (var room in subscribers)
             {
@@ -39,9 +39,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
                 {
                     var dynamics = await BiliLiveHelper.GetBiliSpaceDynm(room.Key);
                     dynamics = dynamics.Where(p => !p.IsTop).ToList();
-                    Logger.LogInformation("bili dynm get succeed, count: {0}", dynamics.Count);
-                    if (!dynamics.Any())
-                        continue;
+                    Logger.LogDebug("bili dynm get succeed, count: {0}", dynamics.Count);
 
                     var isStart = false;
                     var dynamicQueue = _lastDynamicId.GetOrAdd(room.Key, p => {
