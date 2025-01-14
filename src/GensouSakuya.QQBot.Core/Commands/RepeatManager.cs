@@ -113,7 +113,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 GroupRepeatConfig.AddOrUpdate(toGroup, config, (p, q) => config);
             else
                 GroupRepeatConfig.TryRemove(toGroup, out _);
-            DataManager.Instance.NoticeConfigUpdated();
+            DataManager.NoticeConfigUpdatedAction();
         }
     }
 

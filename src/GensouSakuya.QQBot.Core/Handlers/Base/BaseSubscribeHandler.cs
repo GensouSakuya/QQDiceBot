@@ -14,16 +14,18 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
 {
     internal abstract class BaseSubscribeHandler : IMessageCommandHandler
     {
-        protected ILogger Logger { get; }
+        protected readonly DataManager DataManager;
+        protected readonly ILogger Logger;
         protected virtual TimeSpan StartDelay { get; } = TimeSpan.FromSeconds(5);
         protected virtual TimeSpan LoopInterval { get; } = TimeSpan.FromMinutes(1);
         protected TaskCompletionSource<bool> CompletionSource { get; set; }
         private CancellationTokenSource _loopCancellationTokenSource;
         protected Func<ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>> GetSubscribers { get; }
 
-        public BaseSubscribeHandler(ILogger logger, Func<ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>> getSubscribers)
+        public BaseSubscribeHandler(ILogger logger, DataManager dataManager, Func<ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>> getSubscribers)
         {
             Logger = logger;
+            DataManager = dataManager;
             GetSubscribers = getSubscribers;
             CompletionSource = new TaskCompletionSource<bool>();
             _loopCancellationTokenSource = new CancellationTokenSource();
@@ -67,7 +69,7 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
             SubscribeModel sbm;
             if (source.Type == MessageSourceType.Group)
             {
-                if (sourceInfo.GroupMember.QQ != DataManager.Instance.AdminQQ)
+                if (sourceInfo.GroupMember.QQ != DataManager.Config.AdminQQ)
                 {
                     MessageManager.SendToSource(source, "目前只有机器人管理员可以配置该功能哦");
                     return false;
@@ -81,7 +83,7 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
             }
             else if (source.Type == MessageSourceType.Guild)
             {
-                if (sourceInfo.GuildMember.UserId != DataManager.Instance.AdminGuildUserId)
+                if (sourceInfo.GuildMember.UserId != DataManager.Config.AdminGuildUserId)
                 {
                     MessageManager.SendToSource(source, "目前只有机器人管理员可以配置该功能哦");
                     return false;
@@ -142,7 +144,7 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
 
                     sub[sbm.ToString()] = sbm;
                     MessageManager.SendToSource(source, "订阅成功！");
-                    DataManager.Instance.NoticeConfigUpdated();
+                    DataManager.NoticeConfigUpdated();
                     return true;
                 }
                 else if (first == "unsubscribe")
@@ -154,7 +156,7 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
                     if (sub.Remove(sbm.ToString(), out _))
                     {
                         MessageManager.SendToSource(source, "取消订阅成功！");
-                        DataManager.Instance.NoticeConfigUpdated();
+                        DataManager.NoticeConfigUpdated();
                     }
                     return true;
                 }

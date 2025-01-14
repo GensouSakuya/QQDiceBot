@@ -39,7 +39,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
             });
 
             if(hasUpdate)
-                DataManager.Instance.NoticeConfigUpdated();
+                DataManager.NoticeConfigUpdatedAction();
 
             return GroupMembers.TryGetValue((qq, groupNo), out member) ? member : null;
         }
@@ -101,7 +101,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
 
                     if (hasUpdate)
                     {
-                        DataManager.Instance.NoticeConfigUpdated();
+                        DataManager.NoticeConfigUpdatedAction();
                     }
 
                     await Task.Delay(TimeSpan.FromMinutes(5), token);

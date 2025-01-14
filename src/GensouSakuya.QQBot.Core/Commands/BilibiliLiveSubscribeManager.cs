@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
@@ -12,8 +10,6 @@ using GensouSakuya.QQBot.Core.PlatformModel;
 using net.gensousakuya.dice;
 using Newtonsoft.Json.Linq;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support.UI;
 using RestSharp;
 
 namespace GensouSakuya.QQBot.Core.Commands
@@ -103,7 +99,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                     sub[sbm.ToString()] = sbm;
                     MessageManager.SendToSource(source, "订阅成功！");
-                    DataManager.Instance.NoticeConfigUpdated();
+                    DataManager.NoticeConfigUpdatedAction();
                     return;
                 }
                 else if (first == "unsubscribe")
@@ -115,7 +111,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                     if (sub.Remove(sbm.ToString(), out _))
                     {
                         MessageManager.SendToSource(source, "取消订阅成功！");
-                        DataManager.Instance.NoticeConfigUpdated();
+                        DataManager.NoticeConfigUpdatedAction();
                     }
                     return;
                 }

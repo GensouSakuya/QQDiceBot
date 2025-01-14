@@ -25,7 +25,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
         protected override TimeSpan StartDelay => TimeSpan.FromSeconds(5);
         protected override TimeSpan LoopInterval => TimeSpan.FromMinutes(10);
 
-        public WeiboSubscribeHandler(ILoggerFactory loggerFactory) : base(loggerFactory.CreateLogger<WeiboSubscribeHandler>(), () => DataManager.Instance.WeiboSubscribers)
+        public WeiboSubscribeHandler(ILoggerFactory loggerFactory, DataManager dataManager) : base(loggerFactory.CreateLogger<WeiboSubscribeHandler>(), dataManager, () => DataManager.Instance.WeiboSubscribers)
         {
             _lastWeiboId = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
         }

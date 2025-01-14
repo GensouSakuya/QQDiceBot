@@ -41,7 +41,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
             });
 
             if(hasUpdate)
-                DataManager.Instance.NoticeConfigUpdated();
+                DataManager.NoticeConfigUpdatedAction();
 
             return Users.TryGetValue(qqInfo.Id, out var user) ? user : null;
         }
@@ -91,7 +91,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
 
                     if (hasUpdate)
                     {
-                        DataManager.Instance.NoticeConfigUpdated();
+                        DataManager.NoticeConfigUpdatedAction();
                     }
 
                     await Task.Delay(TimeSpan.FromMinutes(5), token);

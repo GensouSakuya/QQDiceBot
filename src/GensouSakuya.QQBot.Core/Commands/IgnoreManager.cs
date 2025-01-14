@@ -78,7 +78,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 GroupIgnore.TryAdd((banGroup, banQQ), null);
             else
                 GroupIgnore.TryRemove((banGroup, banQQ), out _);
-            DataManager.Instance.NoticeConfigUpdated();
+            DataManager.NoticeConfigUpdatedAction();
         }
     }
 }

@@ -45,11 +45,13 @@ namespace GensouSakuya.QQBot.Core
         public async Task Init(long qq, PlatformApiModel api, string dataPath = null)
         {
             await _handlerResolver.RegisterHandlers(_serviceCollection);
+            _serviceCollection.AddSingleton<DataManager>();
             CommandCenter.ReloadManagers();
             RegisterEvents(api);
             _messageServiceProvider = _serviceCollection.BuildServiceProvider();
             _logger = _messageServiceProvider.GetService<ILoggerFactory>().CreateLogger<Core>();
-            await DataManager.Init(qq, dataPath);
+            var dataManager = _messageServiceProvider.GetRequiredService<DataManager>();
+            await dataManager.Init(qq, dataPath);
             _logger.LogInformation("bot is started");
             IsInitialized = true;
         }

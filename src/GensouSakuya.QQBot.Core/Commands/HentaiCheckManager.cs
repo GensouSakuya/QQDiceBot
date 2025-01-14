@@ -172,7 +172,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 _groupHentaiCheckConfig.AddOrUpdate(toGroup, enable, (p, q) => enable);
             else
                 _groupHentaiCheckConfig.TryRemove(toGroup, out _);
-            DataManager.Instance.NoticeConfigUpdated();
+            DataManager.NoticeConfigUpdatedAction();
         }
 
         public class HentaiCheckModel

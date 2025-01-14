@@ -197,7 +197,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 GroupShaDiaoTuConfig.AddOrUpdate(toGroup, config, (p, q) => config);
             else
                 GroupShaDiaoTuConfig.TryRemove(toGroup, out _);
-            DataManager.Instance.NoticeConfigUpdated();
+            DataManager.NoticeConfigUpdatedAction();
         }
     }
 

@@ -10,84 +10,45 @@ using GensouSakuya.QQBot.Core.Commands;
 using GensouSakuya.QQBot.Core.Commands.V2;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.QQManager;
+using Microsoft.Extensions.Logging;
 
 namespace GensouSakuya.QQBot.Core.Base
 {
-    public class DataManager
+    internal class DataManager
     {
         private readonly Subject<string> _observedLogList = new Subject<string>();
-        private static readonly Logger _logger = Logger.GetLogger<DataManager>();
+        private readonly ILogger _logger;
+        public ConfigData Config { get; private set; }
         public static long QQ { get; private set; }
 
         public static string DataPath { get; private set; }
         private static string ConfigFilePath => Path.Combine(DataPath, Consts.ConfigFileName);
         public static string TempPath => Path.Combine(DataPath, ".temp");
 
-        private DataManager()
+        public DataManager(ILoggerFactory loggerFactory)
         {
+            _logger = loggerFactory.CreateLogger<DataManager>();
             _observedLogList.Buffer(TimeSpan.FromMinutes(5), 2)
                 .Where(x => x.Count > 0)
-                .Select(list => Observable.FromAsync(() => DataManager.Save()))
+                .Select(list => Observable.FromAsync(() => this.Save()))
                 .Concat()
                 .Subscribe();
+            NoticeConfigUpdatedAction = this.NoticeConfigUpdated;
         }
-
-        private string _botName = "骰娘";
-
-        public string BotName
-        {
-            get => _botName;
-            set => _botName = value ?? "骰娘";
-        }
-
-        public long AdminQQ { get; set; }
-        public string AdminGuildUserId { get; set; }
-
-        public List<long> DisabledJrrpGroupNumbers { get; set; } = new List<long>();
-        public List<long> EnabledRandomImgNumbers { get; set; } = new List<long>();
 
         public void NoticeConfigUpdated()
         {
             _observedLogList.OnNext("");
         }
 
-        public ConcurrentDictionary<long, RepeatConfig> GroupRepeatConfig { get; set; }
-
-        public ConcurrentDictionary<long, ShaDiaoTuConfig> GroupShaDiaoTuConfig { get; set; }
-
-        public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> DouyinSubscribers { get; set; }
-
-        public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> WeiboSubscribers { get; set; }
-        public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> BiliLiveSubscribers { get; set; }
-        public ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>> BiliSpaceSubscribers { get; set; }
-
-        public ConcurrentDictionary<long, string> QQBan { get; set; }
-
-        public ConcurrentDictionary<(long, long), string> GroupBan { get; set; }
-        public ConcurrentDictionary<(long, long), string> GroupIgnore { get; set; }
-
-        public List<GroupMember> GroupMembers { get; set; }
-
-        public List<UserInfo> Users { get; set; }
-
-        public ConcurrentDictionary<long, BakiConfig> GroupBakiConfig { get; set; }
-
-        public ConcurrentDictionary<long, bool> GroupTodayHistoryConfig { get; set; }
-        public ConcurrentDictionary<long, bool> GroupNewsConfig { get; set; }
-        public ConcurrentDictionary<long, bool> GroupHentaiCheckConfig { get; set; }
-
-        public List<string> RuipingSentences { get; set; }
-
-        public QWenConfig QWenConfig { get; set; }
-        public ConcurrentDictionary<long, bool> GroupQWenConfig { get; set; }
-        public QWenLimit QWenLimig { get; set; }
-
-        public static async Task Init(long qq, string dataPath = null)
+        public async Task Init(long qq, string dataPath = null)
         {
             DataPath = string.IsNullOrWhiteSpace(dataPath) ? "data" : dataPath;
-            _logger.Info("数据目录：{0}", DataPath);
+            _logger.LogInformation("数据目录：{0}", DataPath);
             QQ = qq;
             await Load();
+            
+            Instance = Config;
 
             if (EventCenter.GetGroupMemberList != null)
                 await GroupMemberManager.StartLoadTask();
@@ -97,58 +58,58 @@ namespace GensouSakuya.QQBot.Core.Base
 
         private void RefreshData()
         {
-            GroupMembers = GroupMemberManager.GroupMembers.Values.OrderBy(p => p.GroupNumber).ThenBy(p => p.QQ).ToList();
-            GroupBakiConfig = BakiManager.GroupBakiConfig;
-            Users = UserManager.Users.Values.OrderBy(p=>p.QQ).ToList();
-            GroupBan = BanManager.GroupBan;
-            QQBan = BanManager.QQBan;
-            GroupShaDiaoTuConfig = ShaDiaoTuManager.GroupShaDiaoTuConfig;
-            GroupRepeatConfig = RepeatManager.GroupRepeatConfig;
-            GroupTodayHistoryConfig = TodayHistoryManager.GroupTodayHistoryConfig;
-            GroupNewsConfig = NewsManager.GroupNewsConfig;
-            GroupHentaiCheckConfig = HentaiCheckManager.GroupHentaiCheckConfig;
-            GroupIgnore = IgnoreManager.GroupIgnore;
-            RuipingSentences = RuipingCommander.RuipingSentences;
-            DouyinSubscribers = DouyinSubscribeManager.Subscribers;
-            BiliLiveSubscribers = BilibiliLiveSubscribeManager.Subscribers;
+            Config.GroupMembers = GroupMemberManager.GroupMembers.Values.OrderBy(p => p.GroupNumber).ThenBy(p => p.QQ).ToList();
+            Config.GroupBakiConfig = BakiManager.GroupBakiConfig;
+            Config.Users = UserManager.Users.Values.OrderBy(p=>p.QQ).ToList();
+            Config.GroupBan = BanManager.GroupBan;
+            Config.QQBan = BanManager.QQBan;
+            Config.GroupShaDiaoTuConfig = ShaDiaoTuManager.GroupShaDiaoTuConfig;
+            Config.GroupRepeatConfig = RepeatManager.GroupRepeatConfig;
+            Config.GroupTodayHistoryConfig = TodayHistoryManager.GroupTodayHistoryConfig;
+            Config.GroupNewsConfig = NewsManager.GroupNewsConfig;
+            Config.GroupHentaiCheckConfig = HentaiCheckManager.GroupHentaiCheckConfig;
+            Config.GroupIgnore = IgnoreManager.GroupIgnore;
+            Config.RuipingSentences = RuipingCommander.RuipingSentences;
+            Config.DouyinSubscribers = DouyinSubscribeManager.Subscribers;
+            Config.BiliLiveSubscribers = BilibiliLiveSubscribeManager.Subscribers;
         }
 
         private void UpdateData()
         {
-            GroupQWenConfig ??= new ConcurrentDictionary<long, bool>();
-            QWenConfig ??= new QWenConfig();
-            QWenLimig ??= new QWenLimit();
-            BiliSpaceSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
-            WeiboSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
+            Config.GroupQWenConfig ??= new ConcurrentDictionary<long, bool>();
+            Config.QWenConfig ??= new QWenConfig();
+            Config.QWenLimig ??= new QWenLimit();
+            Config.BiliSpaceSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
+            Config.WeiboSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
 
             GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
-            GroupMembers?.ForEach(p =>
+            Config.GroupMembers?.ForEach(p =>
             {
                 GroupMemberManager.GroupMembers.AddOrUpdate((p.QQ, p.GroupNumber), p, (key, q) => p);
             });
-            BakiManager.GroupBakiConfig = GroupBakiConfig;
+            BakiManager.GroupBakiConfig = Config.GroupBakiConfig;
             UserManager.Users = new ConcurrentDictionary<long, UserInfo>();
-            Users?.ForEach(p =>
+            Config.Users?.ForEach(p =>
             {
                 UserManager.Users.AddOrUpdate(p.QQ, p, (key, q) => p);
             });
-            BanManager.GroupBan = GroupBan;
-            BanManager.QQBan = QQBan;
-            ShaDiaoTuManager.GroupShaDiaoTuConfig = GroupShaDiaoTuConfig;
-            RepeatManager.GroupRepeatConfig = GroupRepeatConfig;
-            TodayHistoryManager.GroupTodayHistoryConfig = GroupTodayHistoryConfig;
-            NewsManager.GroupNewsConfig = GroupNewsConfig;
-            HentaiCheckManager.GroupHentaiCheckConfig = GroupHentaiCheckConfig;
-            IgnoreManager.GroupIgnore = GroupIgnore;
-            RuipingCommander.RuipingSentences = RuipingSentences;
-            DouyinSubscribeManager.Subscribers = DouyinSubscribers;
-            BilibiliLiveSubscribeManager.Subscribers = BiliLiveSubscribers;
+            BanManager.GroupBan = Config.GroupBan;
+            BanManager.QQBan = Config.QQBan;
+            ShaDiaoTuManager.GroupShaDiaoTuConfig = Config.GroupShaDiaoTuConfig;
+            RepeatManager.GroupRepeatConfig = Config.GroupRepeatConfig;
+            TodayHistoryManager.GroupTodayHistoryConfig = Config.GroupTodayHistoryConfig;
+            NewsManager.GroupNewsConfig = Config.GroupNewsConfig;
+            HentaiCheckManager.GroupHentaiCheckConfig = Config.GroupHentaiCheckConfig;
+            IgnoreManager.GroupIgnore = Config.GroupIgnore;
+            RuipingCommander.RuipingSentences = Config.RuipingSentences;
+            DouyinSubscribeManager.Subscribers = Config.DouyinSubscribers;
+            BilibiliLiveSubscribeManager.Subscribers = Config.BiliLiveSubscribers;
         }
 
-        public static Task Save()
+        public Task Save()
         {
-            _logger.Info("saving data");
-            Instance.RefreshData();
+            _logger.LogInformation("saving data");
+            this.RefreshData();
             var path = ConfigFilePath;
             try
             {
@@ -158,42 +119,42 @@ namespace GensouSakuya.QQBot.Core.Base
                     Directory.CreateDirectory(dir);
                 }
 
-                var data = Tools.SerializeObject(Instance);
+                var data = Tools.SerializeObject(Config);
 
                 File.WriteAllText(path, data);
-                _logger.Debug("Config updated");
+                _logger.LogDebug("Config updated");
             }
             catch (Exception e)
             {
-                _logger.Error(e, "save config error");
+                _logger.LogError(e, "save config error");
             }
             return Task.CompletedTask;
         }
 
-        public static async Task Load()
+        public async Task Load()
         {
             var path = ConfigFilePath;
-            _logger.Debug("loading from:" + path);
+            _logger.LogDebug("loading from:" + path);
             if (File.Exists(path))
             {
                 var text = await File.ReadAllTextAsync(path);
                 try
                 {
-                    var db = Tools.DeserializeObject<DataManager>(text);
-                    Instance = db;
-                    Instance.UpdateData();
+                    var data = Tools.DeserializeObject<ConfigData>(text);
+                    Config = data;
+                    this.UpdateData();
                 }
                 catch (Exception e)
                 {
-                    _logger.Error(e, "ConfigLoadError");
+                    _logger.LogError(e, "ConfigLoadError");
                 }
             }
             else
             {
-                _logger.Debug("not found {0}, generate new config file", path);
-                Instance = new DataManager();
-                Instance.UpdateData();
-                await DataManager.Save();
+                _logger.LogDebug("not found {0}, generate new config file", path);
+                Config = new ConfigData();
+                this.UpdateData();
+                await this.Save();
             }
 
             if (!Directory.Exists(TempPath))
@@ -202,12 +163,15 @@ namespace GensouSakuya.QQBot.Core.Base
             }
         }
 
-        public static async Task Stop()
+        public async Task Stop()
         {
             await Save();
         }
 
-        public static DataManager Instance { get; set; }
+        [Obsolete("改为使用ServiceProvider生成的")]
+        internal static ConfigData Instance { get; set; }
 
+        [Obsolete("改为使用ServiceProvider生成的DataManager")]
+        internal static Action NoticeConfigUpdatedAction;
     }
 }

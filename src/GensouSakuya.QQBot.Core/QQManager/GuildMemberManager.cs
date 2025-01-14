@@ -32,7 +32,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
             });
 
             if (hasUpdate)
-                DataManager.Instance.NoticeConfigUpdated();
+                DataManager.NoticeConfigUpdatedAction();
 
             return GuildMembers.TryGetValue((userId, guildId), out member) ? member : null;
         }
@@ -54,7 +54,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
                     }
                     return updateMember;
                 });
-                DataManager.Instance.NoticeConfigUpdated();
+                DataManager.NoticeConfigUpdatedAction();
             }
         }
 
@@ -115,7 +115,7 @@ namespace GensouSakuya.QQBot.Core.QQManager
 
             //        if (hasUpdate)
             //        {
-            //            DataManager.Instance.NoticeConfigUpdated();
+            //            DataManager.NoticeConfigUpdatedAction();
             //        }
 
             //        await Task.Delay(TimeSpan.FromMinutes(5), token);

@@ -88,7 +88,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                 sub[sbm.ToString()] = sbm;
                 MessageManager.SendToSource(source, "订阅成功！");
-                DataManager.Instance.NoticeConfigUpdated();
+                DataManager.NoticeConfigUpdatedAction();
                 return;
             }
             else if (first == "unsubscribe")
@@ -100,7 +100,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 if(sub.Remove(sbm.ToString(), out _))
                 {
                     MessageManager.SendToSource(source, "取消订阅成功！");
-                    DataManager.Instance.NoticeConfigUpdated();
+                    DataManager.NoticeConfigUpdatedAction();
                 }
                 return;
             }

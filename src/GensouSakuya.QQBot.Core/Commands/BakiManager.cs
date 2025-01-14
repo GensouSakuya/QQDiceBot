@@ -121,7 +121,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 GroupBakiConfig.AddOrUpdate(toGroup, config, (p, q) => config);
             else
                 GroupBakiConfig.TryRemove(toGroup, out _);
-            DataManager.Instance.NoticeConfigUpdated();
+            DataManager.NoticeConfigUpdatedAction();
         }
     }
 

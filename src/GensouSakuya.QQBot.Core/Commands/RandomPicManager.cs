@@ -42,7 +42,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                         {
                             DataManager.Instance.EnabledRandomImgNumbers.Add(member.GroupNumber);
                             MessageManager.SendToSource(source, "启用成功！");
-                            DataManager.Instance.NoticeConfigUpdated();
+                            DataManager.NoticeConfigUpdatedAction();
                             return;
                         }
                     }
@@ -55,7 +55,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                         {
                             DataManager.Instance.EnabledRandomImgNumbers.Remove(member.GroupNumber);
                             MessageManager.SendToSource(source, "禁用成功！");
-                            DataManager.Instance.NoticeConfigUpdated();
+                            DataManager.NoticeConfigUpdatedAction();
                             return;
                         }
                     }

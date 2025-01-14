@@ -75,7 +75,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 DataManager.Instance?.GroupQWenConfig.AddOrUpdate(toGroup, enable, (p, q) => enable);
             else
                 DataManager.Instance?.GroupQWenConfig.TryRemove(toGroup, out _);
-            DataManager.Instance.NoticeConfigUpdated();
+            DataManager.NoticeConfigUpdatedAction();
         }
     }
 }

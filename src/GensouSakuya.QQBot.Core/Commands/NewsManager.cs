@@ -123,7 +123,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 GroupNewsConfig.AddOrUpdate(toGroup, enable, (p, q) => enable);
             else
                 GroupNewsConfig.TryRemove(toGroup, out _);
-            DataManager.Instance.NoticeConfigUpdated();
+            DataManager.NoticeConfigUpdatedAction();
         }
 
         public class NewsModel

@@ -10,12 +10,18 @@ namespace GensouSakuya.QQBot.Core.Commands
 {
     internal class AdminHandler : IMessageCommandHandler
     {
+        private readonly DataManager _dataManager;
+        public AdminHandler(DataManager data) 
+        { 
+            _dataManager = data;
+        }
+
         public async Task<bool> ExecuteAsync(MessageSource source, IEnumerable<string> command, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
         {
             await Task.Yield();
             if (source.Type != MessageSourceType.Private && source.Type != MessageSourceType.Friend)
                 return false;
-            if (sourceInfo.QQ == null || sourceInfo.QQ.QQ != DataManager.Instance.AdminQQ)
+            if (sourceInfo.QQ == null || sourceInfo.QQ.QQ != _dataManager.Config.AdminQQ)
                 return false;
             var firstCommand = command.FirstOrDefault();
             if (firstCommand == null)
@@ -42,12 +48,12 @@ namespace GensouSakuya.QQBot.Core.Commands
                     if (command.Count() < 1)
                         return false;
                     var name = command.ElementAt(0);
-                    DataManager.Instance.BotName = name;
-                    MessageManager.SendTextMessage(MessageSourceType.Friend, "改名成功", DataManager.Instance.AdminQQ);
+                    _dataManager.Config.BotName = name;
+                    MessageManager.SendTextMessage(MessageSourceType.Friend, "改名成功", _dataManager.Config.AdminQQ);
                     return true;
                 case "save":
-                    DataManager.Save();
-                    MessageManager.SendTextMessage(MessageSourceType.Friend, "保存成功", DataManager.Instance.AdminQQ);
+                    await _dataManager.Save();
+                    MessageManager.SendTextMessage(MessageSourceType.Friend, "保存成功", _dataManager.Config.AdminQQ);
                     return true;
             }
             return true;

@@ -122,7 +122,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 GroupTodayHistoryConfig.AddOrUpdate(toGroup, enable, (p, q) => enable);
             else
                 GroupTodayHistoryConfig.TryRemove(toGroup, out _);
-            DataManager.Instance.NoticeConfigUpdated();
+            DataManager.NoticeConfigUpdatedAction();
         }
 
         public class TodayHistoryModel

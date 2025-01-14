@@ -100,7 +100,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 QQBan.TryAdd(banQQ, null);
             else
                 QQBan.TryRemove(banQQ, out _);
-            DataManager.Instance.NoticeConfigUpdated();
+            DataManager.NoticeConfigUpdatedAction();
         }
 
         private static ConcurrentDictionary<(long,long), string> _groupBan = new ConcurrentDictionary<(long, long), string>();
@@ -126,7 +126,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 GroupBan.TryAdd((banGroup,banQQ), null);
             else
                 GroupBan.TryRemove((banGroup,banQQ), out _);
-            DataManager.Instance.NoticeConfigUpdated();
+            DataManager.NoticeConfigUpdatedAction();
         }
     }
 }
