@@ -1,37 +1,38 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using GensouSakuya.QQBot.Core.Base;
+﻿using GensouSakuya.QQBot.Core.Base;
+using GensouSakuya.QQBot.Core.Interfaces;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
 using net.gensousakuya.dice;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace GensouSakuya.QQBot.Core.Commands
+namespace GensouSakuya.QQBot.Core.Handlers
 {
     [Command("ask")]
-    public class AskManager : BaseManager
+    internal class AskHandler : IMessageCommandHandler
     {
-        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
+        public async Task<bool> ExecuteAsync(MessageSource source, IEnumerable<string> command, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
         {
             var sourceMessageId = (originMessage?.FirstOrDefault() as SourceMessage)?.Id ?? default;
             var messages = new List<BaseMessage>();
-            if(source.IsTraditionSource)
-                messages.Add(new QuoteMessage(member?.GroupNumber, qq?.QQ, sourceMessageId));
-            else
-                
-
+            if (source.IsTraditionSource)
+                messages.Add(new QuoteMessage(source.GroupIdNum.Value, source.QQNum.Value, sourceMessageId));
+            
             await Task.Yield();
-            if (command.Count < 1)
+            if (command.Count() < 1)
             {
                 messages.Add(new TextMessage("不提问怎么帮你选0 0？"));
                 MessageManager.SendToSource(source, messages);
-                return;
+                return false;
             }
 
             string quest = null;
-            if (command.Count < 2)
+            if (command.Count() < 2)
             {
-                if(command[0].Contains("|"))
+                if (command.ElementAt(0).Contains("|"))
                 {
                     //当没提问时直接忽略处理问题，优化体验
                 }
@@ -39,13 +40,13 @@ namespace GensouSakuya.QQBot.Core.Commands
                 {
                     messages.Add(new TextMessage("快把你打算的选择告诉我"));
                     MessageManager.SendToSource(source, messages);
-                    return;
+                    return false;
                 }
             }
             else
             {
                 quest = command.First();
-                command.RemoveAt(0);
+                command = command.Skip(1);
             }
 
             //为了处理选项中有空格的情况
@@ -60,6 +61,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             }
             messages.Add(new TextMessage(message));
             MessageManager.SendToSource(source, messages);
+            return true;
         }
 
         public static List<AskModel> Ask(List<string> ques)

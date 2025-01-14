@@ -7,9 +7,9 @@ namespace GensouSakuya.QQBot.Core.Model
     {
         public MessageSourceType Type { get; private set; }
         public string QQ { get; private set; }
-        public Lazy<long> QQNum { get; private set; }
+        public Lazy<long?> QQNum { get; private set; }
         public string GroupId { get; private set; }
-        public Lazy<long> GroupIdNum { get; private set; }
+        public Lazy<long?> GroupIdNum { get; private set; }
         public string GuildId { get; private set; }
         public string ChannelId { get; private set; }
 
@@ -19,8 +19,8 @@ namespace GensouSakuya.QQBot.Core.Model
 
         private MessageSource() 
         {
-            GroupIdNum = new Lazy<long>(() => long.Parse(GroupId));
-            QQNum = new Lazy<long>(() => long.Parse(QQ));
+            GroupIdNum = new Lazy<long?>(() => long.TryParse(GroupId, out var groupNum) ? groupNum : null);
+            QQNum = new Lazy<long?>(() => long.TryParse(QQ, out var qqNum) ? qqNum : null);
         }
 
         public static MessageSource FromGroup(string userId, string groupId, dynamic sender)

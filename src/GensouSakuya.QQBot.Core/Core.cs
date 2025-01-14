@@ -136,7 +136,8 @@ namespace GensouSakuya.QQBot.Core
         {
             if(source.Type == MessageSourceType.Group)
             {
-                if(DataManager.Instance?.GroupIgnore?.ContainsKey((source.GroupIdNum.Value, source.QQNum.Value)) ?? false)
+                if(source.GroupIdNum.Value.HasValue && source.QQNum.Value.HasValue 
+                                                    && (DataManager.Instance?.GroupIgnore?.ContainsKey((source.GroupIdNum.Value.Value, source.QQNum.Value.Value)) ?? false))
                 {
                     return true;
                 }

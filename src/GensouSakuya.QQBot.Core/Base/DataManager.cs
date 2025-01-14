@@ -110,7 +110,6 @@ namespace GensouSakuya.QQBot.Core.Base
             GroupIgnore = IgnoreManager.GroupIgnore;
             RuipingSentences = RuipingCommander.RuipingSentences;
             DouyinSubscribers = DouyinSubscribeManager.Subscribers;
-            WeiboSubscribers = WeiboSubscribeManager.Subscribers;
             BiliLiveSubscribers = BilibiliLiveSubscribeManager.Subscribers;
         }
 
@@ -120,6 +119,7 @@ namespace GensouSakuya.QQBot.Core.Base
             QWenConfig ??= new QWenConfig();
             QWenLimig ??= new QWenLimit();
             BiliSpaceSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
+            WeiboSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
 
             GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
             GroupMembers?.ForEach(p =>
@@ -142,7 +142,6 @@ namespace GensouSakuya.QQBot.Core.Base
             IgnoreManager.GroupIgnore = GroupIgnore;
             RuipingCommander.RuipingSentences = RuipingSentences;
             DouyinSubscribeManager.Subscribers = DouyinSubscribers;
-            WeiboSubscribeManager.Subscribers = WeiboSubscribers;
             BilibiliLiveSubscribeManager.Subscribers = BiliLiveSubscribers;
         }
 
