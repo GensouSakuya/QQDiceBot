@@ -33,9 +33,9 @@ namespace GensouSakuya.QQBot.Core
                     .Enrich.FromLogContext()
                     .MinimumLevel.Debug()
                     .WriteTo.Console(
-                        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
                     .WriteTo.File(Path.Combine("logs", "qqbot-.log"), rollingInterval: RollingInterval.Day,
-                        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+                        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}",
                         shared: true, rollOnFileSizeLimit: true, fileSizeLimitBytes: 10 * 1024 * 1024)
                     .CreateLogger());
             });
