@@ -30,6 +30,8 @@ namespace GensouSakuya.QQBot.Platform.Onebot
         private readonly ILogger _logger;
         public Bot(string host)
         {
+            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            Console.WriteLine($"current Env:{env}");
             _configuration = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: true)
                 .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)

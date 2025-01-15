@@ -41,7 +41,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
                         var handlerClassName = handlerType.Name;
                         var suffix = "handler";
                         var handlerName = handlerClassName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase) ? handlerClassName.Substring(0, handlerClassName.Length - suffix.Length) : handlerClassName;
-                        _commandHandlersMap[handlerClassName.ToLower()] = handlerType;
+                        _commandHandlersMap[handlerName.ToLower()] = handlerType;
                     }
                 }
                 else if (baseChainHandlerType.IsAssignableFrom(handlerType))
