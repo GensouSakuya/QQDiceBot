@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
@@ -61,8 +60,6 @@ namespace GensouSakuya.QQBot.Core.Base
             Config.GroupMembers = GroupMemberManager.GroupMembers.Values.OrderBy(p => p.GroupNumber).ThenBy(p => p.QQ).ToList();
             Config.GroupBakiConfig = BakiManager.GroupBakiConfig;
             Config.Users = UserManager.Users.Values.OrderBy(p=>p.QQ).ToList();
-            Config.GroupBan = BanManager.GroupBan;
-            Config.QQBan = BanManager.QQBan;
             Config.GroupShaDiaoTuConfig = ShaDiaoTuManager.GroupShaDiaoTuConfig;
             Config.GroupRepeatConfig = RepeatManager.GroupRepeatConfig;
             Config.GroupTodayHistoryConfig = TodayHistoryManager.GroupTodayHistoryConfig;
@@ -81,6 +78,8 @@ namespace GensouSakuya.QQBot.Core.Base
             Config.QWenLimig ??= new QWenLimit();
             Config.BiliSpaceSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
             Config.WeiboSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
+            Config.GroupBan ??= new ConcurrentDictionary<(long, long), string>();
+            Config.QQBan ??= new ConcurrentDictionary<long, string>();
 
             GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
             Config.GroupMembers?.ForEach(p =>
@@ -93,8 +92,6 @@ namespace GensouSakuya.QQBot.Core.Base
             {
                 UserManager.Users.AddOrUpdate(p.QQ, p, (key, q) => p);
             });
-            BanManager.GroupBan = Config.GroupBan;
-            BanManager.QQBan = Config.QQBan;
             ShaDiaoTuManager.GroupShaDiaoTuConfig = Config.GroupShaDiaoTuConfig;
             RepeatManager.GroupRepeatConfig = Config.GroupRepeatConfig;
             TodayHistoryManager.GroupTodayHistoryConfig = Config.GroupTodayHistoryConfig;
