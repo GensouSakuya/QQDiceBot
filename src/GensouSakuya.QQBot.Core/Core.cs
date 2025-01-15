@@ -9,6 +9,7 @@ using GensouSakuya.QQBot.Core.Interfaces;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
 using GensouSakuya.QQBot.Core.QQManager;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -24,19 +25,13 @@ namespace GensouSakuya.QQBot.Core
 
         private readonly HandlerResolver _handlerResolver;
         private IServiceProvider _messageServiceProvider;
-        public Core()
+        public Core(IConfiguration configuration)
         {
             _serviceCollection = new ServiceCollection();
             _serviceCollection.AddLogging(p =>
             {
-                p.AddSerilog(new LoggerConfiguration()
-                    .Enrich.FromLogContext()
-                    .MinimumLevel.Debug()
-                    .WriteTo.Console(
-                        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}")
-                    .WriteTo.File(Path.Combine("logs", "qqbot-.log"), rollingInterval: RollingInterval.Day,
-                        outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {SourceContext}: {Message:lj}{NewLine}{Exception}",
-                        shared: true, rollOnFileSizeLimit: true, fileSizeLimitBytes: 10 * 1024 * 1024)
+                p.AddConfiguration(configuration).AddSerilog(new LoggerConfiguration()
+                    .ReadFrom.Configuration(configuration)
                     .CreateLogger());
             });
             _handlerResolver = new HandlerResolver();

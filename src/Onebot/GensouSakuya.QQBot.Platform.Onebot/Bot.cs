@@ -61,7 +61,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             });
 
             _heartbeatCancellationTokenSource = new CancellationTokenSource();
-            _qqbotCore = new Core.Core();
+            _qqbotCore = new Core.Core(_configuration);
             //_webApplication = LiveChatHelper.Generate(_session).GetAwaiter().GetResult();
         }
 
