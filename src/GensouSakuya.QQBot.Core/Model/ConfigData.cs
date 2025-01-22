@@ -1,5 +1,4 @@
-﻿using GensouSakuya.QQBot.Core.Commands.V2;
-using GensouSakuya.QQBot.Core.Commands;
+﻿using GensouSakuya.QQBot.Core.Commands;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -34,9 +33,8 @@ namespace GensouSakuya.QQBot.Core.Model
 
         public List<string> RuipingSentences { get; set; }
 
-        public QWenConfig QWenConfig { get; set; }
-        public ConcurrentDictionary<long, bool> GroupQWenConfig { get; set; }
-        public QWenLimit QWenLimig { get; set; }
+        public ConcurrentDictionary<long, bool> AiEnableConifig { get; set; }
+        public Handlers.AiConfig AiConfig { get; set; }
 
 
         private string _botName = "骰娘";

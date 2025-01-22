@@ -7,6 +7,7 @@ using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Commands;
 using GensouSakuya.QQBot.Core.Commands.V2;
+using GensouSakuya.QQBot.Core.Handlers;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.QQManager;
 using Microsoft.Extensions.Logging;
@@ -73,13 +74,12 @@ namespace GensouSakuya.QQBot.Core.Base
 
         private void UpdateData()
         {
-            Config.GroupQWenConfig ??= new ConcurrentDictionary<long, bool>();
-            Config.QWenConfig ??= new QWenConfig();
-            Config.QWenLimig ??= new QWenLimit();
             Config.BiliSpaceSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
             Config.WeiboSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
             Config.GroupBan ??= new ConcurrentDictionary<(long, long), string>();
             Config.QQBan ??= new ConcurrentDictionary<long, string>();
+            Config.AiEnableConifig ??= new ConcurrentDictionary<long, bool>();
+            Config.AiConfig ??= new AiConfig();
 
             GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
             Config.GroupMembers?.ForEach(p =>

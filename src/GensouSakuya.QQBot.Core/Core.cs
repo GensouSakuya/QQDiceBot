@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
 using GensouSakuya.QQBot.Core.Handlers;
+using GensouSakuya.QQBot.Core.Helpers;
 using GensouSakuya.QQBot.Core.Interfaces;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
@@ -40,7 +41,9 @@ namespace GensouSakuya.QQBot.Core
         public async Task Init(long qq, PlatformApiModel api, string dataPath = null)
         {
             await _handlerResolver.RegisterHandlers(_serviceCollection);
-            _serviceCollection.AddSingleton<DataManager>();
+            _serviceCollection
+                .AddAi()
+                .AddSingleton<DataManager>();
             CommandCenter.ReloadManagers();
             RegisterEvents(api);
             _messageServiceProvider = _serviceCollection.BuildServiceProvider();
