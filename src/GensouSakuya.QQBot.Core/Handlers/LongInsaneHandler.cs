@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
+using GensouSakuya.QQBot.Core.Interfaces;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
 using net.gensousakuya.dice;
@@ -8,30 +9,30 @@ using net.gensousakuya.dice;
 namespace GensouSakuya.QQBot.Core.Commands
 {
     [Command("li")]
-    public class LongInsaneManager : BaseManager
+    internal class LongInsaneHandler : IMessageCommandHandler
     {
-        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
+        public async Task<bool> ExecuteAsync(MessageSource source, IEnumerable<string> command, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
         {
             await Task.Yield();
             var name = "";
             if (source.Type == MessageSourceType.Group)
             {
-                if (member == null)
-                    return;
+                if (sourceInfo.GroupMember == null)
+                    return false;
 
-                name = string.IsNullOrWhiteSpace(member.GroupName) ? qq.Name : member.GroupName;
+                name = string.IsNullOrWhiteSpace(sourceInfo.GroupMember.GroupName) ? sourceInfo.QQ.Name : sourceInfo.GroupMember.GroupName;
             }
             else if (source.Type == MessageSourceType.Private)
             {
-                if (qq == null)
-                    return;
-                name = qq.Name;
+                if (sourceInfo.QQ == null)
+                    return false;
+                name = sourceInfo.QQ.Name;
             }
-            else if( source .Type == MessageSourceType.Guild)
+            else if (source.Type == MessageSourceType.Guild)
             {
-                if (guildmember == null)
-                    return;
-                name = guildmember.NickName;
+                if (sourceInfo.GuildMember == null)
+                    return false;
+                name = sourceInfo.GuildMember.NickName;
             }
 
             var str = $"{name}的疯狂发作 - 总结症状:\n";
@@ -57,6 +58,7 @@ namespace GensouSakuya.QQBot.Core.Commands
             }
 
             MessageManager.SendToSource(source, str);
+            return true;
         }
 
         public static readonly List<string> _longInsaneList = new List<string>
