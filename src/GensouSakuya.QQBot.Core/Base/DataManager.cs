@@ -131,7 +131,6 @@ namespace GensouSakuya.QQBot.Core.Base
         public async Task Load()
         {
             var path = ConfigFilePath;
-            _logger.LogDebug("loading from:" + path);
             if (File.Exists(path))
             {
                 var text = await File.ReadAllTextAsync(path);

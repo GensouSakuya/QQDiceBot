@@ -14,30 +14,24 @@ namespace GensouSakuya.QQBot.Core
 {
     internal class CommandCenter
     {
-        private static readonly Logger _logger = Logger.GetLogger<CommandCenter>();
         private static readonly Random Random = new Random();
         private static readonly Dictionary<string, Type> Managers = new Dictionary<string, Type>();
         private static CommanderEngine _engine;
 
         public static void ReloadManagers()
         {
-            _logger.Debug("ReloadingManager");
-
             //只能拿到直接继承的派生类，有需要的时候再改
             var managerTypes = Assembly.GetExecutingAssembly().GetTypes()
                 .Where(p => p.BaseType == typeof(BaseManager)).ToList();
-            _logger.Debug($"found {managerTypes.Count} managers");
             var managerWithCommands = managerTypes.Select(p => new
             {
                 Type = p,
                 CommandList = p.GetCustomAttributes<CommandAttribute>().ToList()
             }).Where(p => p.CommandList.Any()).ToList();
             managerWithCommands.ForEach(p => { p.CommandList.ForEach(q => { Managers.Add(q.Command, p.Type); }); });
-            _logger.Debug($"found {managerWithCommands.Count} valid v1 managers");
 
             var commanderTypes = Assembly.GetExecutingAssembly().GetTypes()
                 .Where(p => p.BaseType == typeof(BaseCommanderV2)).ToList();
-            _logger.Debug($"found {commanderTypes.Count} commanders");
             var commanders = new List<BaseCommanderV2>();
             commanders.AddRange(commanderTypes.Where(p => !p.IsAbstract).Select(p => (BaseCommanderV2)Activator.CreateInstance(p)));
             _engine = new CommanderEngine(commanders);
@@ -53,21 +47,6 @@ namespace GensouSakuya.QQBot.Core
                     await ExecuteWithoutCommand(source, rawMessage, originMessage, sourceInfo);
                 }
                 return;
-            }
-
-            if (source.Type == MessageSourceType.Group)
-            {
-                var member = sourceInfo.GroupMember;
-                if (BanManager.QQBan.TryGetValue(member.QQ, out _))
-                {
-                    MessageManager.SendTextMessage(source.Type, "滚", member.QQ, member.GroupNumber);
-                    return;
-                }
-                else if (BanManager.GroupBan.TryGetValue((member.QQ, member.GroupNumber), out _))
-                {
-                    MessageManager.SendTextMessage(source.Type, "滚", member.QQ, member.GroupNumber);
-                    return;
-                }
             }
 
             await manager.ExecuteAsync(source, commandArgs?.ToList(), originMessage, sourceInfo.QQ, sourceInfo.Group, sourceInfo.GroupMember, sourceInfo.GuildUser, sourceInfo.GuildMember);

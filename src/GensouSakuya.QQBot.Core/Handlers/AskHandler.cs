@@ -19,7 +19,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
             var sourceMessageId = (originMessage?.FirstOrDefault() as SourceMessage)?.Id ?? default;
             var messages = new List<BaseMessage>();
             if (source.IsTraditionSource)
-                messages.Add(new QuoteMessage(source.GroupIdNum.Value, source.QQNum.Value, sourceMessageId));
+                messages.Add(new ReplyMessage(source.GroupIdNum.Value, source.QQNum.Value, sourceMessageId));
             
             await Task.Yield();
             if (command.Count() < 1)

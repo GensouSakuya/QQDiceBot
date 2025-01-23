@@ -36,7 +36,7 @@ namespace GensouSakuya.QQBot.Core.Commands.V2
 
             var sourceMessageId = (originMessage?.FirstOrDefault() as SourceMessage)?.Id ?? default;
             var messages = new List<BaseMessage>();
-            messages.Add(new QuoteMessage(member.GroupNumber, member.QQ, sourceMessageId));
+            messages.Add(new ReplyMessage(member.GroupNumber, member.QQ, sourceMessageId));
             var sentence = GetRandomRuipingSentence();
             messages.Add(new TextMessage(sentence));
             MessageManager.SendToSource(source, messages);

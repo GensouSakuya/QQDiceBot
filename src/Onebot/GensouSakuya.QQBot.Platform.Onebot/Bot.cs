@@ -67,7 +67,6 @@ namespace GensouSakuya.QQBot.Platform.Onebot
 
         public async Task Start(long qq)
         {
-            var dataPath = _configuration["DataPath"];
             _isRunningInContainer = bool.TryParse(_configuration["IsRunningInContainer"], out var result) ? result : _isRunningInContainer;
             if(_isRunningInContainer)
             {
@@ -82,7 +81,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             {
                 SendMessage = SendMessage,
                 GetGroupMemberList = GetGroupMemberList,
-            }, dataPath);
+            });
             _offlineScript = _configuration["OfflineRestartScript"];
             if (!string.IsNullOrWhiteSpace(_offlineScript))
             {
@@ -149,10 +148,10 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                     {
                         builder.Json(jm.Json);
                     }
-                    //else if (p is Core.PlatformModel.QuoteMessage qm)
-                    //{
-                    //    builder = builder.Add(new Mirai_CSharp.Models.QuoteMessage(qm.QQ));
-                    //}
+                    else if (p is Core.PlatformModel.ReplyMessage qm)
+                    {
+                        builder.Reply((int)qm.MessageId);
+                    }
                     else if (p is Core.PlatformModel.OtherMessage om)
                     {
                         if (om.Origin is MessageBase imb)
@@ -204,18 +203,19 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             var mes = new List<Core.PlatformModel.BaseMessage>();
             msg.Message.ToList().ForEach(c =>
             {
+                Core.PlatformModel.BaseMessage message = null;
                 if (c is ImageMessage im)
                 {
-                    mes.Add(new Core.PlatformModel.ImageMessage(url: im.Data.Url));
+                    message = new Core.PlatformModel.ImageMessage(url: im.Data.Url);
                     Console.WriteLine($"received image:{im.Data.Url}");
                 }
                 else if (c is TextMessage pm)
                 {
-                    mes.Add(new Core.PlatformModel.TextMessage(pm.Data.Text));
+                    message = new Core.PlatformModel.TextMessage(pm.Data.Text);
                 }
                 else if (c is AtMessage am)
                 {
-                    mes.Add(new Core.PlatformModel.AtMessage(long.TryParse(am.Data.QQ, out var qq) ? qq : default));
+                    message = new Core.PlatformModel.AtMessage(long.TryParse(am.Data.QQ, out var qq) ? qq : default);
                 }
                 else if (c is ReplyMessage qm)
                 {
@@ -223,11 +223,16 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                 }
                 else if (c is JsonMessage jm)
                 {
-                    mes.Add(new Core.PlatformModel.JsonMessage(jm.Data.Data));
+                    message = new Core.PlatformModel.JsonMessage(jm.Data.Data);
                 }
                 else
                 {
-                    mes.Add(new Core.PlatformModel.OtherMessage(c));
+                    message = new Core.PlatformModel.OtherMessage(c);
+                }
+                if (message != null)
+                {
+                    message.Id = msg.MessageId;
+                    mes.Add(message);
                 }
             });
             return mes;

@@ -254,3 +254,5 @@ __pycache__/
 /src/Onebot/GensouSakuya.QQBot.Platform.Onebot/Properties/launchSettings.json
 /src/Onebot/GensouSakuya.QQBot.Platform.Onebot/logs
 /src/Onebot/GensouSakuya.QQBot.Platform.Onebot/appsettings.Development.json
+//该文件用于自行扩展AI功能
+/src/GensouSakuya.QQBot.Core/Helpers/AiHelper.CustomExtensions.cs

@@ -54,7 +54,7 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
 
     public abstract class BaseMessage
     {
-
+        public long Id { get; set; }
     }
 
     public class TextMessage: BaseMessage
@@ -108,7 +108,7 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
         }
     }
 
-    public class QuoteMessage : BaseMessage
+    public class ReplyMessage : BaseMessage
     {
         public long GroupNumber { get; set; }
 
@@ -116,7 +116,7 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
 
         public long MessageId { get; set; }
 
-        public QuoteMessage(long? groupNumber,long? senderId,long? messageId)
+        public ReplyMessage(long? groupNumber,long? senderId,long? messageId)
         {
             GroupNumber = groupNumber ?? default;
             SenderId = senderId ?? default;

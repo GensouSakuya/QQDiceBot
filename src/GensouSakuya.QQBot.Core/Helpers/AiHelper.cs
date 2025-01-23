@@ -58,7 +58,22 @@ namespace GensouSakuya.QQBot.Core.Helpers
         Task<string> Chat(string userMessage);
     }
 
-    internal class QWenAiService : IAiService
+    internal abstract partial class BaseAiService:IAiService
+    {
+        public virtual bool NeedMoreInteract(string reply)
+        {
+            return false;
+        }
+
+        public abstract Task<string> Chat(string userMessage);
+
+        public virtual Task<string> MoreInteract(string reply, string userMessage)
+        {
+            return Task.FromResult(reply);
+        }
+    }
+
+    internal class QWenAiService : BaseAiService
     {
         private const string ChatUrlTemplate = "https://dashscope.aliyuncs.com/api/v1/apps/{0}/completion";
         private readonly AiConfig _config;
@@ -69,7 +84,7 @@ namespace GensouSakuya.QQBot.Core.Helpers
             _logger = loggerFactory?.CreateLogger<QWenAiService>();
         }
 
-        public async Task<string> Chat(string userMessage)
+        public override async Task<string> Chat(string userMessage)
         {
             var appId = _config?.Spec?.Value<string>("AppId");
             if (string.IsNullOrWhiteSpace(appId))
@@ -149,45 +164,36 @@ namespace GensouSakuya.QQBot.Core.Helpers
         }
     }
 
-    internal class DeepseekAiService : IAiService
+    internal partial class DeepseekAiService : BaseAiService
     {
         private const string ChatUrl = "https://api.deepseek.com/chat/completions";
         private readonly AiConfig _config;
         private readonly ILogger _logger;
+        private readonly DataManager _dataManager;
         public DeepseekAiService(DataManager dataManager, ILoggerFactory loggerFactory)
         {
+            _dataManager = dataManager;
             _config = dataManager?.Config?.AiConfig;
             _logger = loggerFactory?.CreateLogger<DeepseekAiService>();
         }
 
-        public async Task<string> Chat(string userMessage)
+        private string GetSystemPrompt()
         {
             string systemPrompt = null;
-            string userPrompt = null;
             var systemPromptFilePath = _config.SystemPromptFilePath;
+            if (!Path.IsPathRooted(systemPromptFilePath))
+            {
+                systemPromptFilePath = Path.Combine(DataManager.DataPath, systemPromptFilePath);
+            }
             if (systemPromptFilePath != null && File.Exists(systemPromptFilePath))
             {
                 systemPrompt = File.ReadAllText(systemPromptFilePath);
             }
+            return systemPrompt;
+        }
 
-            var userPromptFilePath = _config.UserPrompFilePath;
-            if (userPromptFilePath != null && File.Exists(userPromptFilePath))
-            {
-                var userPromptTemp = File.ReadAllText(userPromptFilePath);
-                if(userPromptTemp.Contains("{Placeholder}", StringComparison.OrdinalIgnoreCase))
-                {
-                    userPrompt = userPromptTemp.Replace("{Placeholder}", userMessage);
-                }
-                else
-                {
-                    userPrompt = userPromptTemp + userMessage;
-                }
-            }
-            else
-            {
-                userPrompt = userMessage;
-            }
-
+        private async Task<string> CallApi(string systemPrompt, string userPrompt)
+        {
             using (var client = new RestClient())
             {
                 var req = new RestRequest(ChatUrl);
@@ -231,9 +237,46 @@ namespace GensouSakuya.QQBot.Core.Helpers
                     _logger.LogInformation("deepseek text is empty, response: {0}", res.Content);
                     return null;
                 }
-
                 return reply;
             }
+        }
+
+        public override async Task<string> Chat(string userMessage)
+        {
+            string systemPrompt = GetSystemPrompt();
+            string userPrompt = null;
+
+            var userPromptFilePath = _config.UserPrompFilePath;
+            if (userPromptFilePath != null && File.Exists(userPromptFilePath))
+            {
+                var userPromptTemp = File.ReadAllText(userPromptFilePath);
+                if(userPromptTemp.Contains("{Placeholder}", StringComparison.OrdinalIgnoreCase))
+                {
+                    userPrompt = userPromptTemp.Replace("{Placeholder}", userMessage);
+                }
+                else
+                {
+                    userPrompt = userPromptTemp + userMessage;
+                }
+            }
+            else
+            {
+                userPrompt = userMessage;
+            }
+
+            var reply = await CallApi(systemPrompt, userPrompt);
+            if (NeedMoreInteract(reply))
+            {
+                reply = await MoreInteract(reply, userMessage);
+            }
+
+            if (string.IsNullOrWhiteSpace(reply))
+            {
+                _logger.LogInformation("deepseek reply is empty");
+                return null;
+            }
+
+            return reply;
         }
 
         public class ResponseModel

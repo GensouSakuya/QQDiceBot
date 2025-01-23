@@ -202,6 +202,8 @@ namespace GensouSakuya.QQBot.Core.Helpers
             var modules = item["modules"];
             dyn.IsTop = modules["module_tag"]?["text"]?.Value<string>() == "置顶";
             dyn.AuthorName = modules["module_author"]?["name"]?.Value<string>();
+            var publishTimeSpan = modules["module_author"]?["pub_ts"]?.Value<long>();
+            dyn.PublishTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc).AddSeconds((double)publishTimeSpan);
             //图文动态 or 纯文本动态
             if (type == "DYNAMIC_TYPE_DRAW" || type == "DYNAMIC_TYPE_WORD")
             {
@@ -273,6 +275,7 @@ namespace GensouSakuya.QQBot.Core.Helpers
         public bool IsRepost { get; set; }
 
         public string AuthorName { get; set; }
+        public DateTime PublishTime { get; set; }
         public BiliSpaceDynamic RepostOrigin { get; set; }
     }
 }

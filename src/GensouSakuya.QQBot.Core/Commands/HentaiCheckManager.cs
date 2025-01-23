@@ -28,7 +28,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
             var sourceMessageId = (originMessage?.FirstOrDefault() as SourceMessage)?.Id ?? default;
             var messages = new List<BaseMessage>();
-            messages.Add(new QuoteMessage(toGroup, fromQQ, sourceMessageId));
+            messages.Add(new ReplyMessage(toGroup, fromQQ, sourceMessageId));
 
             fromQQ = member.QQ;
             toGroup = member.GroupNumber;

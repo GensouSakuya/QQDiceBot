@@ -30,15 +30,18 @@ namespace GensouSakuya.QQBot.Core.Handlers
                 return Task.FromResult(false);
             if (string.IsNullOrWhiteSpace(aiConfig.APIKey))
                 return Task.FromResult(false);
-            if (source.Type != MessageSourceType.Group && source.Type != MessageSourceType.Discuss)
+            if (source.Type != MessageSourceType.Group && source.Type != MessageSourceType.Discuss && source.Type != MessageSourceType.Friend)
                 return Task.FromResult(false);
-            if (!_dataManager.Config.AiEnableConifig.TryGetValue(source.GroupIdNum.Value ?? -1, out var res) || !res)
+            if (source.Type == MessageSourceType.Group && (!_dataManager.Config.AiEnableConifig.TryGetValue(source.GroupIdNum.Value ?? -1, out var res) || !res))
                 return Task.FromResult(false);
             if (!originMessage.Any(p => p is TextMessage))
                 return Task.FromResult(false);
-            var atMessage = originMessage.FirstOrDefault(p => p is AtMessage am && am.QQ == DataManager.QQ);
-            if (atMessage == null)
-                return Task.FromResult(false);
+            if(source.Type == MessageSourceType.Group)
+            {
+                var atMessage = originMessage.FirstOrDefault(p => p is AtMessage am && am.QQ == DataManager.QQ);
+                if (atMessage == null)
+                    return Task.FromResult(false);
+            }
 
             return Task.FromResult(true);
         }
@@ -49,11 +52,18 @@ namespace GensouSakuya.QQBot.Core.Handlers
             if (string.IsNullOrWhiteSpace(sourceText)) 
                 return true;
 
-            var member = sourceInfo.GroupMember;
-            var sourceMessageId = (originMessage?.FirstOrDefault() as SourceMessage)?.Id ?? default;
             var messages = new List<BaseMessage>();
-            messages.Add(new QuoteMessage(member.GroupNumber, member.QQ, sourceMessageId));
-            messages.Add(new AtMessage(member.QQ));
+            var sourceMessageId = originMessage?.FirstOrDefault()?.Id ?? default;
+            if (source.Type == MessageSourceType.Group)
+            {
+                var member = sourceInfo.GroupMember;
+                messages.Add(new ReplyMessage(member.GroupNumber, member.QQ, sourceMessageId));
+                messages.Add(new AtMessage(member.QQ));
+            }
+            else
+            {
+                messages.Add(new ReplyMessage(null, null, sourceMessageId));
+            }
 
             //if (limit?.Check(config.TokenLimit) == false)
             //{
