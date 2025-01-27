@@ -118,6 +118,7 @@ namespace GensouSakuya.QQBot.Core.Helpers
 
         public static async Task<List<BiliSpaceDynamic>> GetBiliSpaceDynm(string uid, bool retry = true)
         {
+            string html = "";
             try
             {
                 List<BiliSpaceDynamic> dynamics = null;
@@ -174,6 +175,7 @@ namespace GensouSakuya.QQBot.Core.Helpers
                     }
                     finally
                     {
+                        html = driver.PageSource;
                         driver.Quit();
                     }
                 }
@@ -189,6 +191,7 @@ namespace GensouSakuya.QQBot.Core.Helpers
                 }
                 else
                 {
+                    //_logger.Error(e, "GetBiliSpaceDynm failed again, html:{0}", Environment.NewLine + html);
                     throw;
                 }
             }
