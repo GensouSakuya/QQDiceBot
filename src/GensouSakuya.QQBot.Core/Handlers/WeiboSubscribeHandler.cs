@@ -116,7 +116,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
                         var images = newest["mblog"]["pic_ids"].ToArray();
                         var retweeted = newest["mblog"]["retweeted_status"];
 
-                        Logger.LogError("weibo[{0}] start sending notice", room.Key);
+                        Logger.LogDebug("weibo[{0}] start sending notice", room.Key);
 
                         var isRepost = retweeted != null;
                         text = WeiboHelper.FilterHtml(text);

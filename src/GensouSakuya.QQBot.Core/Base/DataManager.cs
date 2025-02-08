@@ -105,7 +105,7 @@ namespace GensouSakuya.QQBot.Core.Base
 
         public Task Save()
         {
-            _logger.LogInformation("saving data");
+            _logger.LogDebug("saving data");
             this.RefreshData();
             var path = ConfigFilePath;
             try

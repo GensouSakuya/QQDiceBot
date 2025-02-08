@@ -5,20 +5,27 @@ using GensouSakuya.QQBot.Core.Base;
 using GensouSakuya.QQBot.Core.Interfaces;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
+using Microsoft.Extensions.Logging;
 using net.gensousakuya.dice;
 
 namespace GensouSakuya.QQBot.Core.Commands
 {
-    [Command("jrrp")]
-    public class JrrpManager: BaseManager
+    internal class JrrpHandler : IMessageCommandHandler
     {
-        private static readonly Logger _logger = Logger.GetLogger<JrrpManager>();
-        private static List<long> _disabledJrrpGroupNumbers
+        private readonly DataManager _dataManager;
+        private readonly ILogger _logger;
+        public JrrpHandler(DataManager data, ILoggerFactory loggerFactory)
         {
-            get { return DataManager.Instance.DisabledJrrpGroupNumbers; }
+            _dataManager = data;
+            _logger = loggerFactory.CreateLogger<JrrpHandler>();
         }
 
-        internal static int GetJrrp(IUserJrrp user, bool reroll = false)
+        private List<long> _disabledJrrpGroupNumbers
+        {
+            get { return _dataManager.Config.DisabledJrrpGroupNumbers; }
+        }
+
+        internal int GetJrrp(IUserJrrp user, bool reroll = false)
         {
             //LastJrrpDate为空即表示第一次使用jrrp，不做特殊处理
             if (!user.LastJrrpDate.HasValue)
@@ -26,7 +33,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 user.Jrrp = DiceManager.RollDice();
                 user.LastJrrpDate = DateTime.Today;
                 ReRollCheck(ref user);
-                DataManager.NoticeConfigUpdatedAction();
+                _dataManager.NoticeConfigUpdated();
                 return user.Jrrp;
             }
             else
@@ -39,7 +46,7 @@ namespace GensouSakuya.QQBot.Core.Commands
 
                     ReRollCheck(ref user);
                     user.LastJrrpDate = DateTime.Today;
-                    DataManager.NoticeConfigUpdatedAction();
+                    _dataManager.NoticeConfigUpdated();
                 }
                 else
                 {
@@ -60,7 +67,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                             user.ReRollStep = RerollStep.RerollDevastated;
                             user.Jrrp = DiceManager.RollDice((rerollJrrp + 1) / 2);
                         }
-                        DataManager.NoticeConfigUpdatedAction();
+                        _dataManager.NoticeConfigUpdated();
                     }
                 }
                 return user.Jrrp;
@@ -76,21 +83,23 @@ namespace GensouSakuya.QQBot.Core.Commands
             }
         }
 
-        public override async Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
+        public async Task<bool> ExecuteAsync(MessageSource source, IEnumerable<string> command, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
         {
             await Task.Yield();
             var name = "";
             IUserJrrp user = null;
+            var qq = sourceInfo.QQ;
             if (source.Type == MessageSourceType.Group)
             {
+                var member = sourceInfo.GroupMember;
                 if (member == null)
                 {
-                    _logger.Debug("Jrrp group member is null");
-                    return;
+                    _logger.LogDebug("Jrrp group member is null");
+                    return false;
                 }
                 if (_disabledJrrpGroupNumbers.Contains(member.GroupNumber))
                 {
-                    return;
+                    return false;
                 }
 
                 name = member.GroupName;
@@ -100,16 +109,16 @@ namespace GensouSakuya.QQBot.Core.Commands
             {
                 if (qq == null)
                 {
-                    _logger.Debug("Jrrp qq is null");
-                    return;
+                    _logger.LogDebug("Jrrp qq is null");
+                    return false;
                 }
                 name = qq.Name;
                 user = qq;
             }
-            else if(source.Type == MessageSourceType.Guild)
+            else if (source.Type == MessageSourceType.Guild)
             {
-                user = guildUser;
-                name = guildmember.NickName;
+                user = sourceInfo.GuildUser;
+                name = sourceInfo.GuildMember.NickName;
             }
             else
             {
@@ -119,14 +128,14 @@ namespace GensouSakuya.QQBot.Core.Commands
             var isReroll = user.ReRollStep == RerollStep.CanReroll;
             var rp = GetJrrp(user, isReroll);
 
-            switch(user.ReRollStep)
+            switch (user.ReRollStep)
             {
                 case RerollStep.None:
                     MessageManager.SendToSource(source, name + "今天的人品值是:" + rp);
-                    return;
+                    break;
                 case RerollStep.CanReroll:
                     MessageManager.SendToSource(source, name + "今天的人品不太好，确定要看的话就再来一次吧");
-                    return;
+                    break;
                 case RerollStep.RerollFaild:
                     if (rp == 1)
                     {
@@ -136,11 +145,11 @@ namespace GensouSakuya.QQBot.Core.Commands
                     {
                         MessageManager.SendToSource(source, name + $"今天的人品值只有：{rp}");
                     }
-                    return;
+                    break;
                 case RerollStep.RerollSuccess:
                     MessageManager.SendToSource(source, $"啊！对不起刚才是我失误了！{name}今天人品值应该是：{rp}");
-                    user.ReRollStep = RerollStep.None;
-                    return;
+                    user.ReRollStep = RerollStep.None; 
+                    break;
                 case RerollStep.RerollDevastated:
                     if (rp == 1)
                     {
@@ -151,8 +160,9 @@ namespace GensouSakuya.QQBot.Core.Commands
                         MessageManager.SendToSource(source, $"都说了不想告诉你了嘛……{name}今天人品值只有：{rp}");
                     }
                     user.ReRollStep = RerollStep.RerollFaild;
-                    return;
+                    break;
             }
+            return true;
         }
     }
 }
