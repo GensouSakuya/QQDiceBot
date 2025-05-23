@@ -136,16 +136,20 @@ namespace GensouSakuya.QQBot.Core.Helpers
                         var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                         void Session_DevToolsEventReceived(object? sender, DevToolsEventReceivedEventArgs e)
                         {
-                            var type = e.EventData["type"]?.GetValue<string>();
-                            if (type != "Fetch")
+                            if (!e.EventData.TryGetProperty("type", out var type))
                                 return;
 
-                            var url = e.EventData["response"]?["url"]?.GetValue<string>(); //?? e.EventData["request"]?["url"]?.GetValue<string>();
+                            if (type.GetString() != "Fetch")
+                                return;
+
+                            if (!e.EventData.TryGetProperty("response", out var property) || !property.TryGetProperty("url", out var urlProperty))
+                                return;
+                            var url = urlProperty.GetString();
                             //Console.WriteLine(url);
                             if (url != null && url.StartsWith("https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/space"))
                             {
                                 ////Console.WriteLine(e.EventData);
-                                requestId = e.EventData["requestId"]?.GetValue<string>();
+                                requestId = e.EventData.GetProperty("requestId").GetString();
                                 complementTask.SetResult("test");
                                 session.DevToolsEventReceived -= Session_DevToolsEventReceived;
                             }
