@@ -9,7 +9,6 @@ using RestSharp;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,7 +24,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
         protected override TimeSpan StartDelay => TimeSpan.FromSeconds(5);
         protected override TimeSpan LoopInterval => TimeSpan.FromMinutes(10);
 
-        public WeiboSubscribeHandler(ILoggerFactory loggerFactory, DataManager dataManager) : base(loggerFactory.CreateLogger<WeiboSubscribeHandler>(), dataManager, () => DataManager.Instance.WeiboSubscribers)
+        public WeiboSubscribeHandler(ILoggerFactory loggerFactory, DataManager dataManager) : base(loggerFactory.CreateLogger<WeiboSubscribeHandler>(), dataManager, () => dataManager.Config.WeiboSubscribers)
         {
             _lastWeiboId = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
         }

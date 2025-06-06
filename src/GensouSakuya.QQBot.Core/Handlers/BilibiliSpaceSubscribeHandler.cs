@@ -22,7 +22,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
         protected override TimeSpan StartDelay => TimeSpan.FromMinutes(1);
         protected override TimeSpan LoopInterval => TimeSpan.FromHours(1);
 
-        public BilibiliSpaceSubscribeHandler(ILoggerFactory loggerFactory, DataManager dataManager) : base(loggerFactory.CreateLogger<BilibiliSpaceSubscribeHandler>(), dataManager, () => DataManager.Instance.BiliSpaceSubscribers)
+        public BilibiliSpaceSubscribeHandler(ILoggerFactory loggerFactory, DataManager dataManager) : base(loggerFactory.CreateLogger<BilibiliSpaceSubscribeHandler>(), dataManager, () => dataManager.Config.BiliSpaceSubscribers)
         {
             _lastDynamicId = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
         }

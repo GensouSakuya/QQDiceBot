@@ -195,7 +195,8 @@ namespace GensouSakuya.QQBot.Core.Helpers
                 }
                 else
                 {
-                    //_logger.Error(e, "GetBiliSpaceDynm failed again, html:{0}", Environment.NewLine + html);
+                    if(e is TaskCanceledException)
+                        _logger.Error(e, "GetBiliSpaceDynm failed again, html:{0}", Environment.NewLine + html);
                     throw;
                 }
             }

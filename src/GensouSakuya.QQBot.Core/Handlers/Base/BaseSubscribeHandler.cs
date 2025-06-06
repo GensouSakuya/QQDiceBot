@@ -45,7 +45,8 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
                         CompletionSource = new TaskCompletionSource<bool>();
 
                     var subscribers = GetSubscribers();
-                    await Loop(subscribers, token);
+                    if(subscribers != null && subscribers.Count > 0)
+                        await Loop(subscribers, token);
 
                     await Task.WhenAny(Task.Delay(LoopInterval), CompletionSource.Task);
                 }
@@ -97,7 +98,7 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
             }
             else if (source.Type == MessageSourceType.Friend)
             {
-                if (source.QQ != DataManager.Instance.AdminQQ.ToString())
+                if (source.QQ != DataManager.Config.AdminQQ.ToString())
                 {
                     MessageManager.SendToSource(source, "目前只有机器人管理员可以配置该功能哦");
                     return false;
