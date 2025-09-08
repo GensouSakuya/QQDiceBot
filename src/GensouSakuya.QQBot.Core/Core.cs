@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GensouSakuya.QQBot.Agent;
 using GensouSakuya.QQBot.Core.Base;
 using GensouSakuya.QQBot.Core.Handlers;
 using GensouSakuya.QQBot.Core.Helpers;
@@ -19,44 +20,34 @@ namespace GensouSakuya.QQBot.Core
 {
     public class Core
     {
-        private readonly IServiceCollection _serviceCollection;
         private readonly IConfiguration _configuration;
-        private ILogger _logger;
+        private readonly ILogger _logger;
         public bool IsInitialized { get; private set; }
 
         private readonly HandlerResolver _handlerResolver;
-        private IServiceProvider _messageServiceProvider;
-        private DataManager _dataManager;
-        public Core(IConfiguration configuration)
+        private readonly IServiceProvider _rootServiceProvider;
+        private readonly DataManager _dataManager;
+        private BaseConfig _baseConfig;
+        public Core(BaseConfig bc, IConfiguration configuration, HandlerResolver handlerResolver, IServiceProvider serviceProvider, ILogger<Core> logger, DataManager dataManager)
         {
-            _serviceCollection = new ServiceCollection();
-            _serviceCollection.AddLogging(p =>
-            {
-                p.AddConfiguration(configuration).AddSerilog(new LoggerConfiguration()
-                    .ReadFrom.Configuration(configuration)
-                    .CreateLogger());
-            });
-            _handlerResolver = new HandlerResolver();
+            _baseConfig = bc;
+            _handlerResolver = handlerResolver;
             _configuration = configuration;
+            _rootServiceProvider = serviceProvider;
+            _logger = logger;
+            _dataManager = dataManager;
         }
 
-        public async Task Init(long qq, PlatformApiModel api)
+        public async Task Init(PlatformApiModel api)
         {
-            await _handlerResolver.RegisterHandlers(_serviceCollection);
-            _serviceCollection
-                .AddAi()
-                .AddSingleton<DataManager>();
             CommandCenter.ReloadManagers();
             RegisterEvents(api);
-            _messageServiceProvider = _serviceCollection.BuildServiceProvider();
-            _logger = _messageServiceProvider.GetService<ILoggerFactory>().CreateLogger<Core>();
-            _dataManager = _messageServiceProvider.GetRequiredService<DataManager>();
             var dataPath = _configuration["DataPath"];
-            await _dataManager.Init(qq, dataPath);
+            await _dataManager.Init(_baseConfig.QQ, dataPath);
             _logger.LogInformation("bot is started");
             IsInitialized = true;
             if (!bool.TryParse(_configuration["Warmup"], out var needWarmup) || needWarmup)
-                _handlerResolver.WarmupHostHandlers(_messageServiceProvider);
+                _handlerResolver.WarmupHostHandlers(_rootServiceProvider);
         }
 
         public async Task HandlerMessage(MessageSource source, string rawMessage, List<BaseMessage> originMessage)
@@ -87,23 +78,25 @@ namespace GensouSakuya.QQBot.Core
                 }
             }
 
-
-            if (command == null) 
+            using (var scope = _rootServiceProvider.CreateScope())
             {
-                var chainHandlers = _handlerResolver.GetChainHandlers(_messageServiceProvider);
-                await ExecuteChain(chainHandlers, source, rawMessage, originMessage, fullInfo);
-                await CommandCenter.ExecuteWithoutCommand(source, rawMessage, originMessage, fullInfo);
-            }
-            else
-            {
-                var handler = _handlerResolver.GetCommandHandler(_messageServiceProvider, command);
-                if(handler != null)
+                if (command == null)
                 {
-                    await handler.ExecuteAsync(source, commandArgs, originMessage, fullInfo);
+                    var chainHandlers = _handlerResolver.GetChainHandlers(scope.ServiceProvider);
+                    await ExecuteChain(chainHandlers, source, rawMessage, originMessage, fullInfo);
+                    await CommandCenter.ExecuteWithoutCommand(source, rawMessage, originMessage, fullInfo);
                 }
                 else
                 {
-                    await CommandCenter.Execute(source, rawMessage, command, commandArgs, originMessage, fullInfo);
+                    var handler = _handlerResolver.GetCommandHandler(scope.ServiceProvider, command);
+                    if (handler != null)
+                    {
+                        await handler.ExecuteAsync(source, commandArgs, originMessage, fullInfo);
+                    }
+                    else
+                    {
+                        await CommandCenter.Execute(source, rawMessage, command, commandArgs, originMessage, fullInfo);
+                    }
                 }
             }
         }

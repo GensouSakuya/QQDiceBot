@@ -1,6 +1,6 @@
 ﻿namespace GensouSakuya.QQBot.Core.Model
 {
-    internal class SourceFullInfo
+    public class SourceFullInfo
     {
         public UserInfo QQ { get; set; }
         public Group Group { get; set; }

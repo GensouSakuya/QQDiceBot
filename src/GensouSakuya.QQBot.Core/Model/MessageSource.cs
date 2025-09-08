@@ -17,6 +17,8 @@ namespace GensouSakuya.QQBot.Core.Model
 
         public bool IsTraditionSource => Type != MessageSourceType.Guild;
 
+        public bool IsPrivateSource => Type == MessageSourceType.Private || Type == MessageSourceType.Friend;
+
         private MessageSource() 
         {
             GroupIdNum = new Lazy<long?>(() => long.TryParse(GroupId, out var groupNum) ? groupNum : null);

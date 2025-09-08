@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GensouSakuya.QQBot.Core.Interfaces
 {
-    internal interface IMessageChainHandler: IMessageHandler
+    public interface IMessageChainHandler: IMessageHandler
     {
         Task<bool> Check(MessageSource source, List<BaseMessage> originMessage, SourceFullInfo sourceInfo);
 

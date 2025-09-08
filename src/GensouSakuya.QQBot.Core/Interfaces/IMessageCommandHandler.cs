@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace GensouSakuya.QQBot.Core.Interfaces
 {
-    internal interface IMessageCommandHandler: IMessageHandler
+    public interface IMessageCommandHandler: IMessageHandler
     {
         Task<bool> ExecuteAsync(MessageSource source, IEnumerable<string> command, List<BaseMessage> originMessage, SourceFullInfo sourceInfo);
     }

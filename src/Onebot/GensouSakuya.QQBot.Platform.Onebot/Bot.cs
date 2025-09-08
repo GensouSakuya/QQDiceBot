@@ -1,21 +1,20 @@
-﻿using GensouSakuya.QQBot.Core;
-using Spectre.Console;
+﻿using Spectre.Console;
 using Mliybs.OneBot.V11;
 using Mliybs.OneBot.V11.Data.Receivers.Messages;
 using Mliybs.OneBot.V11.Data.Messages;
-using Newtonsoft.Json;
 using System.Diagnostics;
+using GensouSakuya.QQBot.Core.Base;
 
 namespace GensouSakuya.QQBot.Platform.Onebot
 {
-    public class Bot
+    public class Bot:IHostedService
     {
         private OneBot _bot;
         private Core.Core _qqbotCore;
 
         public OneBot OneBot => _bot;
 
-        private IConfiguration _configuration;
+        private readonly IConfiguration _configuration;
         private bool _isRunningInContainer;
         private string? _containerPathPrefix;
         private string? _volumePathPrefix;
@@ -23,21 +22,13 @@ namespace GensouSakuya.QQBot.Platform.Onebot
 
         private CancellationTokenSource _heartbeatCancellationTokenSource;
 
-        private readonly static ILoggerFactory _loggerFactory = LoggerFactory.Create(p =>
-        {
-            p.AddConsole().SetMinimumLevel(LogLevel.Information);
-        });
         private readonly ILogger _logger;
-        public Bot(string host)
+        public Bot(BaseConfig bc, Core.Core qqbotCore, IConfiguration configuration, ILogger<Bot> logger)
         {
-            var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            Console.WriteLine($"current Env:{env}");
-            _configuration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", optional: true)
-                .AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", true)
-                .Build();
+            _configuration = configuration;
+            _logger = logger;
+            var host = bc.Host;
             host = host.StartsWith("ws") ? host : $"ws://{host}";
-            _logger = _loggerFactory.CreateLogger<Bot>();
             _bot = new OneBot(new WebsocketOneBotHandler(host));
             _bot.MessageReceived.Subscribe(msg =>
             {
@@ -61,11 +52,10 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             });
 
             _heartbeatCancellationTokenSource = new CancellationTokenSource();
-            _qqbotCore = new Core.Core(_configuration);
-            //_webApplication = LiveChatHelper.Generate(_session).GetAwaiter().GetResult();
+            _qqbotCore = qqbotCore;
         }
 
-        public async Task Start(long qq)
+        public async Task Start()
         {
             _isRunningInContainer = bool.TryParse(_configuration["IsRunningInContainer"], out var result) ? result : _isRunningInContainer;
             if(_isRunningInContainer)
@@ -77,7 +67,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                     Directory.CreateDirectory(_volumePathPrefix);
                 }
             }
-            await _qqbotCore.Init(qq, new Core.PlatformModel.PlatformApiModel
+            await _qqbotCore.Init(new Core.PlatformModel.PlatformApiModel
             {
                 SendMessage = SendMessage,
                 GetGroupMemberList = GetGroupMemberList,
@@ -342,6 +332,16 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             {
                 _logger.LogError(e, "heartbeat error, stopped");
             }
+        }
+
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            await Start();
+        }
+
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
         }
     }
 

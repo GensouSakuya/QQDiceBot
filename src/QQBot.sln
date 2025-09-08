@@ -9,6 +9,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CurrentPlatform", "CurrentP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GensouSakuya.QQBot.Platform.Onebot", "Onebot\GensouSakuya.QQBot.Platform.Onebot\GensouSakuya.QQBot.Platform.Onebot.csproj", "{5F79F2E9-A990-4355-83F9-3AE82FB1CA40}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Agent", "Agent", "{47474ABD-E275-4BA5-B639-02D3B29FDC40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotSharp.Core", "..\Agent\src\Infrastructure\BotSharp.Core\BotSharp.Core.csproj", "{AEAAD6C2-EE84-4676-9FF9-118890870A56}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotSharp.Abstraction", "..\Agent\src\Infrastructure\BotSharp.Abstraction\BotSharp.Abstraction.csproj", "{5E7036A7-6F95-431A-8FED-2B3A364B7884}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GensouSakuya.QQBot.Agent", "GensouSakuya.QQBot.Agent\GensouSakuya.QQBot.Agent.csproj", "{4F1AF712-A86B-40FF-9400-59CD8665C478}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotSharp.Plugin.DeepSeekAI", "..\Agent\src\Plugins\BotSharp.Plugin.DeepSeekAI\BotSharp.Plugin.DeepSeekAI.csproj", "{56B3A90E-CE1D-46DD-9EB3-9E66D211F1BB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,12 +33,32 @@ Global
 		{5F79F2E9-A990-4355-83F9-3AE82FB1CA40}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F79F2E9-A990-4355-83F9-3AE82FB1CA40}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5F79F2E9-A990-4355-83F9-3AE82FB1CA40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEAAD6C2-EE84-4676-9FF9-118890870A56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEAAD6C2-EE84-4676-9FF9-118890870A56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEAAD6C2-EE84-4676-9FF9-118890870A56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEAAD6C2-EE84-4676-9FF9-118890870A56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5E7036A7-6F95-431A-8FED-2B3A364B7884}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5E7036A7-6F95-431A-8FED-2B3A364B7884}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5E7036A7-6F95-431A-8FED-2B3A364B7884}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5E7036A7-6F95-431A-8FED-2B3A364B7884}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F1AF712-A86B-40FF-9400-59CD8665C478}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F1AF712-A86B-40FF-9400-59CD8665C478}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F1AF712-A86B-40FF-9400-59CD8665C478}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F1AF712-A86B-40FF-9400-59CD8665C478}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56B3A90E-CE1D-46DD-9EB3-9E66D211F1BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56B3A90E-CE1D-46DD-9EB3-9E66D211F1BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56B3A90E-CE1D-46DD-9EB3-9E66D211F1BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56B3A90E-CE1D-46DD-9EB3-9E66D211F1BB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5F79F2E9-A990-4355-83F9-3AE82FB1CA40} = {367E435F-8D18-4D91-9DA7-AD209A00D1ED}
+		{AEAAD6C2-EE84-4676-9FF9-118890870A56} = {47474ABD-E275-4BA5-B639-02D3B29FDC40}
+		{5E7036A7-6F95-431A-8FED-2B3A364B7884} = {47474ABD-E275-4BA5-B639-02D3B29FDC40}
+		{4F1AF712-A86B-40FF-9400-59CD8665C478} = {47474ABD-E275-4BA5-B639-02D3B29FDC40}
+		{56B3A90E-CE1D-46DD-9EB3-9E66D211F1BB} = {47474ABD-E275-4BA5-B639-02D3B29FDC40}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {FFBA07D3-9754-4B96-9C1B-41C93A1D0942}

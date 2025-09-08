@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace GensouSakuya.QQBot.Core.Model
 {
-    internal class ConfigData
+    public class ConfigData
     {
         public ConcurrentDictionary<long, RepeatConfig> GroupRepeatConfig { get; set; }
 

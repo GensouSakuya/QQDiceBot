@@ -82,7 +82,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
         }
     }
 
-    internal class AiConfig
+    public class AiConfig
     {
         public AiType Type { get; set; }
         public string APIKey { get; set; } = "";
@@ -93,7 +93,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
         public JToken Spec { get; set; }
     }
 
-    internal enum AiType
+    public enum AiType
     {
         None = 0,
         QWen = 1,

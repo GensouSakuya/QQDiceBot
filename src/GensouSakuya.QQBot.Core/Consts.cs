@@ -3,5 +3,11 @@
     public static class Consts
     {
         public const string ConfigFileName = "config.json";
+
+        public static class Config
+        {
+            public static string EnableAgentKey = "EnableAgent";
+            public static string CommanderAgentMapKey = "CommanderAgentMap";
+        }
     }
 }

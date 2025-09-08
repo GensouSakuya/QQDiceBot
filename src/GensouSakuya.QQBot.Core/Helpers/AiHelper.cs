@@ -33,9 +33,9 @@ namespace GensouSakuya.QQBot.Core.Helpers
             switch (config.Type)
             {
                 case Handlers.AiType.QWen:
-                    return _serviceProvider.GetService<QWenAiService>();
+                    return _serviceProvider.CreateScope().ServiceProvider.GetService<QWenAiService>();
                 case Handlers.AiType.Deepseek:
-                    return _serviceProvider.GetService<DeepseekAiService>();
+                    return _serviceProvider.CreateScope().ServiceProvider.GetService<DeepseekAiService>();
                 default:
                     return null;
             }
@@ -46,7 +46,7 @@ namespace GensouSakuya.QQBot.Core.Helpers
     {
         public static IServiceCollection AddAi(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<AiServiceFactory>();
+            serviceCollection.AddSingleton<AiServiceFactory>();
             serviceCollection.AddScoped<QWenAiService>();
             serviceCollection.AddScoped<DeepseekAiService>();
             return serviceCollection;

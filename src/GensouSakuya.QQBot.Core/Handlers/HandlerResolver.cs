@@ -5,17 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace GensouSakuya.QQBot.Core.Handlers
 {
-    internal class HandlerResolver
+    public class HandlerResolver
     {
         private Dictionary<string, Type> _commandHandlersMap = new Dictionary<string, Type>();
         private List<Type> _chainHandlers = new List<Type>();
         private List<Type> _warmupHandlers = new List<Type>();
         
-        public Task RegisterHandlers(IServiceCollection serviceCollection)
+        public void RegisterHandlers(IServiceCollection serviceCollection)
         {
             var baseHandlerType = typeof(IMessageHandler);
             var baseCommandHandlerType = typeof(IMessageCommandHandler);
@@ -25,7 +24,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
                 .Where(p => p.IsClass && !p.IsAbstract && baseHandlerType.IsAssignableFrom(p));
             foreach (var handlerType in handlerTypes)
             {
-                serviceCollection.AddSingleton(handlerType);
+                serviceCollection.AddScoped(handlerType);
                 if (baseCommandHandlerType.IsAssignableFrom(handlerType))
                 {
                     var customCommands = handlerType.GetCustomAttributes<CommandAttribute>().Select(p => p.Command);
@@ -54,8 +53,6 @@ namespace GensouSakuya.QQBot.Core.Handlers
                     _warmupHandlers.Add(handlerType);
                 }
             }
-
-            return Task.CompletedTask;
         }
 
         public IMessageCommandHandler GetCommandHandler(IServiceProvider serviceProvider,string command)

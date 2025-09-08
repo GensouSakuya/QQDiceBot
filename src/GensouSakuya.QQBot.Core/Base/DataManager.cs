@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace GensouSakuya.QQBot.Core.Base
 {
-    internal class DataManager
+    public class DataManager
     {
         private readonly Subject<string> _observedLogList = new Subject<string>();
         private readonly ILogger _logger;
@@ -67,9 +67,6 @@ namespace GensouSakuya.QQBot.Core.Base
             Config.GroupNewsConfig = NewsManager.GroupNewsConfig;
             Config.GroupHentaiCheckConfig = HentaiCheckManager.GroupHentaiCheckConfig;
             Config.GroupIgnore = IgnoreManager.GroupIgnore;
-            Config.RuipingSentences = RuipingCommander.RuipingSentences;
-            Config.DouyinSubscribers = DouyinSubscribeManager.Subscribers;
-            Config.BiliLiveSubscribers = BilibiliLiveSubscribeManager.Subscribers;
         }
 
         private void UpdateData()
@@ -98,9 +95,6 @@ namespace GensouSakuya.QQBot.Core.Base
             NewsManager.GroupNewsConfig = Config.GroupNewsConfig;
             HentaiCheckManager.GroupHentaiCheckConfig = Config.GroupHentaiCheckConfig;
             IgnoreManager.GroupIgnore = Config.GroupIgnore;
-            RuipingCommander.RuipingSentences = Config.RuipingSentences;
-            DouyinSubscribeManager.Subscribers = Config.DouyinSubscribers;
-            BilibiliLiveSubscribeManager.Subscribers = Config.BiliLiveSubscribers;
         }
 
         public Task Save()
