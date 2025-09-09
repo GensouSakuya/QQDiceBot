@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using GensouSakuya.QQBot.Core.Handlers;
+using GensouSakuya.QQBot.Core.Agent.Tools;
+using BotSharp.Abstraction.Functions;
 
 namespace GensouSakuya.QQBot.Core
 {
@@ -25,8 +27,11 @@ namespace GensouSakuya.QQBot.Core
                     .ReadFrom.Configuration(configuration)
                     .CreateLogger());
             });
+            services.AddMemoryCache();
             services.AddSingleton(p => baseConfig);
             services.AddSingleton<Core>();
+            services.AddSingleton<CacheService>();
+            services.AddScoped<IFunctionCallback, GetBilispaceToolFn>();
             services
                 .AddAiAgent(configuration)
                 .AddSingleton<DataManager>()

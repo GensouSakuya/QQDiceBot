@@ -21,10 +21,12 @@ namespace GensouSakuya.QQBot.Core.Handlers
         private static readonly TimeSpan _subscriberInterval = TimeSpan.FromSeconds(10);
         protected override TimeSpan StartDelay => TimeSpan.FromMinutes(1);
         protected override TimeSpan LoopInterval => TimeSpan.FromHours(1);
+        private readonly CacheService _cacheService;
 
-        public BilibiliSpaceSubscribeHandler(ILoggerFactory loggerFactory, DataManager dataManager) : base(loggerFactory.CreateLogger<BilibiliSpaceSubscribeHandler>(), dataManager, () => dataManager.Config.BiliSpaceSubscribers)
+        public BilibiliSpaceSubscribeHandler(ILoggerFactory loggerFactory, DataManager dataManager, CacheService cacheService) : base(loggerFactory.CreateLogger<BilibiliSpaceSubscribeHandler>(), dataManager, () => dataManager.Config.BiliSpaceSubscribers)
         {
             _lastDynamicId = new ConcurrentDictionary<string, ConcurrentQueue<string>>();
+            _cacheService = cacheService;
         }
 
         private string _retryId = null;
@@ -88,6 +90,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
                     dynamicQueue.Enqueue(targetDynId);
                     if (dynamicQueue.Count > 20)
                         dynamicQueue.TryDequeue(out _);
+                    _cacheService.Set(Consts.Cache.BilispaceKey, dynamics);
                     var newest = dynamics[targetIndex];
                     var id = newest.Id;
                     var text = newest.Content;

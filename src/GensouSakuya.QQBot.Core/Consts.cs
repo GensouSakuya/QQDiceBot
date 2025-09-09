@@ -9,5 +9,10 @@
             public static string EnableAgentKey = "EnableAgent";
             public static string CommanderAgentMapKey = "CommanderAgentMap";
         }
+
+        public static class Cache
+        {
+            public static string BilispaceKey = "Bilispace";
+        }
     }
 }
