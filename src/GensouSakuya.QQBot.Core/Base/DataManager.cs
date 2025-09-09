@@ -6,8 +6,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Commands;
-using GensouSakuya.QQBot.Core.Commands.V2;
-using GensouSakuya.QQBot.Core.Handlers;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.QQManager;
 using Microsoft.Extensions.Logging;
@@ -25,9 +23,9 @@ namespace GensouSakuya.QQBot.Core.Base
         private static string ConfigFilePath => Path.Combine(DataPath, Consts.ConfigFileName);
         public static string TempPath => Path.Combine(DataPath, ".temp");
 
-        public DataManager(ILoggerFactory loggerFactory)
+        public DataManager(ILogger<DataManager> logger)
         {
-            _logger = loggerFactory.CreateLogger<DataManager>();
+            _logger = logger;
             _observedLogList.Buffer(TimeSpan.FromMinutes(5), 2)
                 .Where(x => x.Count > 0)
                 .Select(list => Observable.FromAsync(() => this.Save()))
@@ -63,7 +61,6 @@ namespace GensouSakuya.QQBot.Core.Base
             Config.Users = UserManager.Users.Values.OrderBy(p=>p.QQ).ToList();
             Config.GroupShaDiaoTuConfig = ShaDiaoTuManager.GroupShaDiaoTuConfig;
             Config.GroupRepeatConfig = RepeatManager.GroupRepeatConfig;
-            Config.GroupTodayHistoryConfig = TodayHistoryManager.GroupTodayHistoryConfig;
             Config.GroupNewsConfig = NewsManager.GroupNewsConfig;
             Config.GroupHentaiCheckConfig = HentaiCheckManager.GroupHentaiCheckConfig;
             Config.GroupIgnore = IgnoreManager.GroupIgnore;
@@ -75,8 +72,6 @@ namespace GensouSakuya.QQBot.Core.Base
             Config.WeiboSubscribers ??= new ConcurrentDictionary<string, ConcurrentDictionary<string, SubscribeModel>>();
             Config.GroupBan ??= new ConcurrentDictionary<(long, long), string>();
             Config.QQBan ??= new ConcurrentDictionary<long, string>();
-            Config.AiEnableConifig ??= new ConcurrentDictionary<long, bool>();
-            Config.AiConfig ??= new AiConfig();
 
             GroupMemberManager.GroupMembers = new ConcurrentDictionary<(long, long), GroupMember>();
             Config.GroupMembers?.ForEach(p =>
@@ -91,7 +86,6 @@ namespace GensouSakuya.QQBot.Core.Base
             });
             ShaDiaoTuManager.GroupShaDiaoTuConfig = Config.GroupShaDiaoTuConfig;
             RepeatManager.GroupRepeatConfig = Config.GroupRepeatConfig;
-            TodayHistoryManager.GroupTodayHistoryConfig = Config.GroupTodayHistoryConfig;
             NewsManager.GroupNewsConfig = Config.GroupNewsConfig;
             HentaiCheckManager.GroupHentaiCheckConfig = Config.GroupHentaiCheckConfig;
             IgnoreManager.GroupIgnore = Config.GroupIgnore;

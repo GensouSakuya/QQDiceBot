@@ -53,6 +53,8 @@ namespace GensouSakuya.QQBot.Core.Handlers
                     _warmupHandlers.Add(handlerType);
                 }
             }
+
+            _chainHandlers = _chainHandlers.OrderBy(p => p.GetCustomAttribute<ChainOrderAttribute>()?.Order ?? int.MaxValue).ToList();
         }
 
         public IMessageCommandHandler GetCommandHandler(IServiceProvider serviceProvider,string command)

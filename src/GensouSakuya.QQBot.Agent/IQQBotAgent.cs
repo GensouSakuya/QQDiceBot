@@ -2,6 +2,6 @@
 {
     public interface IQQBotAgent
     {
-        Task<string> ChatWithAgent(string agentId, string text);
+        Task<string> ChatOneTimeWithAgent(string agentId, string text);
     }
 }

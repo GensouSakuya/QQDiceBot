@@ -55,36 +55,10 @@ namespace GensouSakuya.QQBot.Platform.Onebot
             _qqbotCore = qqbotCore;
         }
 
-        public async Task Start()
-        {
-            _isRunningInContainer = bool.TryParse(_configuration["IsRunningInContainer"], out var result) ? result : _isRunningInContainer;
-            if(_isRunningInContainer)
-            {
-                _containerPathPrefix = _configuration["ContainerPathPrefix"];
-                _volumePathPrefix = _configuration["VolumePathPrefix"];
-                if (!Directory.Exists(_volumePathPrefix))
-                {
-                    Directory.CreateDirectory(_volumePathPrefix);
-                }
-            }
-            await _qqbotCore.Init(new Core.PlatformModel.PlatformApiModel
-            {
-                SendMessage = SendMessage,
-                GetGroupMemberList = GetGroupMemberList,
-            });
-            _offlineScript = _configuration["OfflineRestartScript"];
-            if (!string.IsNullOrWhiteSpace(_offlineScript))
-            {
-                _ = Task.Run(async () => await HeartbeatAsync(_heartbeatCancellationTokenSource.Token));
-            }
-            //var url = "http://localhost:5202";
-            //_webApplication.Run(url);
-            //_logger.LogInformation($"弹幕设置页面:{url}/index.html");
-        }
 
         private async Task SendMessage(Core.PlatformModel.Message m)
         {
-            string deleteFile = null;
+            string? deleteFile = null;
             try
             {
                 if (m.Content.Count == 0)
@@ -104,9 +78,9 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                             //容器部署的话需要将文件拷贝到挂载目录下，并配置路径为容器目录
                             if (_isRunningInContainer)
                             {
-                                var localPath = Path.Combine(_volumePathPrefix, fileName);
+                                var localPath = Path.Combine(_volumePathPrefix!, fileName);
                                 File.Copy(im.ImagePath, localPath);
-                                var containerPath = Path.Combine(_containerPathPrefix, fileName);
+                                var containerPath = Path.Combine(_containerPathPrefix!, fileName);
                                 im.ImagePath = containerPath;
                                 deleteFile = localPath;
                             }
@@ -178,7 +152,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                     {
                         File.Delete(deleteFile);
                     }
-                    catch (Exception e)
+                    catch
                     {
                         //ignore
                     }
@@ -190,10 +164,16 @@ namespace GensouSakuya.QQBot.Platform.Onebot
         {
             command = msg.RawMessage;
             //            command = string.Join(Environment.NewLine, chain);
+            var mes = ConvertMessages(msg.Message, msg.MessageId);
+            return mes;
+        }
+
+        private List<Core.PlatformModel.BaseMessage> ConvertMessages(MessageChain originMessages, long sourceMessageId)
+        {
             var mes = new List<Core.PlatformModel.BaseMessage>();
-            msg.Message.ToList().ForEach(c =>
+            originMessages.ToList().ForEach(c =>
             {
-                Core.PlatformModel.BaseMessage message = null;
+                Core.PlatformModel.BaseMessage? message = null;
                 if (c is ImageMessage im)
                 {
                     message = new Core.PlatformModel.ImageMessage(url: im.Data.Url);
@@ -209,7 +189,7 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                 }
                 else if (c is ReplyMessage qm)
                 {
-                    //ignore
+                    message = new Core.PlatformModel.ReplyMessage(qm.Data.Id);
                 }
                 else if (c is JsonMessage jm)
                 {
@@ -221,18 +201,27 @@ namespace GensouSakuya.QQBot.Platform.Onebot
                 }
                 if (message != null)
                 {
-                    message.Id = msg.MessageId;
+                    message.Id = sourceMessageId;
                     mes.Add(message);
                 }
             });
             return mes;
         }
 
+        private async Task<List<Core.PlatformModel.BaseMessage>?> GetMessageByIdAsync(long id)
+        {
+            var originMessages = await _bot.GetMessage((int)id);
+            if (originMessages == null)
+                return null;
+            var messages = ConvertMessages(originMessages.Message, originMessages.MessageId);
+            return messages;
+        }
+
         private async Task<List<Core.PlatformModel.GroupMemberSourceInfo>> GetGroupMemberList(long groupNo)
         {
             var res = await _bot.GetGroupMemberList(groupNo);
             if (res == null)
-                return null;
+                return Enumerable.Empty<Core.PlatformModel.GroupMemberSourceInfo>().ToList();
             return res.Select(p => new Core.PlatformModel.GroupMemberSourceInfo
             {
                 Card = p.Card,
@@ -336,7 +325,27 @@ namespace GensouSakuya.QQBot.Platform.Onebot
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await Start();
+            _isRunningInContainer = bool.TryParse(_configuration["IsRunningInContainer"], out var result) ? result : _isRunningInContainer;
+            if (_isRunningInContainer)
+            {
+                _containerPathPrefix = _configuration["ContainerPathPrefix"];
+                _volumePathPrefix = _configuration["VolumePathPrefix"];
+                if (!string.IsNullOrWhiteSpace(_volumePathPrefix) && !Directory.Exists(_volumePathPrefix))
+                {
+                    Directory.CreateDirectory(_volumePathPrefix);
+                }
+            }
+            await _qqbotCore.Init(new Core.PlatformModel.PlatformApiModel
+            {
+                SendMessage = SendMessage,
+                GetGroupMemberList = GetGroupMemberList,
+                GetMessageById = GetMessageByIdAsync
+            });
+            _offlineScript = _configuration["OfflineRestartScript"];
+            if (!string.IsNullOrWhiteSpace(_offlineScript))
+            {
+                _ = Task.Run(async () => await HeartbeatAsync(_heartbeatCancellationTokenSource.Token));
+            }
         }
 
         public Task StopAsync(CancellationToken cancellationToken)

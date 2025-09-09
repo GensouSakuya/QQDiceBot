@@ -7,8 +7,6 @@ namespace GensouSakuya.QQBot.Core
 {
     internal class EventCenter
     {
-        public static Action<Log> Log { get; set; }
-
         public static Func<Message, Task> SendMessage { get; set; }
 
         public static Func<long, Task<List<GroupMemberSourceInfo>>> GetGroupMemberList { get; set; }
@@ -16,5 +14,6 @@ namespace GensouSakuya.QQBot.Core
         public static Func<string, string, Task<GuildMemberSourceInfo>> GetGuildMember { get; set; }
 
         public static Func<long, Task<QQSourceInfo>> GetQQInfo { get; set; }
+        public static Func<long, Task<List<BaseMessage>>> GetMessageById { get; set; }
     }
 }

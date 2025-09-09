@@ -43,23 +43,33 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
             return Task.FromResult(true);
         }
 
+        protected virtual Task<string> GetUserText(MessageSource source, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
+        {
+            var message = originMessage.FirstOrDefault(p => p is TextMessage) as TextMessage;
+            if (message == null)
+                return null;
+            return Task.FromResult(message.Text);
+        }
+
         public async Task<bool> NextAsync(MessageSource source, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
         {
             var agentId = _defaultAgentId;
             var overrideAgentId = _configuration.GetSection(Consts.Config.CommanderAgentMapKey).GetValue<string>(_commanderName, null);
             if (!string.IsNullOrWhiteSpace(overrideAgentId))
                 agentId = overrideAgentId;
-            var message = originMessage.FirstOrDefault(p => p is TextMessage) as TextMessage;
-            if (message == null)
+            
+            var text = await GetUserText(source, originMessage, sourceInfo);
+            if (string.IsNullOrWhiteSpace(text))
                 return true;
 
             var messages = new List<BaseMessage>();
             if (!source.IsPrivateSource)
             {
-                var sourceMessageId = (originMessage?.FirstOrDefault() as SourceMessage)?.Id ?? default;
-                messages.Add(new ReplyMessage(sourceInfo.GroupMember.GroupNumber, source.QQNum.Value, sourceMessageId));
+                var sourceMessageId = originMessage?.FirstOrDefault()?.Id ?? default;
+                messages.Add(new ReplyMessage(sourceInfo.GroupMember.GroupNumber, sourceInfo.GroupMember.QQ, sourceMessageId));
+                messages.Add(new AtMessage(sourceInfo.GroupMember.QQ));
             }
-            var response = await _agent.ChatWithAgent(agentId, message.Text);
+            var response = await _agent.ChatOneTimeWithAgent(agentId, text);
             messages.Add(new TextMessage(response));
             MessageManager.SendToSource(source, messages);
             return false;

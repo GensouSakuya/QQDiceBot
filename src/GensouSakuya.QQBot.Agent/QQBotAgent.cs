@@ -18,7 +18,7 @@ namespace GensouSakuya.QQBot.Agent
             _serviceProvider = serviceProvider;
         }
 
-        public async Task<string> ChatWithAgent(string agentId, string text)
+        public async Task<string> ChatOneTimeWithAgent(string agentId, string text)
         {
             var service = _serviceProvider.GetRequiredService<IConversationService>();
             var conversation = new Conversation
@@ -50,9 +50,10 @@ namespace GensouSakuya.QQBot.Agent
             var responseText = string.Empty;
             await conv.SendMessage(agentId, inputMsg,
                 replyMessage: null,
-                async msg =>
+                msg =>
                 {
                     responseText = !string.IsNullOrEmpty(msg.SecondaryContent) ? msg.SecondaryContent : msg.Content;
+                    return Task.CompletedTask;
                 });
 
             return responseText;

@@ -122,6 +122,11 @@ namespace GensouSakuya.QQBot.Core.PlatformModel
             SenderId = senderId ?? default;
             MessageId = messageId ?? default;
         }
+
+        public ReplyMessage(long? messageId)
+        {
+            MessageId = messageId ?? default;
+        }
     }
 
     public class OtherMessage : BaseMessage

@@ -21,7 +21,7 @@ namespace GensouSakuya.QQBot.Core.Commands
         private ConcurrentDictionary<string, string> _notFireAgainList = new ConcurrentDictionary<string, string>();
         private const string TemplateUrl = "https://live.douyin.com/webcast/room/web/enter/?aid=6383&app_name=douyin_web&live_id=1&device_platform=web&language=zh-CN&cookie_enabled=true&screen_width=2048&screen_height=1152&browser_language=zh-CN&browser_platform=Win32&browser_name=Edge&browser_version=119.0.0.0&web_rid={0}";
 
-        public DouyinSubscribeHandler(ILoggerFactory loggerFactory, DataManager dataManager) : base(loggerFactory.CreateLogger<DouyinSubscribeHandler>(), dataManager, () => DataManager.Instance.DouyinSubscribers)
+        public DouyinSubscribeHandler(ILoggerFactory loggerFactory, DataManager dataManager) : base(loggerFactory.CreateLogger<DouyinSubscribeHandler>(), dataManager, () => dataManager.Config.DouyinSubscribers)
         {
         }
 
@@ -62,7 +62,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                             var jdata = jobj["data"]["data"];
                             string title = null;
                             var isStreaming = false;
-                            StreamType type;
+                            //StreamType type;
                             if (jdata.HasValues)
                             {
                                 var status = jobj["data"]["data"][0]["status"].Value<int>();
@@ -71,7 +71,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                                 {
                                     isStreaming = true;
                                 }
-                                type = StreamType.PC;
+                                //type = StreamType.PC;
                             }
                             //else
                             //{

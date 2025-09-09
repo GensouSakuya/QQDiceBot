@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using GensouSakuya.QQBot.Agent;
 using GensouSakuya.QQBot.Core.Base;
 using GensouSakuya.QQBot.Core.Handlers;
-using GensouSakuya.QQBot.Core.Helpers;
 using GensouSakuya.QQBot.Core.Interfaces;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
@@ -13,7 +11,6 @@ using GensouSakuya.QQBot.Core.QQManager;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Serilog;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace GensouSakuya.QQBot.Core
@@ -146,6 +143,7 @@ namespace GensouSakuya.QQBot.Core
                 return;
             EventCenter.SendMessage = api.SendMessage;
             EventCenter.GetGroupMemberList = api.GetGroupMemberList;
+            EventCenter.GetMessageById = api.GetMessageById;
         }
 
         private bool NeedIgnore(MessageSource source)
@@ -153,7 +151,7 @@ namespace GensouSakuya.QQBot.Core
             if(source.Type == MessageSourceType.Group)
             {
                 if(source.GroupIdNum.Value.HasValue && source.QQNum.Value.HasValue 
-                                                    && (DataManager.Instance?.GroupIgnore?.ContainsKey((source.GroupIdNum.Value.Value, source.QQNum.Value.Value)) ?? false))
+                                                    && (_dataManager.Config.GroupIgnore?.ContainsKey((source.GroupIdNum.Value.Value, source.QQNum.Value.Value)) ?? false))
                 {
                     return true;
                 }

@@ -31,12 +31,6 @@ namespace GensouSakuya.QQBot.Core.Model
         public ConcurrentDictionary<long, bool> GroupNewsConfig { get; set; }
         public ConcurrentDictionary<long, bool> GroupHentaiCheckConfig { get; set; }
 
-        public List<string> RuipingSentences { get; set; }
-
-        public ConcurrentDictionary<long, bool> AiEnableConifig { get; set; }
-        public Handlers.AiConfig AiConfig { get; set; }
-
-
         private string _botName = "骰娘";
 
         public string BotName

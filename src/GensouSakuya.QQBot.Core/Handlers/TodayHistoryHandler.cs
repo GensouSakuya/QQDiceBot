@@ -3,63 +3,81 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using GensouSakuya.QQBot.Core.Base;
+using GensouSakuya.QQBot.Core.Interfaces;
 using GensouSakuya.QQBot.Core.Model;
 using GensouSakuya.QQBot.Core.PlatformModel;
+using Microsoft.Extensions.Logging;
 using net.gensousakuya.dice;
 
 namespace GensouSakuya.QQBot.Core.Commands
 {
     [Command("todayhis")]
-    public class TodayHistoryManager : BaseManager
+    public class TodayHistoryHandler : IMessageCommandHandler
     {
-        private static readonly Logger _logger = Logger.GetLogger<TodayHistoryManager>();
+        private readonly ILogger _logger;
+        private readonly DataManager _dataManager;
+        public TodayHistoryHandler(ILogger<TodayHistoryHandler> logger, DataManager dataManager)
+        {
+            _logger = logger;
+            _dataManager = dataManager;
+        }
 
-        public override async System.Threading.Tasks.Task ExecuteAsync(MessageSource source, List<string> command, List<BaseMessage> originMessage, UserInfo qq, Group group, GroupMember member, GuildUserInfo guildUser, GuildMember guildmember)
+        public void UpdateGroupTodayHistoryConfig(long toGroup, bool enable)
+        {
+            if (enable)
+                _dataManager.Config.GroupTodayHistoryConfig.AddOrUpdate(toGroup, enable, (p, q) => enable);
+            else
+                _dataManager.Config.GroupTodayHistoryConfig.TryRemove(toGroup, out _);
+            _dataManager.NoticeConfigUpdated();
+        }
+
+        public async Task<bool> ExecuteAsync(MessageSource source, IEnumerable<string> command, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
         {
             var fromQQ = 0L;
             var toGroup = 0L;
             //var message = "";
             if (source.Type != MessageSourceType.Group)
             {
-                return;
+                return false;
             }
-
+            var member = sourceInfo.GroupMember;
             fromQQ = member.QQ;
             toGroup = member.GroupNumber;
             if (!command.Any())
             {
-                if (!GroupTodayHistoryConfig.TryGetValue(toGroup, out var config))
+                if (!_dataManager.Config.GroupTodayHistoryConfig.TryGetValue(toGroup, out var config))
                 {
                     MessageManager.SendTextMessage(MessageSourceType.Group, "当前群尚未开启历史上的今天功能", fromQQ, toGroup);
-                    return;
+                    return true;
                 }
             }
             else
             {
-                if (command[0].Equals("on", StringComparison.CurrentCultureIgnoreCase))
+                if (command.ElementAt(0).Equals("on", StringComparison.CurrentCultureIgnoreCase))
                 {
                     if (!member.IsGroupAdmin() && !Tools.IsRobotAdmin(fromQQ))
                     {
                         MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限开启历史上的今天功能", fromQQ, toGroup);
-                        return;
+                        return true;
                     }
 
                     UpdateGroupTodayHistoryConfig(toGroup, true);
                     MessageManager.SendTextMessage(MessageSourceType.Group, "历史上的今天功能已开启", fromQQ, toGroup);
-                    return;
+                    return true;
                 }
-                else if (command[0].Equals("off", StringComparison.CurrentCultureIgnoreCase))
+                else if (command.ElementAt(0).Equals("off", StringComparison.CurrentCultureIgnoreCase))
                 {
                     if (!member.IsGroupAdmin() && !Tools.IsRobotAdmin(fromQQ))
                     {
                         MessageManager.SendTextMessage(MessageSourceType.Group, "只有群主或管理员才有权限关闭历史上的今天功能", fromQQ, toGroup);
-                        return;
+                        return true;
                     }
 
                     UpdateGroupTodayHistoryConfig(toGroup, false);
                     MessageManager.SendTextMessage(MessageSourceType.Group, "历史上的今天已关闭", fromQQ, toGroup);
-                    return;
+                    return true;
                 }
             }
 
@@ -70,7 +88,7 @@ namespace GensouSakuya.QQBot.Core.Commands
                 if (!res.IsSuccessStatusCode)
                 {
                     MessageManager.SendTextMessage(source.Type, "请求失败了QAQ", fromQQ, toGroup);
-                    return;
+                    return true;
                 }
 
                 var strContent = await res.Content.ReadAsStringAsync();
@@ -82,10 +100,10 @@ namespace GensouSakuya.QQBot.Core.Commands
                     }
                 });
 
-                if(!(jsonRes?.data?.historyList?.Any() ?? false))
+                if (!(jsonRes?.data?.historyList?.Any() ?? false))
                 {
                     MessageManager.SendTextMessage(source.Type, "没找到数据捏", fromQQ, toGroup);
-                    return;
+                    return true;
                 }
 
                 var news = jsonRes.data.historyList.Take(4).ToList();
@@ -95,34 +113,9 @@ namespace GensouSakuya.QQBot.Core.Commands
                     message.Add($"{n.Event}");
                 });
 
-                MessageManager.SendTextMessage(source.Type, string.Join("\n",message), fromQQ, toGroup);
+                MessageManager.SendTextMessage(source.Type, string.Join("\n", message), fromQQ, toGroup);
             }
-        }
-
-        private static ConcurrentDictionary<long, bool> _groupTodayHistoryConfig = new ConcurrentDictionary<long, bool>();
-        public static ConcurrentDictionary<long, bool> GroupTodayHistoryConfig
-        {
-            get => _groupTodayHistoryConfig;
-            set
-            {
-                if (value == null)
-                {
-                    _groupTodayHistoryConfig = new ConcurrentDictionary<long, bool>();
-                }
-                else
-                {
-                    _groupTodayHistoryConfig = value;
-                }
-            }
-        }
-
-        public void UpdateGroupTodayHistoryConfig(long toGroup, bool enable)
-        {
-            if (enable)
-                GroupTodayHistoryConfig.AddOrUpdate(toGroup, enable, (p, q) => enable);
-            else
-                GroupTodayHistoryConfig.TryRemove(toGroup, out _);
-            DataManager.NoticeConfigUpdatedAction();
+            return true;
         }
 
         public class TodayHistoryModel
