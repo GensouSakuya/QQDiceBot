@@ -41,6 +41,7 @@ namespace GensouSakuya.QQBot.Core.Handlers
                 {
                     var dynamics = await BiliLiveHelper.GetBiliSpaceDynm(room.Key);
                     dynamics = dynamics.Where(p => !p.IsTop).ToList();
+                    _cacheService.Set(Consts.Cache.BilispaceKey, dynamics);
                     Logger.LogDebug("bili dynm get succeed, count: {0}", dynamics.Count);
 
                     var isStart = false;
@@ -90,7 +91,6 @@ namespace GensouSakuya.QQBot.Core.Handlers
                     dynamicQueue.Enqueue(targetDynId);
                     if (dynamicQueue.Count > 20)
                         dynamicQueue.TryDequeue(out _);
-                    _cacheService.Set(Consts.Cache.BilispaceKey, dynamics);
                     var newest = dynamics[targetIndex];
                     var id = newest.Id;
                     var text = newest.Content;
