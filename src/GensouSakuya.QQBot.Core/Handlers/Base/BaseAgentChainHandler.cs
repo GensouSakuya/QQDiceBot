@@ -45,7 +45,7 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
 
         protected virtual Task<string> GetUserText(MessageSource source, List<BaseMessage> originMessage, SourceFullInfo sourceInfo)
         {
-            var message = originMessage.FirstOrDefault(p => p is TextMessage) as TextMessage;
+            var message = originMessage.FirstOrDefault(p => p is TextMessage tm && !string.IsNullOrWhiteSpace(tm.Text)) as TextMessage;
             if (message == null)
                 return null;
             return Task.FromResult(message.Text);
