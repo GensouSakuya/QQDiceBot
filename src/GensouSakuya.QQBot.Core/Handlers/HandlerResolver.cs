@@ -24,7 +24,6 @@ namespace GensouSakuya.QQBot.Core.Handlers
                 .Where(p => p.IsClass && !p.IsAbstract && baseHandlerType.IsAssignableFrom(p));
             foreach (var handlerType in handlerTypes)
             {
-                serviceCollection.AddScoped(handlerType);
                 if (baseCommandHandlerType.IsAssignableFrom(handlerType))
                 {
                     var customCommands = handlerType.GetCustomAttributes<CommandAttribute>().Select(p => p.Command);
@@ -42,15 +41,21 @@ namespace GensouSakuya.QQBot.Core.Handlers
                         var handlerName = handlerClassName.EndsWith(suffix, StringComparison.OrdinalIgnoreCase) ? handlerClassName.Substring(0, handlerClassName.Length - suffix.Length) : handlerClassName;
                         _commandHandlersMap[handlerName.ToLower()] = handlerType;
                     }
+
+                    if (baseBackgroundSubscribeType.IsAssignableFrom(handlerType))
+                    {
+                        serviceCollection.AddSingleton(handlerType);
+                        _warmupHandlers.Add(handlerType);
+                    }
+                    else
+                    {
+                        serviceCollection.AddScoped(handlerType);
+                    }
                 }
                 else if (baseChainHandlerType.IsAssignableFrom(handlerType))
                 {
+                    serviceCollection.AddScoped(handlerType);
                     _chainHandlers.Add(handlerType);
-                }
-
-                if (baseBackgroundSubscribeType.IsAssignableFrom(handlerType))
-                {
-                    _warmupHandlers.Add(handlerType);
                 }
             }
 

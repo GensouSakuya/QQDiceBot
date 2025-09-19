@@ -39,6 +39,7 @@ namespace GensouSakuya.QQBot.Core.Handlers.Base
             try
             {
                 await Task.WhenAny(Task.Delay(StartDelay), CompletionSource.Task);
+                Logger.LogInformation("{0} loop start", this.GetType().Name);
                 while (!token.IsCancellationRequested)
                 {
                     if (CompletionSource.Task.IsCompleted)
