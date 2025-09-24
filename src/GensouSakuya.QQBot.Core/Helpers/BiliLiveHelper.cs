@@ -235,6 +235,11 @@ namespace GensouSakuya.QQBot.Core.Helpers
                 dyn.IsRepost = true;
                 dyn.RepostOrigin = GetDynamicFromJson(item["orig"]);
             }
+            else if(type == "DYNAMIC_TYPE_ARTICLE")
+            {
+                var major = modules["module_dynamic"]["major"];
+                dyn.Content = "投稿了专栏：" + major["opus"]["title"].Value<string>();
+            }
             else
             {
                 return null;
